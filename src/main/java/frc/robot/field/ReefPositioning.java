@@ -113,6 +113,13 @@ public final class ReefPositioning {
         Rotation2d.fromDegrees(180)); // 180
   }
 
+  public static Pose2d getL1PlacePose(int pole) {
+    return rotatePose(
+      getPolePose(new Translation2d(0.99, 0.97), new Translation2d(0, 0), pole),
+      Rotation2d.fromDegrees(180 + (pole % 2 == 0 ? 68.62 : -68.62))
+    );
+  }
+
   public static Pose2d getAlgaePickupPose(int face) {
     return rotatePose(getFacePose(PICKUP_ALGAE_RELATIVE, face), Rotation2d.fromDegrees(180));
   }

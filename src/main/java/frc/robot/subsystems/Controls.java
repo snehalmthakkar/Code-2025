@@ -78,9 +78,19 @@ public class Controls {
                     rumbleBoth()
                         .repeatedly()
                         .alongWith(LEDs.setStateCommand(LEDs.State.AUTO_ALIGN))));
-    driver.y().whileTrue(autograbAlgae(swerveDrive, elevator, manipulator, pieceCombos, autoAlign));
-    driver.start().onTrue(pieceCombos.stow());
-    driver.back().whileTrue(swerveDrive.park());
+    driver.y().whileTrue(autograbAlgae2(swerveDrive, elevator, manipulator, pieceCombos, autoAlign));
+    driver.start().whileTrue(autoAlign.alignToClosestL1Teleop(
+      AutoAlign.PolePattern.LEFT,
+      () -> rumbleBoth()
+        .repeatedly()
+        .alongWith(LEDs.setStateCommand(LEDs.State.AUTO_ALIGN))
+    ));
+    driver.back().whileTrue(autoAlign.alignToClosestL1Teleop(
+      AutoAlign.PolePattern.RIGHT,
+      () -> rumbleBoth()
+        .repeatedly()
+        .alongWith(LEDs.setStateCommand(LEDs.State.AUTO_ALIGN))
+    ));
     driver.leftBumper();
     driver.rightBumper();
     // driver.rightStick().onTrue(pieceCombos.pickupGroundAlgae());
@@ -266,6 +276,57 @@ public class Controls {
           .deadlineFor(
             manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE),
             elevator.ready(),
+            manipulator.grabber.holdAlgae().repeatedly()
+          )
+          .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30))),
+        Commands.runOnce(() -> manipulator.grabber.expectAlgae(true))
+      );
+    }, Set.of(swerveDrive.useRotation(), swerveDrive.useTranslation(), elevator, manipulator));
+  }
+
+  public static Command autograbAlgae2(
+    SwerveDrive swerveDrive,
+    Elevator elevator,
+    Manipulator manipulator,
+    PieceCombos pieceCombos,
+    AutoAlign autoAlign
+  ) {
+    return Commands.defer(() -> {
+      int face = autoAlign.getClosestReefFace(swerveDrive.getEstimatedPose());
+      int level = ReefPositioning.getAlgaeHeight(face);
+
+      return Commands.sequence(
+        Commands.deadline(
+          Commands.sequence(
+            Commands.deadline(
+              manipulator.pivot.stow().until(() -> manipulator.pivot.getAngle().gt(Degrees.of(-10))),
+              elevator.hold(),
+              manipulator.grabber.hold()
+            )
+          ),
+          swerveDrive
+            .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
+            .andThen(swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face)))
+        ),
+        Commands.parallel(
+          swerveDrive.driveTwistToPose(ReefPositioning.getAlgaePickupPose(face)),
+          Commands.sequence(
+            Commands.deadline(
+              (level == 2 ? elevator.algaeL2() : elevator.ready()),
+              manipulator.pivot.stow().andThen(manipulator.pivot.hold()),
+              manipulator.grabber.hold()
+            ),
+            Commands.parallel(
+              manipulator.grabber.intakeAlgae(),
+              manipulator.pivot.algaeReef().andThen(manipulator.pivot.hold()),
+              elevator.hold()
+            )
+          )
+        ).until(manipulator.grabber::hasAlgae),
+        swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face))
+          .deadlineFor(
+            manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE).andThen(manipulator.pivot.hold()),
+            elevator.ready().andThen(elevator.hold()),
             manipulator.grabber.holdAlgae().repeatedly()
           )
           .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30))),
