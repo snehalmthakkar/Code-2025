@@ -1,11 +1,14 @@
 package com.team6962.lib.swerve.movement;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.team6962.lib.swerve.SwerveCore;
 import com.team6962.lib.swerve.module.SwerveModule;
+import com.team6962.lib.utils.MeasureMath;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.measure.Angle;
@@ -95,6 +98,34 @@ public class PreciseDrivePositionMovement implements SwerveMovement {
   @Override
   public void execute(SwerveCore drivetrain) {
     SwerveModulePosition[] targets = getOptimizedPositionTargets(drivetrain.getModulePositions());
+
+    boolean needsSteerAdjustment = false;
+
+    for (int i = 0; i < 4; i++) {
+      SwerveModule module = drivetrain.getModules()[i];
+
+      Angle targetAngle = targets[i].angle.getMeasure();
+      Angle currentAngle = module.getSteerAngle();
+
+      Angle difference = MeasureMath.minAbsDifference(currentAngle, targetAngle);
+
+      if (difference.gt(Degrees.of(5))) {
+        needsSteerAdjustment = true;
+      }
+    }
+
+    if (needsSteerAdjustment) {
+      for (int i = 0; i < 4; i++) {
+        SwerveModule module = drivetrain.getModules()[i];
+        Angle targetAngle = targets[i].angle.getMeasure();
+
+        module.drive(
+          SwerveMovement.motionMagicVelocityVoltage.withVelocity(0),
+          SwerveMovement.motionMagicExpoVoltage.withPosition(targetAngle));
+      }
+
+      return;
+    }
 
     scaleMaxTo1(relativeVelocities);
     abs(relativeVelocities);
