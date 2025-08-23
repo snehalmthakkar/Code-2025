@@ -75,7 +75,7 @@ public class AutoAlign {
                 : ReefPositioning.getCoralPlacePose(pole))
         .andThen(
             swerveDrive
-                .driveTwistToPose(ReefPositioning.getCoralPlacePose(pole))
+                .drivePreciselyTo(ReefPositioning.getCoralPlacePose(pole))
                 .until(
                     () ->
                         endWithinTolerance
@@ -90,7 +90,7 @@ public class AutoAlign {
         .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
         .andThen(
             swerveDrive
-                .driveTwistToPose(ReefPositioning.getAlgaePickupPose(face))
+                .drivePreciselyTo(ReefPositioning.getAlgaePickupPose(face))
                 .until(
                     () ->
                         endWithinTolerance

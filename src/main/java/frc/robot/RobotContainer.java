@@ -13,6 +13,8 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
@@ -146,7 +148,7 @@ public class RobotContainer {
     // return autov3.createSideAutonomous(Side.RIGHT, false);
 
     // 4. Start on the left side of the field, then score 3 coral on the left side.
-    return autov3.createSideAutonomous(Side.LEFT, false);
+    // return autov3.createSideAutonomous(Side.LEFT, false);
 
     // 5. Start in the middle field, score preloaded coral on the back face then
     //    throw the algae on the back face into the barge.
@@ -166,6 +168,9 @@ public class RobotContainer {
 
     // 9. Calibrate wheel size for odometry
     // return swerveDrive.calibrateWheelSize();
+
+    return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)))
+      .andThen(swerveDrive.drivePreciselyTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0))));
   }
 
   public Command getAutonomousCommand() {

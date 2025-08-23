@@ -75,7 +75,7 @@ public class Autonomous {
     return Commands.sequence(
         swerveDrive.pathfindTo(startPose),
         swerveDrive
-            .driveTwistToPose(startPose)
+            .drivePreciselyTo(startPose)
             .withDeadline(
                 Commands.sequence(
                     Commands.waitUntil(
@@ -137,7 +137,7 @@ public class Autonomous {
         CommandUtils.annotate(
             "align to barge",
             swerveDrive
-                .driveTwistToPose(BARGE_THROW_POSE) // Barge throw pose
+                .drivePreciselyTo(BARGE_THROW_POSE) // Barge throw pose
                 .until(
                     () ->
                         swerveDrive.isWithinToleranceOf(
@@ -170,7 +170,7 @@ public class Autonomous {
             CommandUtils.annotate(
                 "twist to align",
                 swerveDrive
-                    .driveTwistToPose(alignPose)
+                    .drivePreciselyTo(alignPose)
                     .until(
                         () ->
                             swerveDrive.isWithinToleranceOf(
@@ -192,7 +192,7 @@ public class Autonomous {
             Commands.deadline(
                 CommandUtils.selectByMode(
                     manipulator.grabber.intakeAlgae(), Commands.waitSeconds(0.5)),
-                swerveDrive.driveTwistToPose(pickupPose),
+                swerveDrive.drivePreciselyTo(pickupPose),
                 elevator.hold(),
                 manipulator.pivot.hold())));
   }
@@ -250,7 +250,7 @@ public class Autonomous {
                     "align",
                     Commands.deadline(
                         swerveDrive
-                            .driveTwistToPose(placePose)
+                            .drivePreciselyTo(placePose)
                             .until(
                                 () ->
                                     swerveDrive.isWithinToleranceOf(
@@ -281,6 +281,6 @@ public class Autonomous {
     Pose2d intakePose = StationPositioning.getIntakePose(coralStation, slot);
 
     return Commands.race(
-        swerveDrive.driveTwistToPose(intakePose).withTimeout(waitTime), pieceCombos.intakeCoral());
+        swerveDrive.drivePreciselyTo(intakePose).withTimeout(waitTime), pieceCombos.intakeCoral());
   }
 }
