@@ -27,17 +27,16 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.constants.Constants.CAN;
-import frc.robot.constants.Constants.SWERVE;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.Autonomous;
-import frc.robot.auto.Autonomous.Side;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
+import frc.robot.constants.Constants.CAN;
+import frc.robot.constants.Constants.SWERVE;
 import frc.robot.subsystems.Controls;
-import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.hang.Hang;
+import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
@@ -169,7 +168,7 @@ public class RobotContainer {
     // 9. Calibrate wheel size for odometry
     // return swerveDrive.calibrateWheelSize();
 
-    return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)))
+    return swerveDrive.driveQuicklyTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)))
       .andThen(swerveDrive.drivePreciselyTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0))));
   }
 

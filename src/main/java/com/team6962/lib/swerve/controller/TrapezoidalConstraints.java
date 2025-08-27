@@ -1,9 +1,5 @@
 package com.team6962.lib.swerve.controller;
 
-import com.team6962.lib.swerve.controller.PositionController.MotionProfile;
-
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
 public class TrapezoidalConstraints {
     private final double maxVelocity;
     private final double maxAcceleration;
@@ -11,12 +7,6 @@ public class TrapezoidalConstraints {
     public TrapezoidalConstraints(double maxVelocity, double maxAcceleration) {
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
-    }
-
-    public MotionProfile createProfile() {
-        return new PositionController.TrapezoidalMotionProfile(
-            new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration)
-        );
     }
 
     @Override

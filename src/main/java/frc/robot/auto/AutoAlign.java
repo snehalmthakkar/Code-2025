@@ -69,35 +69,26 @@ public class AutoAlign {
 
   public Command alignPole(int pole, boolean endWithinTolerance, boolean useAlignPose) {
     return swerveDrive
-        .pathfindTo(
-            useAlignPose
-                ? ReefPositioning.getCoralAlignPose(pole)
-                : ReefPositioning.getCoralPlacePose(pole))
-        .andThen(
-            swerveDrive
-                .drivePreciselyTo(ReefPositioning.getCoralPlacePose(pole))
-                .until(
-                    () ->
-                        endWithinTolerance
-                            && swerveDrive.isWithinToleranceOf(
-                                ReefPositioning.getCoralPlacePose(pole),
-                                Inches.of(1),
-                                Degrees.of(3))));
+            .driveTo(ReefPositioning.getCoralPlacePose(pole))
+            .until(
+                () ->
+                    endWithinTolerance
+                        && swerveDrive.isWithinToleranceOf(
+                            ReefPositioning.getCoralPlacePose(pole),
+                            Inches.of(1),
+                            Degrees.of(3)));
   }
 
   public Command alignFace(int face, boolean endWithinTolerance) {
     return swerveDrive
-        .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
-        .andThen(
-            swerveDrive
-                .drivePreciselyTo(ReefPositioning.getAlgaePickupPose(face))
-                .until(
-                    () ->
-                        endWithinTolerance
-                            && swerveDrive.isWithinToleranceOf(
-                                ReefPositioning.getAlgaePickupPose(face),
-                                Inches.of(1),
-                                Degrees.of(3))));
+              .driveTo(ReefPositioning.getAlgaePickupPose(face))
+              .until(
+                  () ->
+                      endWithinTolerance
+                          && swerveDrive.isWithinToleranceOf(
+                              ReefPositioning.getAlgaePickupPose(face),
+                              Inches.of(1),
+                              Degrees.of(3)));
   }
 
   public Command alignToClosestPoleTeleop(PolePattern pattern, Supplier<Command> rumble) {
