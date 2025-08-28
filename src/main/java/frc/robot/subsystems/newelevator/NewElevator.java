@@ -17,6 +17,7 @@ import com.team6962.lib.utils.CTREUtils;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -81,6 +82,10 @@ public class NewElevator extends SubsystemBase {
     
     @Override
     public void periodic() {
+        if (RobotState.isDisabled()) {
+            startPositionControl(getPosition());
+        }
+
         positionControl = positionControl
             .withLimitForwardMotion(topLimitSwitchTriggered())
             .withLimitReverseMotion(bottomLimitSwitchTriggered());
