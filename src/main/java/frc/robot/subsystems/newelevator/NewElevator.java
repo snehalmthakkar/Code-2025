@@ -27,6 +27,8 @@ public class NewElevator extends SubsystemBase {
     private DigitalInput bottomLimitSwitch;
     private DigitalInput topLimitSwitch;
 
+    private PositionVoltage positionControl;
+
     public NewElevator() {
         leftMotor = new TalonFX(NewElevatorConstants.LEFT_MOTOR_ID); // Replace with actual CAN ID
         rightMotor = new TalonFX(NewElevatorConstants.RIGHT_MOTOR_ID); // Replace with actual CAN ID
@@ -56,18 +58,36 @@ public class NewElevator extends SubsystemBase {
         return MetersPerSecond.of(CTREUtils.unwrap(leftMotor.getVelocity()).in(RotationsPerSecond));
     }
 
-    public Command moveToPosition(Distance position) {
-        return runOnce(() -> {
-            ControlRequest controlRequest = new PositionVoltage(position.in(Meters))
-                .withLimitForwardMotion(false);
+    public boolean topLimitSwitchTriggered() {
+        return topLimitSwitch.get();
+    }
 
-            leftMotor.setControl(controlRequest);
-            rightMotor.setControl(controlRequest);
-        });
+    public boolean bottomLimitSwitchTriggered() {
+        return !bottomLimitSwitch.get();
+    }
+
+    private void startPositionControl(Distance position) {
+        PositionVoltage controlRequest = new PositionVoltage(position.in(Meters))
+            .withLimitForwardMotion(topLimitSwitchTriggered()).withLimitReverseMotion(bottomLimitSwitchTriggered());
+
+        positionControl = controlRequest;
+        leftMotor.setControl(controlRequest);
+        rightMotor.setControl(controlRequest);
+    }
+
+    public Command moveToPosition(Distance position) {
+        return startEnd(() -> startPositionControl(position), () -> startPositionControl(getPosition()));
     }
     
     @Override
     public void periodic() {
+        positionControl = positionControl
+            .withLimitForwardMotion(topLimitSwitchTriggered())
+            .withLimitReverseMotion(bottomLimitSwitchTriggered());
+        
+        leftMotor.setControl(positionControl);
+        rightMotor.setControl(positionControl);
+
         if (!bottomLimitSwitch.get()) {
             leftMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
             rightMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
