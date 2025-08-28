@@ -59,7 +59,6 @@ public class NewElevator extends SubsystemBase {
         Logger.logMeasure("NewElevator/supplyCurrentRight", () -> CTREUtils.unwrap(rightMotor.getSupplyCurrent()));
         Logger.logMeasure("NewElevator/statorCurrentLeft", () -> CTREUtils.unwrap(leftMotor.getStatorCurrent()));
         Logger.logMeasure("NewElevator/statorCurrentRight", () -> CTREUtils.unwrap(rightMotor.getStatorCurrent()));
-        ;
     }
 
     public Distance getPosition() {
