@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.CTREUtils;
 
 import edu.wpi.first.units.measure.Distance;
@@ -49,6 +50,16 @@ public class NewElevator extends SubsystemBase {
 
         talonFXConfiguration.MotorOutput.Inverted = NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE; // Set inversion for left motor
         CTREUtils.check(rightMotor.getConfigurator().apply(talonFXConfiguration));
+
+        Logger.logMeasure("NewElevator/position", this::getPosition);
+        Logger.logMeasure("NewElevator/velocity", this::getVelocity);
+        Logger.logBoolean("NewElevator/topLimitSwitchTriggered", this::topLimitSwitchTriggered);
+        Logger.logBoolean("NewElevator/bottomLimitSwitchTriggered", this::bottomLimitSwitchTriggered);
+        Logger.logMeasure("NewElevator/supplyCurrentLeft", () -> CTREUtils.unwrap(leftMotor.getSupplyCurrent()));
+        Logger.logMeasure("NewElevator/supplyCurrentRight", () -> CTREUtils.unwrap(rightMotor.getSupplyCurrent()));
+        Logger.logMeasure("NewElevator/statorCurrentLeft", () -> CTREUtils.unwrap(leftMotor.getStatorCurrent()));
+        Logger.logMeasure("NewElevator/statorCurrentRight", () -> CTREUtils.unwrap(rightMotor.getStatorCurrent()));
+        ;
     }
 
     public Distance getPosition() {
