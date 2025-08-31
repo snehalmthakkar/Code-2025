@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,7 +26,7 @@ public class RealGrabber extends Grabber {
   private final DigitalInput detectSensor;
   private final DigitalInput clearSensor;
 
-  private Debouncer algaeDebouncer = new Debouncer(0.3);
+  private Debouncer algaeDebouncer = new Debouncer(0.3, DebounceType.kBoth);
 
   private boolean hasCoral = false;
   private boolean coralClear = false;
@@ -124,8 +125,7 @@ public class RealGrabber extends Grabber {
   public Command intakeAlgae() {
     return setDutyCycle(MANIPULATOR.ALGAE_IN_SPEED)
         .until(this::detectedAlgae)
-        .andThen(Commands.print("FINISHED INTAKING"))
-        .finallyDo(() -> expectAlgae(detectedAlgae()));
+        .finallyDo(() -> expectAlgae(true));
   }
 
   @Override
@@ -160,7 +160,7 @@ public class RealGrabber extends Grabber {
   // update this for both game pieces
   @Override
   public Command hold() {
-    return Commands.either(stop(), holdAlgae(), () -> hasCoral() || !hasAlgae()).repeatedly();
+    return Commands.either(runOnce(motor::stopMotor), holdAlgae(), () -> hasCoral() || !hasAlgae()).repeatedly();
   }
 
   public Command stopOnce() {
@@ -173,7 +173,7 @@ public class RealGrabber extends Grabber {
   }
 
   public boolean isStalled() {
-    return Math.abs(motor.get()) > 0.0 && Math.abs(motor.getEncoder().getVelocity()) < 3000;
+    return motor.getOutputCurrent() > 20;
   }
 
   @Override

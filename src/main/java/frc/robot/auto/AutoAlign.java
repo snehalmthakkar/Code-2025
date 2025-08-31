@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -51,6 +52,22 @@ public class AutoAlign {
     return closestPole;
   }
 
+  private int getClosestReefPole(Pose2d  pose, Function<Integer, Pose2d> poseSupplier, PolePattern pattern) {
+    int closestPole = 0;
+    double closestDistance = Double.MAX_VALUE;
+
+    for (int i = pattern.start; i < 12; i += pattern.increment) {
+      Translation2d pole = poseSupplier.apply(i).getTranslation();
+
+      if (pose.getTranslation().getDistance(pole) < closestDistance) {
+        closestPole = i;
+        closestDistance = pose.getTranslation().getDistance(pole);
+      }
+    }
+
+    return closestPole;
+  }
+
   public int getClosestReefFace(Pose2d pose) {
     int closestFace = 0;
     double closestDistance = Double.MAX_VALUE;
@@ -79,6 +96,21 @@ public class AutoAlign {
                             Degrees.of(3)));
   }
 
+  public Command alignL1(int pole, boolean endWithinTolerance) {
+    return swerveDrive
+        .pathfindTo(ReefPositioning.getL1PlacePose(pole))
+        .andThen(
+            swerveDrive
+                .driveTwistToPose(ReefPositioning.getL1PlacePose(pole))
+                .until(
+                    () ->
+                        endWithinTolerance
+                            && swerveDrive.isWithinToleranceOf(
+                                ReefPositioning.getL1PlacePose(pole),
+                                Inches.of(1),
+                                Degrees.of(3))));
+  }
+
   public Command alignFace(int face, boolean endWithinTolerance) {
     return swerveDrive
               .driveTo(ReefPositioning.getAlgaePickupPose(face))
@@ -103,6 +135,23 @@ public class AutoAlign {
                           () ->
                               swerveDrive.isWithinToleranceOf(
                                   polePose, Inches.of(1), Degrees.of(3)))
+                      .andThen(rumble.get()));
+        },
+        Set.of(swerveDrive.useMotion()));
+  }
+
+  public Command alignToClosestL1Teleop(PolePattern pattern, Supplier<Command> rumble) {
+    return Commands.defer(
+        () -> {
+          int pole = getClosestReefPole(swerveDrive.getEstimatedPose(), ReefPositioning::getL1PlacePose, pattern);
+          Pose2d polePose = ReefPositioning.getL1PlacePose(pole);
+
+          return alignL1(pole, false)
+              .alongWith(
+                  Commands.waitUntil(
+                          () ->
+                              swerveDrive.isWithinToleranceOf(
+                                  polePose, Inches.of(1.5), Degrees.of(5)))
                       .andThen(rumble.get()));
         },
         Set.of(swerveDrive.useMotion()));

@@ -411,6 +411,7 @@ public final class Constants {
       public static final Angle REEF_ANGLE = Degrees.of(-51.2);
       public static final Angle GROUND_ANGLE = Degrees.of(-75.0);
       public static final Angle PROCESSOR_ANGLE = Degrees.of(-10.0);
+      public static final Angle HOLD_ANGLE = Degrees.of(-11.5);
     }
 
     public static final NavigableMap<Distance, Angle> MIN_ANGLES;
@@ -435,7 +436,7 @@ public final class Constants {
     public static final Time ALGAE_GRIP_IDLE_TIME = Seconds.of(1.0);
 
     public static final boolean ALGAE_GRIP_CHECK_ENABLED = true;
-    public static final double ALGAE_GRIP_CHECK_SPEED = 0.4;
+    public static final double ALGAE_GRIP_CHECK_SPEED = 0.7;
 
     public static final double ALGAE_OUT_SPEED = -1.0;
     public static final double ALGAE_IN_SPEED = 0.7;
