@@ -64,7 +64,7 @@ public final class SwerveConstants {
                     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign),
                 Amps.of(60)),
             Wheel.BILLET.withDiameter(Inches.of(3.9052667792884215)),
-            new DriveGains(new PIDConstants(1.0, 0.0, 0.2), new PIDConstants(1.0, 0.0, 0.2))
+            new DriveGains(new PIDConstants(0.5, 0.0, 0.1), new PIDConstants(0.25, 0.0, 0.05))
                 .withFineTranslation(new PIDConstants(3.5, 0.0, 1.5))
                 .withFineRotation(new PIDConstants(3.5, 0.0, 1.5)))
         .withMaxDriveSpeed(MetersPerSecond.of(4.5))
