@@ -2,6 +2,7 @@ package com.team6962.lib.swerve;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -635,8 +636,12 @@ public class SwerveDrive extends SwerveCore {
   }
 
   public Command driveTo(Pose2d targetPose, ChassisSpeeds targetSpeeds) {
-    return driveQuicklyTo(targetPose, targetSpeeds)
-      .andThen(drivePreciselyTo(targetPose));
+    return Commands.either(
+      drivePreciselyTo(targetPose),
+      driveQuicklyTo(targetPose, targetSpeeds)
+        .andThen(drivePreciselyTo(targetPose)),
+      () -> isWithinToleranceOf(targetPose, Inches.of(30), Degrees.of(60))
+    );
   }
 
   public Command driveTo(Pose2d targetPose) {
