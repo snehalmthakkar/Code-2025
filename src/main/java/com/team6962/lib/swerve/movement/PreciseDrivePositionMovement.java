@@ -109,7 +109,7 @@ public class PreciseDrivePositionMovement implements SwerveMovement {
 
       Angle difference = MeasureMath.minAbsDifference(currentAngle, targetAngle);
 
-      if (difference.gt(Degrees.of(5))) {
+      if (difference.gt(Degrees.of(10))) {
         needsSteerAdjustment = true;
       }
     }
