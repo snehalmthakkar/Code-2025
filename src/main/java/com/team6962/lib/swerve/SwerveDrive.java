@@ -612,15 +612,15 @@ public class SwerveDrive extends SwerveCore {
   public Command driveQuicklyTo(HolonomicPositionController.State targetState) {
     return new ProfiledDriveCommand(targetState, new HolonomicPositionController(
       new TrapezoidProfile.Constraints(
-        getConstants().maxDriveSpeed().in(MetersPerSecond) * 0.9,
-        getConstants().maxLinearAcceleration().in(MetersPerSecondPerSecond) * 0.9
+        getConstants().maxDriveSpeed().in(MetersPerSecond),
+        getConstants().maxLinearAcceleration().in(MetersPerSecondPerSecond)
       ),
-      new PIDConstraints(10.0, 0.0, 0.5),
+      new PIDConstraints(1.0, 0.0, 0.2),
       new TrapezoidProfile.Constraints(
-        getConstants().maxRotationSpeed().in(RadiansPerSecond) * 0.9,
-        getConstants().maxAngularAcceleration().in(RadiansPerSecondPerSecond) * 0.9
+        getConstants().maxRotationSpeed().in(RadiansPerSecond),
+        getConstants().maxAngularAcceleration().in(RadiansPerSecondPerSecond)
       ),
-      new PIDConstraints(3.5, 0.0, 1.5)
+      new PIDConstraints(1.0, 0.0, 0.2)
     ))
       .deadlineFor(Commands.run(() -> {
         Logger.getField().getObject("Target Pose").setPose(targetState.position);
