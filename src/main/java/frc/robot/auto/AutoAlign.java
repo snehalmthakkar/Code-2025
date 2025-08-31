@@ -101,7 +101,7 @@ public class AutoAlign {
         .pathfindTo(ReefPositioning.getL1PlacePose(pole))
         .andThen(
             swerveDrive
-                .driveTwistToPose(ReefPositioning.getL1PlacePose(pole))
+                .driveTo(ReefPositioning.getL1PlacePose(pole))
                 .until(
                     () ->
                         endWithinTolerance

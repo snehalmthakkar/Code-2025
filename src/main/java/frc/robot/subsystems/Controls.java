@@ -248,7 +248,7 @@ public class Controls {
         Commands.deadline(
           swerveDrive
             .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
-            .andThen(swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face)))
+            .andThen(swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face)))
               .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(10))),
           Commands.sequence(
             Commands.deadline(
@@ -269,10 +269,10 @@ public class Controls {
         Commands.deadline(
           manipulator.grabber.intakeAlgae(),  
           manipulator.pivot.algaeReef().andThen(manipulator.pivot.hold()),
-          swerveDrive.driveTwistToPose(ReefPositioning.getAlgaePickupPose(face)),
+          swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
           elevator.hold()
         ),
-        swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face))
+        swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face))
           .deadlineFor(
             manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE),
             elevator.ready(),
@@ -306,10 +306,10 @@ public class Controls {
           ),
           swerveDrive
             .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
-            .andThen(swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face)))
+            .andThen(swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face)))
         ),
         Commands.parallel(
-          swerveDrive.driveTwistToPose(ReefPositioning.getAlgaePickupPose(face)),
+          swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
           Commands.sequence(
             Commands.deadline(
               (level == 2 ? elevator.algaeL2() : elevator.ready()),
@@ -323,7 +323,7 @@ public class Controls {
             )
           )
         ).until(manipulator.grabber::hasAlgae),
-        swerveDrive.driveTwistToPose(ReefPositioning.getAlgaeAlignPose(face))
+        swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face))
           .deadlineFor(
             manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE).andThen(manipulator.pivot.hold()),
             elevator.ready().andThen(elevator.hold()),
