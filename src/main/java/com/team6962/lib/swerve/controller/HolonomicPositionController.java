@@ -91,7 +91,6 @@ public class HolonomicPositionController implements AutoCloseable {
 
     public boolean isFinished() {
         return xController.isFinished() &&
-            yController.isFinished() &&
             thetaController.isFinished();
     }
 
