@@ -2,6 +2,7 @@ package frc.robot.auto;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Rotation;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -9,7 +10,9 @@ import java.util.function.Supplier;
 
 import com.team6962.lib.swerve.SwerveDrive;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -161,5 +164,17 @@ public class AutoAlign {
     return Commands.defer(
         () -> alignFace(getClosestReefFace(swerveDrive.getEstimatedPose()), false),
         Set.of(swerveDrive.useMotion()));
+  }
+
+  private static double BARGE_X = 7.408452033996582;
+  private static double MIN_BARGE_Y = 4.6;
+  private static double MAX_BARGE_Y = 7.5;
+
+  public Command autoAlignBarge() {
+    return Commands.defer(() -> {
+      Pose2d closestBargePose = new Pose2d(BARGE_X, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), Rotation2d.fromDegrees(0));
+
+      return swerveDrive.driveTo(closestBargePose);
+    }, Set.of(swerveDrive.useMotion()));
   }
 }

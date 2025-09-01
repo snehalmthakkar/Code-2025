@@ -58,7 +58,7 @@ public class Controls {
     // Button to move to left/right reef (dpad left right)
     // Button for aligning to algae on the reef (dpad up)
 
-    driver.a().whileTrue(autoAlign.alignToClosestFaceTeleop());
+    driver.a().whileTrue(autoAlign.autoAlignBarge());
     driver
         .b()
         .whileTrue(
