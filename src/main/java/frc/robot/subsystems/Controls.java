@@ -297,22 +297,19 @@ public class Controls {
 
       return Commands.sequence(
         Commands.deadline(
-          Commands.sequence(
-            Commands.deadline(
-              manipulator.pivot.stow().until(() -> manipulator.pivot.getAngle().gt(Degrees.of(-10))),
-              elevator.hold(),
-              manipulator.grabber.hold()
-            )
+          Commands.deadline(
+            manipulator.pivot.stow().until(() -> manipulator.pivot.getAngle().gt(Degrees.of(-10))),
+            elevator.hold(),
+            manipulator.grabber.hold()
           ),
           swerveDrive
-            .pathfindTo(ReefPositioning.getAlgaeAlignPose(face))
-            .andThen(swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face)))
+            .driveTo(ReefPositioning.getAlgaeAlignPose(face))
         ),
         Commands.parallel(
           swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
           Commands.sequence(
             Commands.deadline(
-              (level == 2 ? elevator.algaeL2() : elevator.ready()),
+              (level == 2 ? elevator.algaeL2() : elevator.algaeL3()),
               manipulator.pivot.stow().andThen(manipulator.pivot.hold()),
               manipulator.grabber.hold()
             ),
