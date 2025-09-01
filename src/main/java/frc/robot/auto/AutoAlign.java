@@ -2,7 +2,6 @@ package frc.robot.auto;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Rotation;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -174,7 +173,7 @@ public class AutoAlign {
     return Commands.defer(() -> {
       Pose2d closestBargePose = new Pose2d(BARGE_X, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), Rotation2d.fromDegrees(0));
 
-      return swerveDrive.driveTo(closestBargePose);
+      return swerveDrive.driveTo(closestBargePose).until(() -> swerveDrive.isWithinToleranceOf(closestBargePose, Inches.of(4), Degrees.of(6)));
     }, Set.of(swerveDrive.useMotion()));
   }
 }

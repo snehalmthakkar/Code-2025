@@ -50,6 +50,7 @@ public class LEDs extends SubsystemBase {
   public static final Color RSL_ORANGE = new Color(255, 100, 0);
   public static final Color LIGHT_BLUE = new Color(173, 216, 230);
   public static final Color YELLOW = new Color(255, 255, 0);
+  public static final Color ORANGE = new Color(150, 255, 0);
   public static final Color CYAN = new Color(0, 255, 255);
   public static final Color DARK_GREEN = new Color(0, 100, 0);
   public static final Color PURPLE = new Color(108, 59, 170);
@@ -118,7 +119,7 @@ public class LEDs extends SubsystemBase {
         apply(createColor(BLUE, ANTARES_BLUE, 1.0, 50.0));
         break;
       case AUTO_ALIGN:
-        apply(createColor(DARK_GREEN, DARK_GREEN, 1.0, 50.0));
+        apply(createColor(ANTARES_YELLOW, ORANGE, 1.0, 50.0));
         break;
       case HAS_CORAL:
         apply(createColor(ANTARES_YELLOW, ANTARES_YELLOW, 1.0, 50.0));
