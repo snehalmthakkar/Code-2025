@@ -24,15 +24,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class NewElevator extends SubsystemBase {
-    private TalonFX leftMotor;
-    private TalonFX rightMotor;
+    protected TalonFX leftMotor;
+    protected TalonFX rightMotor;
 
-    private DigitalInput bottomLimitSwitch;
-    private DigitalInput topLimitSwitch;
+    protected DigitalInput bottomLimitSwitch;
+    protected DigitalInput topLimitSwitch;
 
-    private PositionVoltage positionControl;
+    protected PositionVoltage positionControl;
 
-    private boolean elevatorZeroed = false;
+    protected boolean elevatorZeroed = false;
 
     public NewElevator() {
         leftMotor = new TalonFX(NewElevatorConstants.LEFT_MOTOR_ID); // Replace with actual CAN ID
@@ -85,6 +85,10 @@ public class NewElevator extends SubsystemBase {
         
         PositionVoltage controlRequest = new PositionVoltage(clampedPosition.in(Meters))
             .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
+        
+        System.out.println("Target position: " + position.in(Meters));
+        System.out.println("Measured position: " + getPosition().in(Meters));
+        System.out.println("Clamped position: " + clampedPosition.in(Meters));
 
         positionControl = controlRequest;
         leftMotor.setControl(controlRequest);
@@ -108,7 +112,7 @@ public class NewElevator extends SubsystemBase {
         leftMotor.setControl(positionControl);
         rightMotor.setControl(positionControl);
 
-        if (!bottomLimitSwitch.get()) {
+        if (bottomLimitSwitchTriggered()) {
             leftMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
             rightMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
 

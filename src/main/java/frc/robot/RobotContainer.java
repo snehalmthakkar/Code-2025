@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
@@ -37,6 +38,8 @@ import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.hang.Hang;
 import frc.robot.subsystems.manipulator.Manipulator;
+import frc.robot.subsystems.newelevator.NewElevator;
+import frc.robot.subsystems.newelevator.SimElevator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
@@ -71,6 +74,7 @@ public class RobotContainer {
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
   private final Command autonomousCommand;
+  public final NewElevator newElevator = new SimElevator();
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -134,6 +138,7 @@ public class RobotContainer {
   }
 
   private Command createAutonomousCommand() {
+    return newElevator.moveToPosition(Inches.of(60));
     // AUTO ROUTINES - Uncomment the one you want to run
 
     // 1. Start in the middle of the field, then score 3 coral on the right side.
@@ -146,7 +151,7 @@ public class RobotContainer {
     // return autov3.createSideAutonomous(Side.RIGHT, false);
 
     // 4. Start on the left side of the field, then score 3 coral on the left side.
-    return autov3.createSideAutonomous(Side.LEFT, false);
+    // return autov3.createSideAutonomous(Side.LEFT, false);
 
     // 5. Start in the middle field, score preloaded coral on the back face then
     //    throw the algae on the back face into the barge.

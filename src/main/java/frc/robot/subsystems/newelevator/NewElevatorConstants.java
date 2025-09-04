@@ -2,6 +2,7 @@ package frc.robot.subsystems.newelevator;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -12,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Mass;
 
 public final class NewElevatorConstants {
     private NewElevatorConstants() {
@@ -21,18 +23,20 @@ public final class NewElevatorConstants {
     public static final Distance MIN_HEIGHT = Inches.of(41.50);
     public static final Distance MAX_HEIGHT = Inches.of(70.65);
 
-    public static final double MOTOR_GEAR_REDUCTION = 1.0;
+    public static final Mass ELEVATOR_MASS = Pounds.of(20.0);
+
+    public static final double MOTOR_GEAR_REDUCTION = 4.375;
     public static final Distance SPOOL_DIAMETER = Inches.of(1.0); // change
     public static final double SENSOR_MECHANISM_RATIO = MOTOR_GEAR_REDUCTION / SPOOL_DIAMETER.times(Math.PI).in(Meters); // Adjust if necessary
 
-    public static final int LEFT_MOTOR_ID = 1; // Replace with actual CAN ID
-    public static final int RIGHT_MOTOR_ID = 2; // Replace with actual CAN ID
+    public static final int LEFT_MOTOR_ID = 60; // Replace with actual CAN ID
+    public static final int RIGHT_MOTOR_ID = 61; // Replace with actual CAN ID
 
-    public static final InvertedValue LEFT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive; // Set inversion for left motor
-    public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive; // Set inversion for left motor
+    public static final InvertedValue LEFT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
+    public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            .withKP(0.1) // Replace with actual P value
+            .withKP(10) // Replace with actual P value
             .withKI(0.0) // Replace with actual I value
             .withKD(0.0); // Replace with actual D value
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
@@ -44,6 +48,7 @@ public final class NewElevatorConstants {
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);
 
-    public static final int DIO_FLOOR_PORT = 0; // Replace with actual DIO port
-    public static final int DIO_CEILING_PORT = 0; // Replace with actual DIO port
+    public static final int DIO_FLOOR_PORT = 6; // Replace with actual DIO port
+    public static final int DIO_CEILING_PORT = 7; // Replace with actual DIO port
+    // 6 7
 }
