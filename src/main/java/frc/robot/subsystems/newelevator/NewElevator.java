@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.CTREUtils;
+import com.team6962.lib.utils.MeasureMath;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -30,6 +31,8 @@ public class NewElevator extends SubsystemBase {
     private DigitalInput topLimitSwitch;
 
     private PositionVoltage positionControl;
+
+    private boolean elevatorZeroed = false;
 
     public NewElevator() {
         leftMotor = new TalonFX(NewElevatorConstants.LEFT_MOTOR_ID); // Replace with actual CAN ID
@@ -69,17 +72,19 @@ public class NewElevator extends SubsystemBase {
         return MetersPerSecond.of(CTREUtils.unwrap(leftMotor.getVelocity()).in(RotationsPerSecond));
     }
 
-    public boolean topLimitSwitchTriggered() {
+    protected boolean topLimitSwitchTriggered() {
         return topLimitSwitch.get();
     }
 
-    public boolean bottomLimitSwitchTriggered() {
+    protected boolean bottomLimitSwitchTriggered() {
         return !bottomLimitSwitch.get();
     }
 
     private void startPositionControl(Distance position) {
-        PositionVoltage controlRequest = new PositionVoltage(position.in(Meters))
-            .withLimitForwardMotion(topLimitSwitchTriggered()).withLimitReverseMotion(bottomLimitSwitchTriggered());
+        Distance clampedPosition = MeasureMath.clamp(position, NewElevatorConstants.MIN_HEIGHT, NewElevatorConstants.MAX_HEIGHT);
+        
+        PositionVoltage controlRequest = new PositionVoltage(clampedPosition.in(Meters))
+            .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
 
         positionControl = controlRequest;
         leftMotor.setControl(controlRequest);
@@ -97,7 +102,7 @@ public class NewElevator extends SubsystemBase {
         }
 
         positionControl = positionControl
-            .withLimitForwardMotion(topLimitSwitchTriggered())
+            .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed)
             .withLimitReverseMotion(bottomLimitSwitchTriggered());
         
         leftMotor.setControl(positionControl);
@@ -106,6 +111,8 @@ public class NewElevator extends SubsystemBase {
         if (!bottomLimitSwitch.get()) {
             leftMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
             rightMotor.setPosition(NewElevatorConstants.MIN_HEIGHT.in(Meters));
+
+            elevatorZeroed = true;
         }
     }
 }
