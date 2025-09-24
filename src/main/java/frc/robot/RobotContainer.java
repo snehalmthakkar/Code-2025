@@ -22,6 +22,7 @@ import com.team6962.lib.telemetry.StatusChecks;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -52,6 +53,7 @@ import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
+import frc.robot.vision.CoralDetection;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -72,17 +74,18 @@ public class RobotContainer {
     return instance;
   }
 
-  public final SwerveDrive swerveDrive;
-  public final Manipulator manipulator;
-  public final Elevator elevator;
-  public final Hang hang;
-  public final AutoAlign autoAlign;
-  public final Autonomous autov3;
-  public final Algae algaeDetector;
-  private final LEDs ledStrip;
-  public final PieceCombos pieceCombos;
-  public final SafeSubsystems safeties;
-  private final Command autonomousCommand;
+  // public final SwerveDrive swerveDrive;
+  // public final Manipulator manipulator;
+  // public final Elevator elevator;
+  // public final Hang hang;
+  // public final AutoAlign autoAlign;
+  // public final Autonomous autov3;
+  // public final Algae algaeDetector;
+  // private final LEDs ledStrip;
+  // public final PieceCombos pieceCombos;
+  // public final SafeSubsystems safeties;
+  // private final Command autonomousCommand;
+  private final CoralDetection coralDetection;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -117,21 +120,22 @@ public class RobotContainer {
 
     Logger.logEnabledSystems();
 
-    swerveDrive = new SwerveDrive(SWERVE.CONFIG);
-    ledStrip = new LEDs();
+    // swerveDrive = new SwerveDrive(SWERVE.CONFIG);
+    // ledStrip = new LEDs();
 
-    manipulator = new Manipulator();
-    elevator = Elevator.create();
-    safeties = new SafeSubsystems(elevator, manipulator);
-    pieceCombos = new PieceCombos(elevator, manipulator, safeties);
-    autoAlign = new AutoAlign(swerveDrive);
-    autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
-    algaeDetector = new Algae();
-    hang = Hang.create();
+    // manipulator = new Manipulator();
+    // elevator = Elevator.create();
+    // safeties = new SafeSubsystems(elevator, manipulator);
+    // pieceCombos = new PieceCombos(elevator, manipulator, safeties);
+    // autoAlign = new AutoAlign(swerveDrive);
+    // autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
+    // algaeDetector = new Algae();
+    // hang = Hang.create();
+    coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
 
     // // Configure the trigger bindings
-    Controls.configureBindings(
-        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
+    // Controls.configureBindings(
+    //     swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");
@@ -142,7 +146,7 @@ public class RobotContainer {
 
     Logger.start(Milliseconds.of(20));
 
-    autonomousCommand = createAutonomousCommand();
+    // autonomousCommand = createAutonomousCommand();
   }
 
   private Command createAutonomousCommand() {
@@ -179,11 +183,15 @@ public class RobotContainer {
     // 9. Calibrate wheel size for odometry
     // return swerveDrive.calibrateWheelSize();
 
-    return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)));
+    // return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)));
+
+    return Commands.none();
   }
 
   public Command getAutonomousCommand() {
-    return autonomousCommand;
+    // return autonomousCommand;
+
+    return Commands.none();
   }
 
   public static double getVoltage() {
@@ -199,7 +207,7 @@ public class RobotContainer {
   }
 
   public void latePeriodic() {
-    swerveDrive.latePeriodic();
+    // swerveDrive.latePeriodic();
   }
 
   public void disabledPeriodic() {
