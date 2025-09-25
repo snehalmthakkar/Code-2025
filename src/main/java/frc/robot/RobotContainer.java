@@ -4,15 +4,9 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,11 +19,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -40,7 +31,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.PieceCombos;
@@ -79,17 +69,17 @@ public class RobotContainer {
     return instance;
   }
 
-  // public final SwerveDrive swerveDrive;
-  // public final Manipulator manipulator;
-  // public final Elevator elevator;
-  // public final Hang hang;
-  // public final AutoAlign autoAlign;
-  // public final Autonomous autov3;
-  // public final Algae algaeDetector;
-  // private final LEDs ledStrip;
-  // public final PieceCombos pieceCombos;
-  // public final SafeSubsystems safeties;
-  // private final Command autonomousCommand;
+  public final SwerveDrive swerveDrive;
+  public final Manipulator manipulator;
+  public final Elevator elevator;
+  public final Hang hang;
+  public final AutoAlign autoAlign;
+  public final Autonomous autov3;
+  public final Algae algaeDetector;
+  private final LEDs ledStrip;
+  public final PieceCombos pieceCombos;
+  public final SafeSubsystems safeties;
+  private final Command autonomousCommand;
   private final CoralDetection coralDetection;
   private final TrackingField trackingField;
 
@@ -126,17 +116,17 @@ public class RobotContainer {
 
     Logger.logEnabledSystems();
 
-    // swerveDrive = new SwerveDrive(SWERVE.CONFIG);
-    // ledStrip = new LEDs();
+    swerveDrive = new SwerveDrive(SWERVE.CONFIG);
+    ledStrip = new LEDs();
 
-    // manipulator = new Manipulator();
-    // elevator = Elevator.create();
-    // safeties = new SafeSubsystems(elevator, manipulator);
-    // pieceCombos = new PieceCombos(elevator, manipulator, safeties);
-    // autoAlign = new AutoAlign(swerveDrive);
-    // autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
-    // algaeDetector = new Algae();
-    // hang = Hang.create();
+    manipulator = new Manipulator();
+    elevator = Elevator.create();
+    safeties = new SafeSubsystems(elevator, manipulator);
+    pieceCombos = new PieceCombos(elevator, manipulator, safeties);
+    autoAlign = new AutoAlign(swerveDrive);
+    autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
+    algaeDetector = new Algae();
+    hang = Hang.create();
     coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
     trackingField = TrackingField.createInstance();
     trackingField.startLogging();
@@ -147,8 +137,8 @@ public class RobotContainer {
     ));
 
     // // Configure the trigger bindings
-    // Controls.configureBindings(
-    //     swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
+    Controls.configureBindings(
+        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");
@@ -159,7 +149,7 @@ public class RobotContainer {
 
     Logger.start(Milliseconds.of(20));
 
-    // autonomousCommand = createAutonomousCommand();
+    autonomousCommand = createAutonomousCommand();
   }
 
   private Command createAutonomousCommand() {
@@ -196,15 +186,11 @@ public class RobotContainer {
     // 9. Calibrate wheel size for odometry
     // return swerveDrive.calibrateWheelSize();
 
-    // return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)));
-
-    return Commands.none();
+    return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)));
   }
 
   public Command getAutonomousCommand() {
-    // return autonomousCommand;
-
-    return Commands.none();
+    return autonomousCommand;
   }
 
   public static double getVoltage() {
@@ -220,7 +206,7 @@ public class RobotContainer {
   }
 
   public void latePeriodic() {
-    // swerveDrive.latePeriodic();
+    swerveDrive.latePeriodic();
   }
 
   public void disabledPeriodic() {
