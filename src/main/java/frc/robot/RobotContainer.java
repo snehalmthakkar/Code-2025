@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ import com.team6962.lib.telemetry.StatusChecks;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -54,6 +56,9 @@ import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
 import frc.robot.vision.CoralDetection;
+import frc.robot.vision.field.SimulatedField;
+import frc.robot.vision.field.TrackingField;
+import frc.robot.vision.field.TrackingField.Coral.Orientation;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -86,6 +91,7 @@ public class RobotContainer {
   // public final SafeSubsystems safeties;
   // private final Command autonomousCommand;
   private final CoralDetection coralDetection;
+  private final TrackingField trackingField;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -132,6 +138,13 @@ public class RobotContainer {
     // algaeDetector = new Algae();
     // hang = Hang.create();
     coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
+    trackingField = TrackingField.createInstance();
+    trackingField.startLogging();
+
+    ((SimulatedField) trackingField).setGamePieces(List.of(
+      new TrackingField.Coral().withTranslation(new Translation2d(1, 2)).withOrientation(Orientation.Vertical),
+      new TrackingField.Coral().withTranslation(new Translation2d(7, 4))
+    ));
 
     // // Configure the trigger bindings
     // Controls.configureBindings(
