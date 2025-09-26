@@ -1,15 +1,14 @@
 package frc.robot.subsystems.intake;
 
+import com.team6962.lib.telemetry.Logger;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
 import frc.robot.subsystems.intake.pivot.IntakePivotSim;
 import frc.robot.subsystems.intake.rollers.IntakeRollers;
-import frc.robot.subsystems.intake.rollers.IntakeRollersSim;
 import frc.robot.subsystems.intake.sensor.IntakeSensor;
-import frc.robot.subsystems.intake.sensor.IntakeSensorReal;
-import frc.robot.subsystems.intake.sensor.IntakeSensorSim;
 
 /**
  * The ground coral intake subsystem, which pulls coral off of the ground and
@@ -25,7 +24,7 @@ import frc.robot.subsystems.intake.sensor.IntakeSensorSim;
  * stow() command will raise the pivot to its stowed position, where it won't
  * hit anything.
  * <h3>Getting the Intake's State</h3>
- * The {@link #detectsCoral()} method can be used to check whether the intake
+ * The {@link #coralDetectedInEntry()} method can be used to check whether the intake
  * currently has a piece of coral in it. This is primarily useful in autonomous,
  * where the autonomous code may want to wait until the intake's beam break
  * sensor has detected a piece of coral before driving to score the coral.
@@ -38,21 +37,26 @@ import frc.robot.subsystems.intake.sensor.IntakeSensorSim;
 public class Intake {
     public final IntakeRollers rollers;
     public final IntakePivot pivot;
-    public final IntakeSensor sensor;
+    public final IntakeSensor entrySensor;
+    public final IntakeSensor transferSensor;
 
     /**
      * Creates a new Intake subsystem.
      */
     public Intake() {
         if (RobotBase.isSimulation()) {
-            rollers = new IntakeRollersSim();
             pivot = new IntakePivotSim();
-            sensor = new IntakeSensorSim();
         } else {
-            rollers = new IntakeRollers();
             pivot = new IntakePivot();
-            sensor = new IntakeSensorReal();
         }
+
+        rollers = new IntakeRollers();
+
+        entrySensor = new IntakeSensor(IntakeConstants.entrySensorChannel, IntakeConstants.entrySensorWiring);
+        transferSensor = new IntakeSensor(IntakeConstants.transferSensorChannel, IntakeConstants.transferSensorWiring);
+
+        Logger.logDigitalSensor("Intake/coralDetectedInEntry", entrySensor);
+        Logger.logDigitalSensor("Intake/coralDetectedInTransfer", transferSensor);
     }
 
     /**
@@ -65,15 +69,16 @@ public class Intake {
     public Command intake() {
         Command intakeCommand = Commands.parallel(
             rollers.intake(),
-            pivot.moveToIntake()
+            pivot.deploy()
         ).withDeadline(Commands.sequence(
-            Commands.waitUntil(this::detectsCoral),
-            Commands.waitUntil(() -> !detectsCoral()),
+            Commands.waitUntil(this::coralDetectedInEntry),
+            Commands.waitUntil(this::coralDetectedInTransfer),
+            Commands.waitUntil(() -> !coralDetectedInTransfer()),
             Commands.waitTime(IntakeConstants.delayAfterIntake)
         ));
 
-        if (sensor instanceof IntakeSensorSim) {
-            intakeCommand = intakeCommand.deadlineFor(Commands.waitSeconds(0.25).andThen(sensor::simulateDetection));
+        if (RobotBase.isSimulation()) {
+            intakeCommand = intakeCommand.deadlineFor(Commands.waitSeconds(0.25).andThen(entrySensor::simulateDetection));
         }
 
         return intakeCommand;
@@ -85,7 +90,7 @@ public class Intake {
      * @return the command that stows the intake
      */
     public Command stow() {
-        return pivot.moveToStow();
+        return pivot.stow();
     }
 
     /**
@@ -96,7 +101,11 @@ public class Intake {
      * the coral.
      * @return whether the intake's beam break sensor is detecting coral
      */
-    public boolean detectsCoral() {
-        return sensor.detectsCoral();
+    public boolean coralDetectedInEntry() {
+        return entrySensor.isTriggered();
+    }
+
+    public boolean coralDetectedInTransfer() {
+        return transferSensor.isTriggered();
     }
 }
