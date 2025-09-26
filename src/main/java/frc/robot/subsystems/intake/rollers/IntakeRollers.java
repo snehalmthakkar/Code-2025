@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake.rollers;
 
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -12,6 +13,7 @@ import com.team6962.lib.utils.CTREUtils;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,6 +39,8 @@ public class IntakeRollers extends SubsystemBase {
     private StatusSignal<Current> statorCurrentIn;
     private StatusSignal<Current> supplyCurrentIn;
     private StatusSignal<Voltage> appliedVoltageIn;
+    
+    private Voltage simVoltage;
 
     /**
      * Creates a new IntakeRollers subsystem.
@@ -48,10 +52,14 @@ public class IntakeRollers extends SubsystemBase {
 
         initStatusSignals();
 
-        Logger.logMeasure("GroundCoralRollers/velocity", () -> CTREUtils.unwrap(velocityIn));
-        Logger.logMeasure("GroundCoralRollers/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
-        Logger.logMeasure("GroundCoralRollers/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
-        Logger.logMeasure("GroundCoralRollers/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
+        if (RobotBase.isReal()) {
+            Logger.logMeasure("GroundCoralRollers/velocity", () -> CTREUtils.unwrap(velocityIn));
+            Logger.logMeasure("GroundCoralRollers/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
+            Logger.logMeasure("GroundCoralRollers/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
+            Logger.logMeasure("GroundCoralRollers/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
+        } else {
+            Logger.logMeasure("GroundCoralRollers/appliedVoltage", () -> simVoltage);
+        }
     }
 
     private void initStatusSignals() {
@@ -75,6 +83,10 @@ public class IntakeRollers extends SubsystemBase {
     }
 
     private void setVoltage(Voltage voltage) {
+        if (RobotBase.isSimulation()) {
+            simVoltage = voltage;
+        }
+
         motor.setVoltage(voltage.in(Volts));
     }
 
@@ -91,6 +103,16 @@ public class IntakeRollers extends SubsystemBase {
      */
     public Command intake() {
         return run(IntakeConstants.rollerIntakeVoltage);
+    }
+
+    /**
+     * Returns whether the intake is currently moving. This is determined by
+     * checking if the rollers are spinning at a non-negligible speed.
+     * 
+     * @return whether the intake is currently intaking coral
+     */
+    public boolean isIntaking() {
+        return RobotBase.isSimulation() ? Math.abs(simVoltage.in(Volts)) > 1 : Math.abs(CTREUtils.unwrap(velocityIn).in(RotationsPerSecond)) > 1;
     }
 
     @Override
