@@ -19,6 +19,7 @@ import frc.robot.constants.Constants.DEVICES;
 import frc.robot.constants.Constants.ELEVATOR;
 import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
 import frc.robot.auto.AutoAlign;
+import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.AutoAlign.PolePattern;
 import frc.robot.commands.PieceCombos;
@@ -33,19 +34,32 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 public class Controls {
-  public static final CommandXboxController operator =
+  public final CommandXboxController operator =
       new CommandXboxController(DEVICES.OPERATOR_XBOX_CONTROLLER);
-  public static final CommandXboxController driver =
+  public final CommandXboxController driver =
       new CommandXboxController(DEVICES.DRIVE_XBOX_CONTROLLER);
+  private XBoxSwerve xBoxSwerve;
 
-  public static void configureBindings(
+  public Controls(SwerveDrive swerveDrive) {
+    XboxController driverHID = driver.getHID();
+    xBoxSwerve = new XBoxSwerve(swerveDrive, driverHID);
+
+    swerveDrive.setDefaultCommand(xBoxSwerve);
+  }
+
+  public XBoxSwerve getSwerveController() {
+    return xBoxSwerve;
+  }
+
+  public void configureBindings(
       SwerveDrive swerveDrive,
       Elevator elevator,
       Manipulator manipulator,
       Hang hang,
       AutoAlign autoAlign,
       Autonomous autonomous,
-      PieceCombos pieceCombos) {
+      PieceCombos pieceCombos,
+      AutoPickup autoPickup) {
 
     // Driver
     // Move swerve chassis
@@ -100,7 +114,7 @@ public class Controls {
     ));
     driver.leftBumper();
     driver.rightBumper();
-    // driver.rightStick().onTrue(pieceCombos.pickupGroundAlgae());
+    driver.rightStick().whileTrue(autoPickup.driftToCoral());
     // driver.leftStick().onTrue(pieceCombos.algaeProcessor());
     driver
         .leftStick()
@@ -118,8 +132,6 @@ public class Controls {
 
     Logger.logXBoxController("Controllers/Driver", driverHID);
     Logger.logXBoxController("Controllers/Operator", operatorHID);
-
-    swerveDrive.setDefaultCommand(new XBoxSwerve(swerveDrive, driverHID));
 
     // Operator
     // Button to L2-L4, and Barge Height
@@ -181,7 +193,7 @@ public class Controls {
             );
   }
 
-  private static boolean isNearCoralPole(SwerveDrive swerveDrive, Distance translationTolerance, Angle rotationTolerance, PolePattern pattern) {
+  private boolean isNearCoralPole(SwerveDrive swerveDrive, Distance translationTolerance, Angle rotationTolerance, PolePattern pattern) {
     for (int i = pattern.start; i < 12; i += pattern.increment) {
       Pose2d placePose = ReefPositioning.getCoralPlacePose(i);
 
@@ -193,7 +205,7 @@ public class Controls {
     return false;
   }
 
-  private static Command autoscoreCoral(
+  private Command autoscoreCoral(
       SwerveDrive swerveDrive,
       Elevator elevator,
       Manipulator manipulator,
@@ -240,7 +252,7 @@ public class Controls {
     );
   }
 
-  public static Command autograbAlgae(
+  public Command autograbAlgae(
     SwerveDrive swerveDrive,
     Elevator elevator,
     Manipulator manipulator,
@@ -291,7 +303,7 @@ public class Controls {
     }, Set.of(swerveDrive.useRotation(), swerveDrive.useTranslation(), elevator, manipulator));
   }
 
-  public static Command autograbAlgae2(
+  public Command autograbAlgae2(
     SwerveDrive swerveDrive,
     Elevator elevator,
     Manipulator manipulator,
@@ -339,7 +351,7 @@ public class Controls {
     }, Set.of(swerveDrive.useRotation(), swerveDrive.useTranslation(), elevator, manipulator));
   }
 
-  private static Command rumble(CommandXboxController controller) {
+  private Command rumble(CommandXboxController controller) {
     return Commands.runEnd(
             () -> {
               controller.getHID().setRumble(RumbleType.kBothRumble, 1.0);
@@ -350,7 +362,7 @@ public class Controls {
         .withTimeout(0.25);
   }
 
-  private static Command rumble(CommandXboxController controller, BooleanSupplier booleanSupplier) {
+  private Command rumble(CommandXboxController controller, BooleanSupplier booleanSupplier) {
     return Commands.runEnd(
         () -> {
           if (booleanSupplier.getAsBoolean()) {
@@ -364,27 +376,27 @@ public class Controls {
         });
   }
 
-  public static Command rumbleDriver() {
+  public Command rumbleDriver() {
     return rumble(driver);
   }
 
-  public static Command rumbleDriver(BooleanSupplier booleanSupplier) {
+  public Command rumbleDriver(BooleanSupplier booleanSupplier) {
     return rumble(driver, booleanSupplier);
   }
 
-  public static Command rumbleOperator() {
+  public Command rumbleOperator() {
     return rumble(operator);
   }
 
-  public static Command rumbleOperator(BooleanSupplier booleanSupplier) {
+  public Command rumbleOperator(BooleanSupplier booleanSupplier) {
     return rumble(operator, booleanSupplier);
   }
 
-  public static Command rumbleBoth() {
+  public Command rumbleBoth() {
     return rumbleOperator().alongWith(rumbleDriver());
   }
 
-  public static Command rumbleBoth(BooleanSupplier booleanSupplier) {
+  public Command rumbleBoth(BooleanSupplier booleanSupplier) {
     return rumbleOperator(booleanSupplier).alongWith(rumbleDriver(booleanSupplier));
   }
 }

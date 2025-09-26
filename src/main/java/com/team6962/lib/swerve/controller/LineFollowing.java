@@ -34,6 +34,10 @@ public final class LineFollowing {
             this(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
         }
 
+        public Vector2(Rotation2d rotation) {
+            this(rotation.getCos(), rotation.getSin());
+        }
+
         public double magnitude() {
             return Math.hypot(x, y);
         }
@@ -48,6 +52,22 @@ public final class LineFollowing {
 
         public Vector2 times(double scalar) {
             return new Vector2(this.x * scalar, this.y * scalar);
+        }
+
+        public Vector2 div(double scalar) {
+            return new Vector2(this.x / scalar, this.y / scalar);
+        }
+
+        public Vector2 times(Vector2 other) {
+            return new Vector2(this.x * other.x, this.y * other.y);
+        }
+
+        public Vector2 div(Vector2 other) {
+            return new Vector2(this.x / other.x, this.y / other.y);
+        }
+
+        public Vector2 negate() {
+            return new Vector2(-this.x, -this.y);
         }
 
         public double dot(Vector2 other) {

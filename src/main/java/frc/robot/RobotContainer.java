@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAlign;
+import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
@@ -82,6 +83,8 @@ public class RobotContainer {
   private final Command autonomousCommand;
   private final CoralDetection coralDetection;
   private final TrackingField trackingField;
+  private final AutoPickup autoPickup;
+  private final Controls controls;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -118,6 +121,7 @@ public class RobotContainer {
 
     swerveDrive = new SwerveDrive(SWERVE.CONFIG);
     ledStrip = new LEDs();
+    controls = new Controls(swerveDrive);
 
     manipulator = new Manipulator();
     elevator = Elevator.create();
@@ -130,6 +134,7 @@ public class RobotContainer {
     coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
     trackingField = TrackingField.createInstance();
     trackingField.startLogging();
+    autoPickup = new AutoPickup(swerveDrive, controls.getSwerveController(), trackingField);
 
     ((SimulatedField) trackingField).setGamePieces(List.of(
       new TrackingField.Coral().withTranslation(new Translation2d(1, 2)).withOrientation(Orientation.Vertical),
@@ -137,8 +142,8 @@ public class RobotContainer {
     ));
 
     // // Configure the trigger bindings
-    Controls.configureBindings(
-        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
+    controls.configureBindings(
+        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos, autoPickup);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");

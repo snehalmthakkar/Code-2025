@@ -11,7 +11,8 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Status Checks/Refresh": "Command",
       "/SmartDashboard/Alerts": "Alerts",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/PathPlanner": "Alerts"
     },
     "windows": {
       "/SmartDashboard/Field": {
