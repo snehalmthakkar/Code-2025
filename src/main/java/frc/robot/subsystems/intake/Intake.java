@@ -73,7 +73,7 @@ public class Intake {
                 Commands.waitSeconds(0.25),
                 Commands.runOnce(() -> sensors.simIntakeCoral()),
                 Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> sensors.simTransferCoral())
+                Commands.runOnce(() -> sensors.simIndexCoral())
             ));
         }
 
@@ -114,7 +114,17 @@ public class Intake {
     }
 
     public Command transfer() {
-        return indexer.intake().until(() -> sensors.getCoralLocation() == CoralLocation.OUTSIDE);
+        Command command = indexer.intake()
+            .until(() -> sensors.getCoralLocation() == CoralLocation.OUTSIDE);
+
+        if (RobotBase.isSimulation()) {
+            command = command.deadlineFor(Commands.sequence(
+                Commands.waitSeconds(0.25),
+                Commands.runOnce(() -> sensors.simTransferCoral())
+            ));
+        }
+
+        return command;
     }
 
     public CoralLocation getCoralLocation() {

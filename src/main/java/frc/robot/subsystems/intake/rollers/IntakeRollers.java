@@ -53,12 +53,12 @@ public class IntakeRollers extends SubsystemBase {
         initStatusSignals();
 
         if (RobotBase.isReal()) {
-            Logger.logMeasure("GroundCoralRollers/velocity", () -> CTREUtils.unwrap(velocityIn));
-            Logger.logMeasure("GroundCoralRollers/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
-            Logger.logMeasure("GroundCoralRollers/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
-            Logger.logMeasure("GroundCoralRollers/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
+            Logger.logMeasure("Intake/Rollers/velocity", () -> CTREUtils.unwrap(velocityIn));
+            Logger.logMeasure("Intake/Rollers/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
+            Logger.logMeasure("Intake/Rollers/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
+            Logger.logMeasure("Intake/Rollers/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
         } else {
-            Logger.logMeasure("GroundCoralRollers/appliedVoltage", () -> simVoltage);
+            Logger.logMeasure("Intake/Rollers/appliedVoltage", () -> simVoltage);
         }
     }
 

@@ -89,11 +89,11 @@ public class IntakePivot extends SubsystemBase {
 
         initStatusSignals();
 
-        Logger.logMeasure("IntakePivot/position", this::getPosition);
-        Logger.logMeasure("IntakePivot/velocity", this::getVelocity);
-        Logger.logMeasure("IntakePivot/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
-        Logger.logMeasure("IntakePivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
-        Logger.logMeasure("IntakePivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
+        Logger.logMeasure("Intake/Pivot/position", this::getPosition);
+        Logger.logMeasure("Intake/Pivot/velocity", this::getVelocity);
+        Logger.logMeasure("Intake/Pivot/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
+        Logger.logMeasure("Intake/Pivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
+        Logger.logMeasure("Intake/Pivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
     }
 
     /**

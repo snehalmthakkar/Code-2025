@@ -52,6 +52,11 @@ public class IntakeSensors extends SubsystemBase {
         location = CoralLocation.INTAKE;
     }
 
+    public void simIndexCoral() {
+        if (RobotBase.isReal()) return;
+        location = CoralLocation.INDEXER;
+    }
+
     public void simTransferCoral() {
         if (RobotBase.isReal()) return;
         location = CoralLocation.TRANSFER_TO_MANIPULATOR;
