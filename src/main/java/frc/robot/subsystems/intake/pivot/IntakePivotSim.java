@@ -37,10 +37,10 @@ public class IntakePivotSim extends IntakePivot {
             LinearSystemId.createSingleJointedArmSystem(
                 IntakeConstants.Simulation.pivotMotor,
                 IntakeConstants.Simulation.pivotMomentOfInertia.in(KilogramSquareMeters),
-                IntakeConstants.pivotGearReduction
+                IntakeConstants.pivotSensorToMechanism
             ),
             IntakeConstants.Simulation.pivotMotor,
-            IntakeConstants.pivotGearReduction,
+            IntakeConstants.pivotSensorToMechanism,
             IntakeConstants.Simulation.pivotCenterOfMassDistance.in(Meters),
             IntakeConstants.minPivotAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),
             IntakeConstants.maxPivotAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),

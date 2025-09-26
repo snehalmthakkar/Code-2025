@@ -30,8 +30,8 @@ import frc.robot.subsystems.intake.IntakeConstants;
 /**
  * The intake pivot subsystem, which pivots the ground coral intake up and down.
  * <h3>Controlling the Pivot</h3>
- * The pivot can be controlled with the {@link #moveToIntake()} method and
- * {@link #moveToStow()} method, which return {@link Command Commands}.
+ * The pivot can be controlled with the {@link #deploy()} method and
+ * {@link #stow()} method, which return {@link Command Commands}.
  * <h3>Getting the Pivot's State</h3>
  * The position and velocity of the pivot can be read with the
  * {@link #getPosition()} and {@link #getVelocity()} methods.
@@ -73,7 +73,8 @@ public class IntakePivot extends SubsystemBase {
         TalonFXConfiguration motorConfig = IntakeConstants.pivotMotorConfiguration;
 
         motorConfig.Feedback
-            .withRotorToSensorRatio(IntakeConstants.pivotGearReduction)
+            .withRotorToSensorRatio(IntakeConstants.pivotSensorToMechanism)
+            .withSensorToMechanismRatio(IntakeConstants.pivotSensorToMechanism)
             .withRemoteCANcoder(encoder);
 
         CTREUtils.check(motor.getConfigurator().apply(motorConfig));
@@ -88,11 +89,11 @@ public class IntakePivot extends SubsystemBase {
 
         initStatusSignals();
 
-        Logger.logMeasure("GroundCoralPivot/position", this::getPosition);
-        Logger.logMeasure("GroundCoralPivot/velocity", this::getVelocity);
-        Logger.logMeasure("GroundCoralPivot/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
-        Logger.logMeasure("GroundCoralPivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
-        Logger.logMeasure("GroundCoralPivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
+        Logger.logMeasure("IntakePivot/position", this::getPosition);
+        Logger.logMeasure("IntakePivot/velocity", this::getVelocity);
+        Logger.logMeasure("IntakePivot/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
+        Logger.logMeasure("IntakePivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
+        Logger.logMeasure("IntakePivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
     }
 
     /**
@@ -119,8 +120,12 @@ public class IntakePivot extends SubsystemBase {
      */
     private Command moveTo(Angle targetAngle) {
         return startEnd(
-            () -> setControlWithLimits(createPositionControlRequest(targetAngle)),
-            () -> setControlWithLimits(createPositionControlRequest(getPosition()))
+            () -> setPositionControl(targetAngle),
+            () -> {
+                if (!isNear(targetAngle)) {
+                    setPositionControl(getPosition());
+                }
+            }
         ).until(() -> MeasureMath.minAbsDifference(targetAngle, getPosition()).lt(IntakeConstants.pivotTolerance));
     }
 
@@ -129,7 +134,7 @@ public class IntakePivot extends SubsystemBase {
      * when the target is reached.
      * @return A command that moves the pivot to the intake position.
      */
-    public Command moveToIntake() {
+    public Command deploy() {
         return moveTo(IntakeConstants.pivotIntakeAngle);
     }
 
@@ -138,21 +143,32 @@ public class IntakePivot extends SubsystemBase {
      * when the target is reached.
      * @return A command that moves the pivot to the stow position.
      */
-    public Command moveToStow() {
+    public Command stow() {
         return moveTo(IntakeConstants.pivotStowAngle);
+    }
+
+    /**
+     * Returns whether the pivot is near the specified position, within the
+     * tolerance specified in {@link IntakeConstants#pivotTolerance}.
+     * 
+     * @param position The position to check if the pivot is near to.
+     * @return Whether the pivot is near the specified position.
+     */
+    public boolean isNear(Angle position) {
+        return getPosition().isNear(position, IntakeConstants.pivotTolerance);
     }
 
     @Override
     public void periodic() {
         refreshStatusSignals();
 
-        if (RobotState.isDisabled()) createPositionControlRequest(getPosition());
+        if (RobotState.isDisabled()) setPositionControl(getPosition());
 
         setControlWithLimits(controlRequest);
     }
 
-    private ControlRequest createPositionControlRequest(Angle targetAngle) {
-        return new PositionVoltage(targetAngle.plus(IntakeConstants.centerOfMassAngularOffset));
+    private void setPositionControl(Angle targetAngle) {
+        setControlWithLimits(new PositionVoltage(targetAngle.plus(IntakeConstants.centerOfMassAngularOffset)));
     }
 
     private void setControlWithLimits(ControlRequest request) {
@@ -188,6 +204,7 @@ public class IntakePivot extends SubsystemBase {
         CTREUtils.check(velocityIn.getStatus());
         CTREUtils.check(statorCurrentIn.getStatus());
         CTREUtils.check(supplyCurrentIn.getStatus());
+        CTREUtils.check(appliedVoltageIn.getStatus());
 
         CTREUtils.check(BaseStatusSignal.refreshAll(
             positionIn, velocityIn,
