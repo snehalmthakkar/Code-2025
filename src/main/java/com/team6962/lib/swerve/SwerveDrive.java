@@ -2,10 +2,18 @@ package com.team6962.lib.swerve;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -16,6 +24,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.team6962.lib.swerve.auto.AutoBuilderWrapper;
 import com.team6962.lib.swerve.auto.PathPrecomputing;
+import com.team6962.lib.swerve.controller.HolonomicPositionController;
+import com.team6962.lib.swerve.controller.PIDConstraints;
 import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.swerve.movement.ConstantVoltageMovement;
 import com.team6962.lib.swerve.movement.PreciseDrivePositionMovement;
@@ -24,6 +34,7 @@ import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.CommandUtils;
 import com.team6962.lib.utils.KinematicsUtils;
 import com.team6962.lib.utils.MeasureMath;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,20 +44,19 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * The main class for the swerve drive system. This class extends {@link SwerveCore} to provide the
@@ -549,12 +559,92 @@ public class SwerveDrive extends SwerveCore {
             useMotion()));
   }
 
-  public Command driveTwistToPose(Pose2d targetPose) {
+  public Command drivePreciselyTo(Pose2d targetPose) {
     return driveTwist(() -> getEstimatedPose().log(targetPose))
-        .alongWith(
-            Commands.run(
-                () -> {
-                  Logger.getField().getObject("Target Pose").setPose(targetPose);
-                }));
+      .deadlineFor(Commands.run(() -> {
+        Logger.getField().getObject("Target Pose").setPose(targetPose);
+      }));
+  }
+
+  private class ProfiledDriveCommand extends Command {
+    private final HolonomicPositionController controller;
+    private HolonomicPositionController.State startState;
+    private HolonomicPositionController.State targetState;
+    private double startTime;
+
+    public ProfiledDriveCommand(
+      HolonomicPositionController.State targetState, // TODO: Convert to supplier or make wrapper methods use Commands.defer
+      HolonomicPositionController controller
+    ) {
+      this.targetState = targetState;
+      this.controller = controller;
+    }
+
+    @Override
+    public void initialize() {
+      startState = new HolonomicPositionController.State(getEstimatedPose(), getEstimatedSpeeds());
+      startTime = Timer.getFPGATimestamp();
+    }
+
+    @Override
+    public void execute() {
+      HolonomicPositionController.State currentState =
+          new HolonomicPositionController.State(getEstimatedPose(), getEstimatedSpeeds());
+
+      double time = Timer.getFPGATimestamp() - startTime;
+
+      ChassisSpeeds speeds = controller.calculate(time, startState, targetState, currentState);
+
+      moveFieldRelative(speeds);
+    }
+
+    @Override
+    public boolean isFinished() {
+      return controller.isFinished();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        controller.close();
+    }
+  }
+
+  public Command driveQuicklyTo(HolonomicPositionController.State targetState) {
+    return new ProfiledDriveCommand(targetState, new HolonomicPositionController(
+      new TrapezoidProfile.Constraints(
+        getConstants().maxDriveSpeed().in(MetersPerSecond),
+        getConstants().maxLinearAcceleration().in(MetersPerSecondPerSecond)
+      ),
+      new PIDConstraints(1.0, 0.0, 0.2),
+      new TrapezoidProfile.Constraints(
+        getConstants().maxRotationSpeed().in(RadiansPerSecond),
+        getConstants().maxAngularAcceleration().in(RadiansPerSecondPerSecond)
+      ),
+      new PIDConstraints(1.0, 0.0, 0.2)
+    ))
+      .deadlineFor(Commands.run(() -> {
+        Logger.getField().getObject("Target Pose").setPose(targetState.position);
+      }));
+  }
+
+  public Command driveQuicklyTo(Pose2d targetPose, ChassisSpeeds targetSpeeds) {
+    return driveQuicklyTo(new HolonomicPositionController.State(targetPose, targetSpeeds));
+  }
+
+  public Command driveQuicklyTo(Pose2d targetPose) {
+    return driveQuicklyTo(targetPose, new ChassisSpeeds());
+  }
+
+  public Command driveTo(Pose2d targetPose, ChassisSpeeds targetSpeeds) {
+    return Commands.either(
+      drivePreciselyTo(targetPose),
+      driveQuicklyTo(targetPose, targetSpeeds)
+        .andThen(drivePreciselyTo(targetPose)),
+      () -> isWithinToleranceOf(targetPose, Inches.of(30), Degrees.of(60))
+    );
+  }
+
+  public Command driveTo(Pose2d targetPose) {
+    return driveTo(targetPose, new ChassisSpeeds());
   }
 }

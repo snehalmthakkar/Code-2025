@@ -90,10 +90,16 @@ public class Logger extends SubsystemBase {
     }
   }
 
-  public static void addUpdate(String key, Runnable runnable) {
+  public static Runnable addUpdate(String key, Runnable runnable) {
     synchronized (updates) {
       updates.add(new Updatable(key, runnable));
     }
+
+    return () -> {
+      synchronized (updates) {
+        updates.removeIf(update -> update.key.equals(key));
+      }
+    };
   }
 
   public static Field2d getField() {

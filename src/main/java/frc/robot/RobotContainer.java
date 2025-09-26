@@ -3,9 +3,16 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -13,8 +20,13 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -25,9 +37,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.Autonomous;
-import frc.robot.auto.Autonomous.Side;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
 import frc.robot.constants.Constants.CAN;
@@ -147,7 +159,7 @@ public class RobotContainer {
     // return autov3.createSideAutonomous(Side.RIGHT, false);
 
     // 4. Start on the left side of the field, then score 3 coral on the left side.
-    return autov3.createSideAutonomous(Side.LEFT, false);
+    // return autov3.createSideAutonomous(Side.LEFT, false);
 
     // 5. Start in the middle field, score preloaded coral on the back face then
     //    throw the algae on the back face into the barge.
@@ -167,6 +179,8 @@ public class RobotContainer {
 
     // 9. Calibrate wheel size for odometry
     // return swerveDrive.calibrateWheelSize();
+
+    return swerveDrive.driveTo(new Pose2d(10, 5, Rotation2d.fromDegrees(0)));
   }
 
   public Command getAutonomousCommand() {
