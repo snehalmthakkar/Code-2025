@@ -23,7 +23,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class GroundIntakePivot extends SubsystemBase {
+public class IntakePivot extends SubsystemBase {
     private TalonFX motor;
     private CANcoder encoder;
 
@@ -34,14 +34,15 @@ public class GroundIntakePivot extends SubsystemBase {
 
     private ControlRequest controlRequest;
 
-    public GroundIntakePivot() {
-        motor = new TalonFX(GroundIntakeConstants.motorID, GroundIntakeConstants.canBus);
-        encoder = new CANcoder(GroundIntakeConstants.absoluteEncoderID, GroundIntakeConstants.canBus);
+    public IntakePivot() {
+        motor = new TalonFX(IntakeConstants.pivotMotorID, IntakeConstants.canBus);
+        encoder = new CANcoder(IntakeConstants.absoluteEncoderID, IntakeConstants.canBus);
 
-        TalonFXConfiguration motorConfig = GroundIntakeConstants.motorConfiguration;
+        TalonFXConfiguration motorConfig = IntakeConstants.pivotMotorConfiguration;
 
         motorConfig.Feedback
-            .withRotorToSensorRatio(GroundIntakeConstants.gearReduction)
+            .withRotorToSensorRatio(IntakeConstants.pivotRotorToSensor)
+            .withSensorToMechanismRatio(IntakeConstants.pivotSensorToMechanism)
             .withRemoteCANcoder(encoder);
 
         CTREUtils.check(motor.getConfigurator().apply(motorConfig));
@@ -49,12 +50,13 @@ public class GroundIntakePivot extends SubsystemBase {
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
 
         encoderConfig.MagnetSensor
-            .withSensorDirection(GroundIntakeConstants.absoluteEncoderDirection)
-            .withMagnetOffset(GroundIntakeConstants.absoluteEncoderOffset.plus(GroundIntakeConstants.centerOfMassAngularOffset));
+            .withSensorDirection(IntakeConstants.absoluteEncoderDirection)
+            .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.plus(IntakeConstants.centerOfMassAngularOffset));
         
         CTREUtils.check(encoder.getConfigurator().apply(encoderConfig));
 
-        // Logger.log("GroundCoralIntake/pivotAngle", this::getPosition);
+        Logger.logMeasure("Intake/position", this::getPosition);
+        Logger.logMeasure("Intake/velocity", this::getVelocity);
 
         initStatusSignals();
     }
@@ -91,19 +93,19 @@ public class GroundIntakePivot extends SubsystemBase {
     }
 
     public Angle getPosition() {
-        return CTREUtils.unwrap(positionIn).minus(GroundIntakeConstants.centerOfMassAngularOffset);
+        return CTREUtils.unwrap(positionIn).minus(IntakeConstants.centerOfMassAngularOffset);
     }
 
-    public AngularVelocity getVelcoity() {
+    public AngularVelocity getVelocity() {
         return CTREUtils.unwrap(velocityIn);
     }
 
     private boolean limitReverseMotion() {
-        return getPosition().in(Degrees) <= GroundIntakeConstants.minAngle.in(Degrees);
+        return getPosition().in(Degrees) <= IntakeConstants.minPivotAngle.in(Degrees);
     }
 
     private boolean limitForwardMotion() {
-        return getPosition().in(Degrees) >= GroundIntakeConstants.maxAngle.in(Degrees);
+        return getPosition().in(Degrees) >= IntakeConstants.maxPivotAngle.in(Degrees);
     }
     
     private void applyLimitsToControlRequest(ControlRequest request) {
@@ -118,7 +120,39 @@ public class GroundIntakePivot extends SubsystemBase {
         }
     }
 
-    public Command 
+    private void startPivotingTo(Angle position) {
+        controlRequest = new PositionVoltage(position.plus(IntakeConstants.centerOfMassAngularOffset));
+        applyLimitsToControlRequest(controlRequest);
+        CTREUtils.check(motor.setControl(controlRequest));
+    }
+
+    public Command holdAt(Angle position) {
+        return startEnd(() -> startPivotingTo(position), () -> startPivotingTo(getPosition()));
+    }
+
+    public Command pivotTo(Angle position) {
+        return holdAt(position).until(() -> isNear(position));
+    }
+
+    public boolean isNear(Angle position) {
+        return getPosition().isNear(position, IntakeConstants.pivotTolerance);
+    }
+
+    public Command holdAtStow() {
+        return holdAt(IntakeConstants.pivotStowAngle);
+    }
+
+    public Command pivotToStow() {
+        return pivotTo(IntakeConstants.pivotStowAngle);
+    }
+
+    public Command holdAtIntake() {
+        return holdAt(IntakeConstants.pivotIntakeAngle);
+    }
+
+    public Command pivotToIntake() {
+        return pivotTo(IntakeConstants.pivotIntakeAngle);
+    }
 
     @Override
     public void periodic() {
