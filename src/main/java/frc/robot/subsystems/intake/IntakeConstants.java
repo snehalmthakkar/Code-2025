@@ -26,11 +26,15 @@ public final class IntakeConstants {
     public static final int rollerMotorID = 3;
     public static final String canBus = "rio";
 
-    public static final int sensorChannel = 0;
-    public static final IntakeSensor.Wiring sensorWiring = IntakeSensor.Wiring.NormallyOpen;
+    public static final int entrySensorChannel = 4;
+    public static final IntakeSensor.Wiring entrySensorWiring = IntakeSensor.Wiring.NormallyOpen;
+
+    public static final int transferSensorChannel = 5;
+    public static final IntakeSensor.Wiring transferSensorWiring = IntakeSensor.Wiring.NormallyOpen;
 
     public static final TalonFXConfiguration pivotMotorConfiguration = new TalonFXConfiguration();
-    public static final double pivotGearReduction = 1.0;
+    public static final double pivotSensorToMechanism = 1.0;
+    public static final double pivotRotorToSensor = 1.0;
 
     public static final Angle absoluteEncoderOffset = Degrees.of(0);
     public static final Angle centerOfMassAngularOffset = Degrees.of(0);
@@ -47,7 +51,7 @@ public final class IntakeConstants {
     public static final TalonFXConfiguration rollerMotorConfiguration = new TalonFXConfiguration();
     public static final Voltage rollerIntakeVoltage = Volts.of(12).times(Percent.of(50));
 
-    public static final Time delayAfterIntake = Seconds.of(0.25);
+    public static final Time delayAfterIntake = Seconds.of(0);
 
     public static final class Simulation {
         private Simulation() {}
