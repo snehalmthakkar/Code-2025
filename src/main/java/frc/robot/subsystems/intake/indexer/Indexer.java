@@ -8,6 +8,7 @@ import com.team6962.lib.telemetry.Logger;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.intake.IntakeConstants;
 
 public class Indexer extends SubsystemBase {
     private TalonFX motor;
@@ -15,9 +16,9 @@ public class Indexer extends SubsystemBase {
     private double appliedVoltageVolts;
 
     public Indexer() {
-        motor = new TalonFX(IndexerConstants.motorID, IndexerConstants.canBus);
+        motor = new TalonFX(IntakeConstants.indexerMotorId, IntakeConstants.canBus);
 
-        motor.getConfigurator().apply(IndexerConstants.motorConfiguration);
+        motor.getConfigurator().apply(IntakeConstants.indexerMotorConfiguration);
 
         Logger.logNumber("Intake/indexerVoltageVolts", () -> appliedVoltageVolts);
     }
@@ -35,7 +36,7 @@ public class Indexer extends SubsystemBase {
      * @return A command that runs the indexer motor to intake coral.
      */
     public Command intake() {
-        return startEnd(() -> setVoltage(IndexerConstants.intakeVoltage), () -> setVoltage(Volts.of(0)));
+        return startEnd(() -> setVoltage(IntakeConstants.indexerIntakeVoltage), () -> setVoltage(Volts.of(0)));
     }
 
     /**
@@ -46,14 +47,14 @@ public class Indexer extends SubsystemBase {
      * @return A command that runs the indexer motor to drop coral.
      */
     public Command drop() {
-        return startEnd(() -> setVoltage(IndexerConstants.dropVoltage), () -> setVoltage(Volts.of(0)));
+        return startEnd(() -> setVoltage(IntakeConstants.indexerDropVoltage), () -> setVoltage(Volts.of(0)));
     }
 
     public boolean isDropping() {
-        return (Math.signum(appliedVoltageVolts) == Math.signum(IndexerConstants.dropVoltage.in(Volts))) && Math.abs(appliedVoltageVolts) > 1;
+        return (Math.signum(appliedVoltageVolts) == Math.signum(IntakeConstants.indexerDropVoltage.in(Volts))) && Math.abs(appliedVoltageVolts) > 1;
     }
 
     public boolean isIntaking() {
-        return (Math.signum(appliedVoltageVolts) == Math.signum(IndexerConstants.intakeVoltage.in(Volts))) && Math.abs(appliedVoltageVolts) > 1;
+        return (Math.signum(appliedVoltageVolts) == Math.signum(IntakeConstants.indexerIntakeVoltage.in(Volts))) && Math.abs(appliedVoltageVolts) > 1;
     }
 }
