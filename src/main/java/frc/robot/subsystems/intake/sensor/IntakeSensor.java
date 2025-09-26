@@ -1,21 +1,25 @@
 package frc.robot.subsystems.intake.sensor;
 
-public interface IntakeSensor {
-    public boolean detectsCoral();
-    public void simulateDetection();
+import static edu.wpi.first.units.Units.Seconds;
 
-    public static enum Wiring {
-        NormallyOpen(false),
-        NormallyClosed(true);
+import com.team6962.lib.digitalsensor.DigitalSensor;
 
-        private boolean detectingValue;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.subsystems.intake.IntakeConstants;
 
-        private Wiring(boolean detectingValue) {
-            this.detectingValue = detectingValue;
-        }
+public class IntakeSensor extends DigitalSensor {
+    public IntakeSensor(int channel, DigitalSensor.Wiring wiring) {
+        super(channel, wiring);
+    }
 
-        public boolean getValueWhenDetecting() {
-            return detectingValue;
-        }
+    private double lastDetectionTimestamp;
+
+    @Override
+    public void simulationPeriodic() {
+        setTriggeredInSimulation(Timer.getFPGATimestamp() - lastDetectionTimestamp < IntakeConstants.Simulation.sensorDetectionTime.in(Seconds));
+    }
+
+    public void simulateDetection() {
+        lastDetectionTimestamp = Timer.getFPGATimestamp();
     }
 }
