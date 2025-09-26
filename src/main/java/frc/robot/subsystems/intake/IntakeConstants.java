@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.team6962.lib.digitalsensor.DigitalSensor;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -16,7 +17,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.intake.sensor.IntakeSensor;
 
 public final class IntakeConstants {
     private IntakeConstants() {}
@@ -26,11 +26,8 @@ public final class IntakeConstants {
     public static final int rollerMotorID = 3;
     public static final String canBus = "rio";
 
-    public static final int entrySensorChannel = 4;
-    public static final IntakeSensor.Wiring entrySensorWiring = IntakeSensor.Wiring.NormallyOpen;
-
-    public static final int transferSensorChannel = 5;
-    public static final IntakeSensor.Wiring transferSensorWiring = IntakeSensor.Wiring.NormallyOpen;
+    public static final int intakeSensorChannel = 4;
+    public static final DigitalSensor.Wiring intakeSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
     public static final TalonFXConfiguration pivotMotorConfiguration = new TalonFXConfiguration();
     public static final double pivotSensorToMechanism = 1.0;
@@ -53,6 +50,18 @@ public final class IntakeConstants {
 
     public static final Time delayAfterIntake = Seconds.of(0);
 
+    public static final int indexerMotorId = 8;
+
+    public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration();
+
+    public static final int indexerSensorChannel = 6;
+    public static final DigitalSensor.Wiring indexerSensorWiring = DigitalSensor.Wiring.NormallyOpen;
+
+    public static final Voltage indexerIntakeVoltage = Volts.of(12);
+    public static final Voltage indexerDropVoltage = Volts.of(-12);
+
+    public static final Time indexerDropExtraTime = Seconds.of(0.2);
+
     public static final class Simulation {
         private Simulation() {}
         
@@ -65,6 +74,7 @@ public final class IntakeConstants {
         public static final Distance pivotCenterOfMassDistance = Inches.of(12);
         public static final Angle pivotStartAngle = minPivotAngle;
 
-        public static final Time sensorDetectionTime = Seconds.of(0.125);
+        public static final Time intakeSensorDetectionTime = Seconds.of(0.125);
+        public static final Time indexerSensorDetectionTime = Seconds.of(0.125);
     }
 }

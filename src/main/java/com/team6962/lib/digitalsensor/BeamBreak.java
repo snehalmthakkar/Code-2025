@@ -7,14 +7,13 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class BeamBreak extends DigitalSensor {
     private double simulatedDetectionTime;
+    private double lastDetectionTimestamp;
 
     public BeamBreak(int channel, DigitalSensor.Wiring wiring, Time simulatedDetectionTime) {
         super(channel, wiring);
 
         this.simulatedDetectionTime = simulatedDetectionTime.in(Seconds);
     }
-
-    private double lastDetectionTimestamp;
 
     @Override
     public void simulationPeriodic() {
