@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.studica.frc.AHRS;
+import com.team6962.lib.digitalsensor.DigitalSensor;
 
 import edu.wpi.first.hal.PowerDistributionFaults;
 import edu.wpi.first.hal.can.CANStatus;
@@ -285,6 +286,14 @@ public class Logger extends SubsystemBase {
     for (int i = 0; i < positions.length; i++) {
       log(key + "/" + i, positions[i]);
     }
+  }
+
+  public static void logDigitalSensor(String key, DigitalSensor sensor) {
+    addUpdate(key, () -> log(key, sensor));
+  }
+
+  public static void log(String key, DigitalSensor sensor) {
+    log(key + "/triggered", sensor.isTriggered());
   }
 
   public static void logNavX(String key, Supplier<AHRS> supplier) {
