@@ -21,6 +21,8 @@ import frc.robot.field.Field;
 import frc.robot.util.CachedRobotState;
 import io.limelightvision.LimelightHelpers;
 import io.limelightvision.LimelightHelpers.PoseEstimate;
+import io.limelightvision.LimelightHelpers.RawFiducial;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -177,7 +179,18 @@ public class AprilTags extends SubsystemBase {
         || pose2d.getX() < 0.0
         || pose2d.getY() < 0.0
         || pose2d.getX() > Field.LENGTH
-        || pose2d.getY() > Field.WIDTH;
+        || pose2d.getY() > Field.WIDTH
+        || isHighAmbiguity(poseEstimate);
+  }
+
+  private static boolean isHighAmbiguity(PoseEstimate poseEstimate) {
+    for (RawFiducial fiducial : poseEstimate.rawFiducials) {
+      if (fiducial.ambiguity < 0.2) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private static boolean canChangeHeading(

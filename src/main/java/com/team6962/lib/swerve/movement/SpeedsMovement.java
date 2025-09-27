@@ -6,10 +6,9 @@ import com.team6962.lib.swerve.SwerveCore;
 import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.KinematicsUtils;
-import edu.wpi.first.math.geometry.Pose2d;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
@@ -82,19 +81,17 @@ public class SpeedsMovement implements SwerveMovement {
    */
   private SwerveModuleState[] getStates(SwerveCore drivetrain) {
     if (speeds != null) {
-      Pose2d origin = new Pose2d();
+      ChassisSpeeds outputSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+      
+      Translation2d translation = KinematicsUtils.getTranslation(outputSpeeds);
+      
+      // TODO: Use data from testing to improve this
+      translation = translation.rotateBy(Rotation2d.fromRadians(-outputSpeeds.omegaRadiansPerSecond * 0.142));
 
-      Pose2d relativeTarget =
-          new Pose2d(
-              speeds.vxMetersPerSecond * 0.02,
-              speeds.vyMetersPerSecond * 0.02,
-              Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * 0.02));
+      outputSpeeds =
+          new ChassisSpeeds(translation.getX(), translation.getY(), outputSpeeds.omegaRadiansPerSecond);
 
-      Twist2d twist = origin.log(relativeTarget);
-      ChassisSpeeds adjustedSpeeds =
-          new ChassisSpeeds(twist.dx / 0.02, twist.dy / 0.02, twist.dtheta / 0.02);
-
-      states = drivetrain.getKinematics().toSwerveModuleStates(adjustedSpeeds);
+      states = drivetrain.getKinematics().toSwerveModuleStates(outputSpeeds);
     }
 
     return states;

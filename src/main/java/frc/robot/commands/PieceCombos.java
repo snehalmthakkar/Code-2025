@@ -1,8 +1,7 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import com.team6962.lib.utils.CommandUtils;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -63,7 +62,7 @@ public class PieceCombos {
   public Command readyL3() {
     return safeSubsystems
         .safeMoveCommand(
-            elevator.setHeight(ELEVATOR.AUTO.READY_HEIGHT), manipulator.stow(), Inches.of(53))
+            elevator.setHeight(ELEVATOR.AUTO.READY_HEIGHT), manipulator.stow(), ELEVATOR.AUTO.READY_HEIGHT)
         .withName("READY L3");
   }
 

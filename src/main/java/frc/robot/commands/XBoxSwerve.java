@@ -151,8 +151,8 @@ public class XBoxSwerve extends Command {
       velocity = velocity.plus(povVelocity);
     }
 
-    // Zero heading when Y is pressed
-    if (controller.getYButton()) {
+    // Zero heading when right bumper is pressed
+    if (controller.getRightBumperButton()) {
       swerveDrive.resetHeadingEstimate(Rotation2d.fromDegrees(0));
     }
 
