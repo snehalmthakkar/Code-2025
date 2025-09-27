@@ -17,10 +17,9 @@ public class IntakeSensors extends SubsystemBase {
     private CoralLocation location;
 
     public static enum CoralLocation {
-        OUTSIDE("Outside of Intake/Indexer"),
+        OUTSIDE("Outside of Intake and Indexer"),
         INTAKE("Intake"),
-        EXITING_INTAKE("Exiting Intake"),
-        ENTERING_INDEXER("Entering Indexer"),
+        TRANSFER_TO_INDEXER("Transferring from Intake to Indexer"),
         INDEXER("Indexer"),
         TRANSFER_TO_MANIPULATOR("Transferring to Manipulator");
 
@@ -81,19 +80,15 @@ public class IntakeSensors extends SubsystemBase {
             location = CoralLocation.INTAKE;
         }
 
-        if ((location == CoralLocation.INDEXER || location == CoralLocation.ENTERING_INDEXER) && !intakeSensor.isTriggered() && indexer.isDropping()) {
+        if (location == CoralLocation.INDEXER && !intakeSensor.isTriggered() && indexer.isDropping()) {
             location = CoralLocation.OUTSIDE;
         }
 
         if (location == CoralLocation.INTAKE && !intakeSensor.isTriggered()) {
-            location = CoralLocation.EXITING_INTAKE;
+            location = CoralLocation.TRANSFER_TO_INDEXER;
         }
 
-        if (location == CoralLocation.EXITING_INTAKE && indexerSensor.isTriggered()) {
-            location = CoralLocation.ENTERING_INDEXER;
-        }
-
-        if (location == CoralLocation.ENTERING_INDEXER && !indexerSensor.isTriggered()) {
+        if (location == CoralLocation.TRANSFER_TO_INDEXER && indexerSensor.isTriggered()) {
             location = CoralLocation.INDEXER;
         }
     }

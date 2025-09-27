@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake.indexer;
 
 import static edu.wpi.first.units.Units.Hertz;
-import static edu.wpi.first.units.Units.Value;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -16,6 +15,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeConstants;
 
@@ -28,6 +28,9 @@ public class Indexer extends SubsystemBase {
     private StatusSignal<Voltage> appliedVoltageIn;
     
     private Voltage simVoltage;
+
+    private boolean isIntaking = false;
+    private boolean isDropping = false;
 
     public Indexer() {
         motor = new TalonFX(IntakeConstants.indexerMotorId, IntakeConstants.canBus);
@@ -89,7 +92,10 @@ public class Indexer extends SubsystemBase {
      * @return A command that runs the indexer motor to intake coral.
      */
     public Command intake() {
-        return run(IntakeConstants.indexerIntakeVoltage);
+        return run(IntakeConstants.indexerIntakeVoltage).alongWith(Commands.startEnd(
+            () -> isIntaking = true,
+            () -> isIntaking = false
+        ));
     }
 
     /**
@@ -100,23 +106,18 @@ public class Indexer extends SubsystemBase {
      * @return A command that runs the indexer motor to drop coral.
      */
     public Command drop() {
-        return run(IntakeConstants.indexerDropVoltage);
-    }
-
-    private Voltage getAppliedVoltage() {
-        if (RobotBase.isSimulation()) {
-            return simVoltage;
-        }
-
-        return appliedVoltageIn.getValue();
+        return run(IntakeConstants.indexerDropVoltage).alongWith(Commands.startEnd(
+            () -> isDropping = true,
+            () -> isDropping = false
+        ));
     }
 
     public boolean isDropping() {
-        return getAppliedVoltage().div(IntakeConstants.indexerDropVoltage).in(Value) > 0.5;
+        return isDropping;
     }
 
     public boolean isIntaking() {
-        return getAppliedVoltage().div(IntakeConstants.indexerIntakeVoltage).in(Value) > 0.5;
+        return isIntaking;
     }
 
     @Override
