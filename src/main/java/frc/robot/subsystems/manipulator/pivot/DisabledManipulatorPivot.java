@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class DisabledManipulatorPivot implements ManipulatorPivot {
   @Override
-  public Angle getAngle() {
+  public Angle getPosition() {
     return Radians.of(0);
   }
 
@@ -20,11 +20,6 @@ public class DisabledManipulatorPivot implements ManipulatorPivot {
 
   @Override
   public Command pivotTo(Supplier<Angle> angleSupplier) {
-    return CommandUtils.noneWithRequirements(this);
-  }
-
-  @Override
-  public Command hold() {
     return CommandUtils.noneWithRequirements(this);
   }
 
@@ -89,11 +84,6 @@ public class DisabledManipulatorPivot implements ManipulatorPivot {
   }
 
   @Override
-  public Command stop() {
-    return CommandUtils.noneWithRequirements(this);
-  }
-
-  @Override
   public Command up() {
     return CommandUtils.noneWithRequirements(this);
   }
@@ -104,15 +94,11 @@ public class DisabledManipulatorPivot implements ManipulatorPivot {
   }
 
   @Override
+  public void setMinMaxAngle(Angle min, Angle max) {
+  }
+
+  @Override
   public boolean inRange(Angle angle) {
     return true;
   }
-
-  @Override
-  public boolean doneMoving() {
-    return true;
-  }
-
-  @Override
-  public void setMinMaxAngle(Angle min, Angle max) {}
 }

@@ -28,7 +28,7 @@ public class Manipulator extends SubsystemBase {
   }
 
   public Command intakeCoral() {
-    return Commands.sequence(pivot.coralIntake(), pivot.hold()).withDeadline(grabber.intakeCoral());
+    return pivot.coralIntake().withDeadline(grabber.intakeCoral());
   }
 
   public Command pickupGroundAlgae() {
@@ -53,10 +53,6 @@ public class Manipulator extends SubsystemBase {
 
   public Command stow() {
     return pivot.stow();
-  }
-
-  public Command stop() {
-    return pivot.stop();
   }
 
   public Command test() {

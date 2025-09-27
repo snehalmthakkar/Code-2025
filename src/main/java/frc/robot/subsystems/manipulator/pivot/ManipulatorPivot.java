@@ -7,13 +7,11 @@ import frc.robot.constants.Constants.ENABLED_SYSTEMS;
 import java.util.function.Supplier;
 
 public interface ManipulatorPivot extends Subsystem {
-  public Angle getAngle();
+  public Angle getPosition();
 
   public Command pivotTo(Supplier<Angle> angleSupplier, Angle tolerance);
 
   public Command pivotTo(Supplier<Angle> angleSupplier);
-
-  public Command hold();
 
   public Command coralIntake();
 
@@ -39,13 +37,9 @@ public interface ManipulatorPivot extends Subsystem {
 
   public Command safe();
 
-  public Command stop();
-
   public Command up();
 
   public Command down();
-
-  public boolean doneMoving();
 
   public boolean inRange(Angle angle);
 

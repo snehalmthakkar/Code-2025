@@ -14,16 +14,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants.CAN;
 import frc.robot.constants.Constants.DIO;
-import frc.robot.constants.Constants.ENABLED_SYSTEMS;
 import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
-import frc.robot.constants.Constants.VOLTAGE_LADDER;
-import frc.robot.RobotContainer;
 import frc.robot.util.hardware.motion.PivotController;
-import java.util.Set;
-import java.util.function.Supplier;
 
+@SuppressWarnings("deprecation")
 public class RealManipulatorPivot extends PivotController implements ManipulatorPivot {
-
   public RealManipulatorPivot() {
     super(
         "Manipulator Pivot",
@@ -39,50 +34,6 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
         MANIPULATOR_PIVOT.MAX_ANGLE,
         MANIPULATOR_PIVOT.TOLERANCE,
         MANIPULATOR_PIVOT.INVERTED);
-
-    setDefaultCommand(hold());
-  }
-
-  @Override
-  public Angle getAngle() {
-    return getAbsolutePosition();
-  }
-
-  @Override
-  public void periodic() {
-    if (!ENABLED_SYSTEMS.isManipulatorEnabled()) return;
-    super.periodic();
-    if (RobotContainer.getVoltage() < VOLTAGE_LADDER.MANIPULATOR) {
-      stopMotor();
-      return;
-    }
-  }
-
-  @Override
-  public Command pivotTo(Supplier<Angle> angleSupplier, Angle tolerance) {
-    if (!ENABLED_SYSTEMS.isManipulatorEnabled()) return stop();
-    return run(() -> moveTowards(angleSupplier.get()))
-        .until(() -> this.doneMoving(tolerance))
-        .finallyDo(this::seedEncoder);
-  }
-
-  @Override
-  public Command pivotTo(Supplier<Angle> angleSupplier) {
-    if (!ENABLED_SYSTEMS.isManipulatorEnabled()) return stop();
-    return run(() -> moveTowards(angleSupplier.get()))
-        .until(this::doneMoving)
-        .finallyDo(this::seedEncoder);
-  }
-
-  @Override
-  public Command hold() {
-    return Commands.defer(
-        () -> {
-          Angle position = getRelativePosition();
-
-          return run(() -> moveTowards(position));
-        },
-        Set.of(this));
   }
 
   @Override
@@ -113,7 +64,7 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
   @Override
   public Command algaeBargeSetup() {
     return pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.BARGE.AIM_ANGLE)
-        .until(() -> getAngle().gt(MANIPULATOR_PIVOT.MAX_ANGLE.minus(Degrees.of(1))));
+        .until(() -> getPosition().gt(MANIPULATOR_PIVOT.MAX_ANGLE.minus(Degrees.of(1))));
   }
 
   @Override
@@ -141,13 +92,13 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
     return pivotTo(() -> MANIPULATOR_PIVOT.SAFE_ANGLE, tolerance)
         .until(
             () ->
-                getAbsolutePosition().lt(MANIPULATOR_PIVOT.SAFE_MAX_ANGLE)
-                    && getAbsolutePosition().gt(MANIPULATOR_PIVOT.SAFE_MIN_ANGLE));
+                getPosition().lt(MANIPULATOR_PIVOT.SAFE_MAX_ANGLE)
+                    && getPosition().gt(MANIPULATOR_PIVOT.SAFE_MIN_ANGLE));
   }
 
   @Override
   public boolean inRange(Angle angle) {
-    return getAbsolutePosition().minus(angle).abs(Rotations)
+    return getPosition().minus(angle).abs(Rotations)
         < MANIPULATOR_PIVOT.TOLERANCE.in(Rotations);
   }
 
@@ -168,11 +119,6 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
     return pivotTo(() -> MANIPULATOR_PIVOT.PID_MAX_ANGLE);
   }
 
-  @Override
-  public Command stop() {
-    return run(this::stopMotor);
-  }
-
   public Command calibrate() {
     SysIdRoutine calibrationRoutine =
         new SysIdRoutine(
@@ -190,7 +136,7 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
                 log ->
                     log.motor("manipulator-pivot")
                         .voltage(Volts.of(motor.getAppliedOutput() * motor.getBusVoltage()))
-                        .angularPosition(getRelativePosition())
+                        .angularPosition(getPosition())
                         .angularVelocity(RotationsPerSecond.of(motor.getEncoder().getVelocity())),
                 this));
 

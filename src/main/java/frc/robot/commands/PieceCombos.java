@@ -21,7 +21,7 @@ public class PieceCombos {
   }
 
   public Command hold() {
-    return Commands.parallel(elevator.hold(), manipulator.pivot.hold());
+    return elevator.hold();
   }
 
   public Command intakeCoral() {
@@ -134,7 +134,7 @@ public class PieceCombos {
   }
 
   public Command holdCoral() {
-    return Commands.parallel(manipulator.pivot.hold(), elevator.hold());
+    return elevator.hold();
   }
 
   public Command intakeAlgaeOrShootCoral() {

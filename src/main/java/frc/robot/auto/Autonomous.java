@@ -88,10 +88,7 @@ public class Autonomous {
     return Commands.sequence(
         swerveDrive
             .followChoreoPath("side-place-0-" + side.id + (startInMiddle ? "-middle" : ""))
-            .deadlineFor(
-                Commands.parallel(
-                    elevator.ready().repeatedly(),
-                    manipulator.pivot.hold())),
+            .deadlineFor(elevator.ready().repeatedly()),
         placeCoral(new CoralPosition(side == Side.LEFT ? 1 : 10, 4)),
         swerveDrive
             .followChoreoPath("side-intake-1-" + side.id)
@@ -118,10 +115,7 @@ public class Autonomous {
     return Commands.sequence(
         Commands.waitSeconds(1),
         CommandUtils.annotate("middle-coral-place", swerveDrive.followChoreoPath("middle-coral-place"))
-            .deadlineFor(
-                Commands.parallel(
-                    elevator.ready().repeatedly(),
-                    manipulator.pivot.hold())),
+            .deadlineFor(elevator.ready().repeatedly()),
         CommandUtils.annotate("place coral", placeCoral(new CoralPosition(0, 4))),
         CommandUtils.annotate(
             "safe manipulator pivot",
@@ -129,9 +123,7 @@ public class Autonomous {
                 manipulator.pivot.safe(), elevator.hold())),
         CommandUtils.annotate("pickup algae", pickupAlgae(0)),
         CommandUtils.annotate("middle-algae-place", swerveDrive.followChoreoPath("middle-algae-place"))
-            .deadlineFor(
-                Commands.parallel(
-                    elevator.hold(), manipulator.pivot.hold())),
+            .deadlineFor(elevator.hold()),
         CommandUtils.annotate(
             "align to barge",
             swerveDrive
@@ -174,8 +166,7 @@ public class Autonomous {
             CommandUtils.annotate(
                 "elevator to algae l2",
                 CommandUtils.selectByMode(
-                    Commands.deadline(
-                        elevator.algaeL2(), manipulator.pivot.hold()),
+                    elevator.algaeL2(),
                     Commands.waitSeconds(0.5)))),
         CommandUtils.annotate(
             "manipulator to algae l2",
@@ -188,15 +179,15 @@ public class Autonomous {
                 CommandUtils.selectByMode(
                     manipulator.grabber.intakeAlgae(), Commands.waitSeconds(0.5)),
                 swerveDrive.drivePreciselyTo(pickupPose),
-                elevator.hold(),
-                manipulator.pivot.hold())));
+                elevator.hold()
+            )));
   }
 
   private Command intakeThenRaiseElevator() {
     return Commands.sequence(
         pieceCombos.intakeCoral(),
-        Commands.parallel(
-            elevator.ready().repeatedly(), manipulator.pivot.hold()));
+        elevator.ready().andThen(elevator.hold())
+    );
   }
 
   public Command placeCoral(CoralPosition position) {
@@ -261,7 +252,7 @@ public class Autonomous {
                     manipulator
                         .grabber
                         .dropCoral()
-                        .deadlineFor(manipulator.pivot.hold(), elevator.hold())),
+                        .deadlineFor(elevator.hold())),
                 // Stow the pivot
                 CommandUtils.annotate(
                     "stow pivot",
