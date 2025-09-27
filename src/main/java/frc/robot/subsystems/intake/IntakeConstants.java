@@ -50,10 +50,10 @@ public final class IntakeConstants {
     public static final Angle centerOfMassAngularOffset = Degrees.of(0);
     public static final SensorDirectionValue absoluteEncoderDirection = SensorDirectionValue.CounterClockwise_Positive;
 
-    public static final Angle pivotMinAngle = Degrees.of(0);
+    public static final Angle pivotMinAngle = Degrees.of(-30);
     public static final Angle pivotMaxAngle = Degrees.of(90);
 
-    public static final Angle pivotIntakeAngle = Degrees.of(5);
+    public static final Angle pivotIntakeAngle = Degrees.of(-30);
     public static final Angle pivotStowAngle = Degrees.of(85);
 
     public static final Angle pivotTolerance = Degrees.of(2);

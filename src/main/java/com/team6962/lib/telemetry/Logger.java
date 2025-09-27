@@ -28,7 +28,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Measure;
@@ -46,7 +45,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.ENABLED_SYSTEMS;
@@ -56,7 +54,6 @@ public class Logger extends SubsystemBase {
   private static List<Updatable> updates = new LinkedList<>();
   private static Notifier notifier = new Notifier(Logger::update);
   private static Field2d field2d = new Field2d();
-  private static Mechanism2d mechanism2d = new Mechanism2d(70, 100);
   private static double threadLastPing = Timer.getFPGATimestamp();
 
   private static record Updatable(String key, Runnable runnable) {
@@ -79,7 +76,7 @@ public class Logger extends SubsystemBase {
     System.out.println("Starting periodic");
     notifier.startPeriodic(period.in(Seconds));
     SmartDashboard.putData(field2d);
-    SmartDashboard.putData("Robot", mechanism2d);
+    MechanismLogger.start();
 
     new Logger();
   }
@@ -109,10 +106,6 @@ public class Logger extends SubsystemBase {
 
   public static Field2d getField() {
     return field2d;
-  }
-
-  public static Mechanism2d getMechanism() {
-    return mechanism2d;
   }
 
   public static void logBoolean(String key, Supplier<Boolean> supplier) {

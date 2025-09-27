@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.team6962.lib.telemetry.Logger;
+import com.team6962.lib.telemetry.MechanismLogger;
 import com.team6962.lib.utils.CTREUtils;
 import com.team6962.lib.utils.MeasureMath;
 
@@ -23,7 +24,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,7 +66,6 @@ public class IntakePivot extends SubsystemBase {
 
     private ControlRequest controlRequest;
     private Angle targetPosition;
-    private MechanismLigament2d ligament;
 
     /**
      * Creates a new IntakePivot.
@@ -101,14 +100,12 @@ public class IntakePivot extends SubsystemBase {
         Logger.logMeasure("Intake/Pivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
         Logger.logMeasure("Intake/Pivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
 
-        Mechanism2d mechanism2d = Logger.getMechanism();
-        MechanismRoot2d root = mechanism2d.getRoot("Intake", 50, 5);
-
-        ligament = new MechanismLigament2d("Intake Pivot", 15, getPosition().in(Degrees));
+        MechanismRoot2d root = MechanismLogger.getRoot("Intake", 13.0, 7.8);
+        MechanismLigament2d ligament = MechanismLogger.getLigament("Intake Pivot", 14.4, getPosition().in(Degrees));
 
         root.append(ligament);
 
-        Logger.addUpdate("Intake/Pivot/Mechanism2d", () -> ligament.setAngle(getPosition().in(Degrees)));
+        MechanismLogger.addDynamicAngle(ligament, this::getPosition);
     }
 
     /**
