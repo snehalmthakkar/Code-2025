@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.team6962.lib.digitalsensor.DigitalSensor;
 
@@ -36,7 +37,11 @@ public final class IntakeConstants {
     public static final TalonFXConfiguration pivotMotorConfiguration = new TalonFXConfiguration()
         .withSlot0(
             new Slot0Configs()
-                .withKP(500)
+                .withKP(100)
+                .withKV(6.70)
+                .withKA(0.04)
+                .withKG(0.24)
+                .withGravityType(GravityTypeValue.Arm_Cosine)
         );
     public static final double pivotSensorToMechanism = 24.0;
     public static final double pivotRotorToSensor = 2.25;
