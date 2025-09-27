@@ -35,6 +35,7 @@ import frc.robot.constants.Constants.SWERVE;
 import frc.robot.subsystems.Controls;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.hang.Hang;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.subsystems.newelevator.NewElevator;
@@ -74,6 +75,7 @@ public class RobotContainer {
   public final SafeSubsystems safeties;
   private final Command autonomousCommand;
   public final NewElevator newElevator = new SimElevator();
+  private final Intake intake;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -119,10 +121,11 @@ public class RobotContainer {
     autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
     algaeDetector = new Algae();
     hang = Hang.create();
+    intake = new Intake(manipulator.grabber);
 
     // // Configure the trigger bindings
     Controls.configureBindings(
-        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos);
+        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos, intake);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");

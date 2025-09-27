@@ -27,6 +27,7 @@ import frc.robot.field.ReefPositioning;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.hang.Hang;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 
 import java.util.Set;
@@ -45,7 +46,8 @@ public class Controls {
       Hang hang,
       AutoAlign autoAlign,
       Autonomous autonomous,
-      PieceCombos pieceCombos) {
+      PieceCombos pieceCombos,
+      Intake intake) {
 
     // Driver
     // Move swerve chassis
@@ -98,13 +100,11 @@ public class Controls {
         .repeatedly()
         .alongWith(LEDs.setStateCommand(LEDs.State.AUTO_ALIGN))
     ));
-    driver.leftBumper();
-    driver.rightBumper();
-    // driver.rightStick().onTrue(pieceCombos.pickupGroundAlgae());
-    // driver.leftStick().onTrue(pieceCombos.algaeProcessor());
-    driver
-        .leftStick()
-        .onTrue(pieceCombos.algaeProcessor()); // TODO: Change to whileTrue() before test
+    driver.leftBumper().onTrue(intake.drop());
+    driver.rightBumper().onTrue(intake.intake());
+    driver.rightStick().onTrue(intake.transfer().withDeadline(manipulator.intakeCoral()));
+    driver.leftStick();
+
     driver.povCenter(); // USED
     driver.povUp(); // USED
     driver.povDown(); // USED

@@ -11,7 +11,10 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Status Checks/Refresh": "Command",
       "/SmartDashboard/Alerts": "Alerts",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Mechanisms": "Mechanism2d",
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/Robot": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Field": {
@@ -98,12 +101,16 @@
           "width": 0.7620000243186951
         },
         "bottom": 1638,
-        "builtin": "2025 Reefscape",
         "height": 8.051901817321777,
         "left": 534,
         "right": 3466,
         "top": 291,
         "width": 17.54825210571289,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Robot": {
         "window": {
           "visible": true
         }
