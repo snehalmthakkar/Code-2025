@@ -86,7 +86,7 @@ public class AutoAlign {
     return closestFace;
   }
 
-  public Command alignPole(int pole, boolean endWithinTolerance, boolean useAlignPose) {
+  public Command alignPole(int pole, boolean endWithinTolerance) {
     return swerveDrive
             .driveTo(ReefPositioning.getCoralPlacePose(pole))
             .until(
@@ -131,7 +131,7 @@ public class AutoAlign {
           int pole = getClosestReefPole(swerveDrive.getEstimatedPose(), pattern);
           Pose2d polePose = ReefPositioning.getCoralPlacePose(pole);
 
-          return alignPole(pole, false, false)
+          return alignPole(pole, false)
               .alongWith(
                   Commands.waitUntil(
                           () ->

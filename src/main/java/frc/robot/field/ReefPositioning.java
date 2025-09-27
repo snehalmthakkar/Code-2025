@@ -161,11 +161,24 @@ public final class ReefPositioning {
       this.level = level;
     }
 
+    public CoralPosition reflectedIf(boolean shouldReflect) {
+      if (shouldReflect) {
+        return new CoralPosition(11 - pole, level);
+      } else {
+        return this;
+      }
+    }
+
     @Override
     public boolean equals(Object obj) {
       return obj instanceof CoralPosition
           && ((CoralPosition) obj).pole == pole
           && ((CoralPosition) obj).level == level;
+    }
+
+    @Override
+    public String toString() {
+      return "P" + pole + "L" + level;
     }
   }
 }

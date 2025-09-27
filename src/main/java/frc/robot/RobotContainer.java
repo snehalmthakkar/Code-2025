@@ -33,10 +33,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
+import frc.robot.auto.GroundAuto;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
 import frc.robot.constants.Constants.CAN;
 import frc.robot.constants.Constants.SWERVE;
+import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.Controls;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -76,16 +79,17 @@ public class RobotContainer {
   public final Elevator elevator;
   public final AutoAlign autoAlign;
   public final Autonomous autov3;
+  public final GroundAuto groundAuto;
   public final Algae algaeDetector;
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
-  private final Command autonomousCommand;
+  public final Command autonomousCommand;
   public final NewElevator newElevator = new SimElevator();
-  private final Intake intake;
-  private final CoralDetection coralDetection;
-  private final TrackingField trackingField;
-  private final AutoPickup autoPickup;
-  private final Controls controls;
+  public final Intake intake;
+  public final CoralDetection coralDetection;
+  public final TrackingField trackingField;
+  public final AutoPickup autoPickup;
+  public final Controls controls;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -137,6 +141,7 @@ public class RobotContainer {
     trackingField = TrackingField.createInstance();
     trackingField.startLogging();
     autoPickup = new AutoPickup(swerveDrive, controls.getSwerveController(), trackingField);
+    groundAuto = new GroundAuto(this);
 
     ((SimulatedField) trackingField).setGamePieces(List.of(
       new TrackingField.Coral().withTranslation(new Translation2d(1, 2)).withOrientation(Orientation.Vertical),
@@ -160,7 +165,8 @@ public class RobotContainer {
   }
 
   private Command createAutonomousCommand() {
-    return newElevator.moveToPosition(Inches.of(60));
+    return groundAuto.sideAutonomous(CoralStation.RIGHT);
+    // return newElevator.moveToPosition(Inches.of(60));
     // AUTO ROUTINES - Uncomment the one you want to run
 
     // 1. Start in the middle of the field, then score 3 coral on the right side.

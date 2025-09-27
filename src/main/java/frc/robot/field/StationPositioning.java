@@ -21,6 +21,11 @@ public final class StationPositioning {
     CoralStation(boolean reflect) {
       this.pose = getCenterIntakePose(reflect);
     }
+
+    @Override
+    public String toString() {
+      return this == LEFT ? "Left" : "Right";
+    }
   }
 
   private static final Rotation2d STATION_FRONT_ANGLE = Rotation2d.fromDegrees(144.011392);
@@ -98,5 +103,19 @@ public final class StationPositioning {
 
   public static Pose2d getCenterAlignPose(CoralStation coralStation) {
     return getCenterAlignPose(coralStation == CoralStation.LEFT);
+  }
+
+  public static Pose2d getGroundIntakePose(boolean reflect) {
+    Pose2d pose = new Pose2d(2, 1.514, Rotation2d.fromDegrees(46.83));
+
+    if (reflect) {
+      pose = new Pose2d(pose.getX(), Field.WIDTH - pose.getY(), pose.getRotation().unaryMinus());
+    }
+
+    return pose;
+  }
+
+  public static Pose2d getGroundIntakePose(CoralStation coralStation) {
+    return getGroundIntakePose(coralStation == CoralStation.LEFT);
   }
 }
