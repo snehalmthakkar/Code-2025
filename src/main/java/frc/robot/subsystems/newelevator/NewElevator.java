@@ -6,12 +6,9 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.CTREUtils;
 import com.team6962.lib.utils.MeasureMath;
@@ -85,10 +82,6 @@ public class NewElevator extends SubsystemBase {
         
         PositionVoltage controlRequest = new PositionVoltage(clampedPosition.in(Meters))
             .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
-        
-        System.out.println("Target position: " + position.in(Meters));
-        System.out.println("Measured position: " + getPosition().in(Meters));
-        System.out.println("Clamped position: " + clampedPosition.in(Meters));
 
         positionControl = controlRequest;
         leftMotor.setControl(controlRequest);
