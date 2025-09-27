@@ -293,7 +293,7 @@ public class Logger extends SubsystemBase {
   }
 
   public static void log(String key, DigitalSensor sensor) {
-    log(key + "/triggered", sensor.isTriggered());
+    log(key, sensor.isTriggered());
   }
 
   public static void logNavX(String key, Supplier<AHRS> supplier) {

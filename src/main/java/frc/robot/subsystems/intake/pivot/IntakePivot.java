@@ -62,6 +62,7 @@ public class IntakePivot extends SubsystemBase {
     private StatusSignal<Voltage> appliedVoltageIn;
 
     private ControlRequest controlRequest;
+    private Angle targetPosition;
 
     /**
      * Creates a new IntakePivot.
@@ -90,6 +91,7 @@ public class IntakePivot extends SubsystemBase {
         initStatusSignals();
 
         Logger.logMeasure("Intake/Pivot/position", this::getPosition);
+        Logger.logMeasure("Intake/Pivot/targetPosition", () -> targetPosition);
         Logger.logMeasure("Intake/Pivot/velocity", this::getVelocity);
         Logger.logMeasure("Intake/Pivot/statorCurrent", () -> CTREUtils.unwrap(statorCurrentIn));
         Logger.logMeasure("Intake/Pivot/supplyCurrent", () -> CTREUtils.unwrap(supplyCurrentIn));
@@ -167,8 +169,10 @@ public class IntakePivot extends SubsystemBase {
         setControlWithLimits(controlRequest);
     }
 
-    private void setPositionControl(Angle targetAngle) {
-        setControlWithLimits(new PositionVoltage(targetAngle.plus(IntakeConstants.centerOfMassAngularOffset)));
+    private void setPositionControl(Angle targetPosition) {
+        this.targetPosition = targetPosition;
+
+        setControlWithLimits(new PositionVoltage(targetPosition.plus(IntakeConstants.centerOfMassAngularOffset)));
     }
 
     private void setControlWithLimits(ControlRequest request) {
@@ -213,11 +217,11 @@ public class IntakePivot extends SubsystemBase {
     }
 
     private boolean limitReverseMotion() {
-        return getPosition().in(Degrees) <= IntakeConstants.minPivotAngle.in(Degrees);
+        return getPosition().in(Degrees) <= IntakeConstants.pivotMinAngle.in(Degrees);
     }
 
     private boolean limitForwardMotion() {
-        return getPosition().in(Degrees) >= IntakeConstants.maxPivotAngle.in(Degrees);
+        return getPosition().in(Degrees) >= IntakeConstants.pivotMaxAngle.in(Degrees);
     }
     
     private void applyLimitsToControlRequest(ControlRequest request) {

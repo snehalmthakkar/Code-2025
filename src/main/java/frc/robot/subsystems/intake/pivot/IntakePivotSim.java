@@ -37,13 +37,13 @@ public class IntakePivotSim extends IntakePivot {
             LinearSystemId.createSingleJointedArmSystem(
                 IntakeConstants.Simulation.pivotMotor,
                 IntakeConstants.Simulation.pivotMomentOfInertia.in(KilogramSquareMeters),
-                IntakeConstants.pivotSensorToMechanism
+                IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism
             ),
             IntakeConstants.Simulation.pivotMotor,
-            IntakeConstants.pivotSensorToMechanism,
+            IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism,
             IntakeConstants.Simulation.pivotCenterOfMassDistance.in(Meters),
-            IntakeConstants.minPivotAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),
-            IntakeConstants.maxPivotAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),
+            IntakeConstants.pivotMinAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),
+            IntakeConstants.pivotMaxAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians),
             true,
             IntakeConstants.Simulation.pivotStartAngle.plus(IntakeConstants.centerOfMassAngularOffset).in(Radians)
         );
@@ -70,12 +70,10 @@ public class IntakePivotSim extends IntakePivot {
 
         physicsSim.update(dtSeconds);
 
-        double gearing = IntakeConstants.Simulation.rollersReduction;
-
-        CTREUtils.check(controllerSim.setRawRotorPosition(Radians.of(physicsSim.getAngleRads()).times(gearing)));
-        CTREUtils.check(controllerSim.setRotorVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec()).times(gearing)));
+        CTREUtils.check(controllerSim.setRawRotorPosition(Radians.of(physicsSim.getAngleRads()).times(IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism)));
+        CTREUtils.check(controllerSim.setRotorVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec()).times(IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism)));
         
-        CTREUtils.check(encoderSim.setRawPosition(Radians.of(physicsSim.getAngleRads())));
-        CTREUtils.check(encoderSim.setVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec())));
+        CTREUtils.check(encoderSim.setRawPosition(Radians.of(physicsSim.getAngleRads()).times(IntakeConstants.pivotSensorToMechanism)));
+        CTREUtils.check(encoderSim.setVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec()).times(IntakeConstants.pivotSensorToMechanism)));
     }
 }
