@@ -18,7 +18,6 @@ import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.CTREUtils;
 import com.team6962.lib.utils.MeasureMath;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -117,7 +116,8 @@ public class IntakePivot extends SubsystemBase {
      * @return The current position of the pivot, in a measure.
      */
     public Angle getPosition() {
-        return CTREUtils.unwrap(positionIn).minus(IntakeConstants.centerOfMassAngularOffset);
+        return MeasureMath.toAngle(BaseStatusSignal.getLatencyCompensatedValue(positionIn, velocityIn))
+            .minus(IntakeConstants.centerOfMassAngularOffset);
     }
 
     /**
@@ -131,18 +131,18 @@ public class IntakePivot extends SubsystemBase {
     /**
      * Creates a command that moves the pivot to the specified angle, ending
      * when the target is reached.
-     * @param targetAngle The angle to move the pivot to.
+     * @param targetPosition The angle to move the pivot to.
      * @return A command that moves the pivot to the specified angle.
      */
-    private Command moveTo(Angle targetAngle) {
+    private Command moveTo(Angle targetPosition) {
         return startEnd(
-            () -> setPositionControl(targetAngle),
+            () -> setPositionControl(targetPosition),
             () -> {
-                if (!isNear(targetAngle)) {
+                if (!isNear(targetPosition)) {
                     setPositionControl(getPosition());
                 }
             }
-        ).until(() -> MeasureMath.minAbsDifference(targetAngle, getPosition()).lt(IntakeConstants.pivotTolerance));
+        ).until(() -> isNear(targetPosition));
     }
 
     /**

@@ -23,14 +23,10 @@ import frc.robot.subsystems.intake.IntakeConstants;
  * The intake rollers subsystem, which pulls coral off of the ground and into
  * the robot.
  * <h3>Controlling the Rollers</h3>
- * Generally, the rollers should be only controlled via the {@link #intake()}
- * method, which runs the rollers in the direction and speed that intakes coral
- * from the ground. This method returns a command that can be scheduled or added
- * to a composition to run the rollers.
- * <h3>Simulation</h3>
- * In simulation, instantiate an instance of the {@link IntakeRollersSim}
- * subclass instead of this one. The IntakeRollersSim class fully simulates the
- * rollers' physics and motor behavior.
+ * The rollers can be moved via the {@link #intake()} method, which runs the
+ * rollers in the direction and speed that intakes coral from the ground. The
+ * intake() method returns a command that can be scheduled or added to a
+ * composition to run the rollers.
  */
 public class IntakeRollers extends SubsystemBase {
     protected TalonFX motor;

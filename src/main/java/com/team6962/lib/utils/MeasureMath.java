@@ -5,9 +5,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Angle;
@@ -129,5 +134,21 @@ public final class MeasureMath {
 
   public static Rotation2d fromMeasure(AngularVelocity velocity) {
     return Rotation2d.fromRadians(velocity.in(RadiansPerSecond));
+  }
+
+  public static Angle toAngle(Measure<AngleUnit> m) {
+    return Rotations.of(m.in(Rotations));
+  }
+
+  public static AngularVelocity toAngularVelocity(Measure<AngularVelocityUnit> velocity) {
+    return RotationsPerSecond.of(velocity.in(RotationsPerSecond));
+  }
+
+  public static Distance toDistance(Measure<DistanceUnit> distance) {
+    return Meters.of(distance.in(Meters));
+  }
+
+  public static LinearVelocity toLinearVelocity(Measure<LinearVelocityUnit> distance) {
+    return MetersPerSecond.of(distance.in(MetersPerSecond));
   }
 }
