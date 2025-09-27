@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Radians;
 
 import com.team6962.lib.telemetry.Logger;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

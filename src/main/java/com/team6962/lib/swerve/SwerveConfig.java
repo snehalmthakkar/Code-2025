@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -27,6 +28,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.team6962.lib.swerve.module.SwerveModule.Corner;
 import com.team6962.lib.utils.KinematicsUtils;
 import com.team6962.lib.utils.MeasureMath;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -65,6 +67,7 @@ public class SwerveConfig {
   private final Motor steerMotor;
   private final Wheel wheel;
   private final DriveGains driveGains;
+  private Gyroscope gyroscope;
   private String canBus = "rio";
   private LinearVelocity maxSpeed;
   private LinearAcceleration maxLinearAcceleration;
@@ -78,7 +81,8 @@ public class SwerveConfig {
       Motor driveMotor,
       Motor steerMotor,
       Wheel wheel,
-      DriveGains driveGains) {
+      DriveGains driveGains,
+      Gyroscope gyroscope) {
     this.chassis = chassis;
     this.gearing = gearing;
     this.modules = modules;
@@ -86,6 +90,7 @@ public class SwerveConfig {
     this.steerMotor = steerMotor;
     this.wheel = wheel;
     this.driveGains = driveGains;
+    this.gyroscope = gyroscope;
   }
 
   public SwerveConfig withMaxDriveSpeed(LinearVelocity maxSpeed) {
@@ -148,6 +153,10 @@ public class SwerveConfig {
 
   public DriveGains driveGains() {
     return driveGains;
+  }
+
+  public Gyroscope gyroscope() {
+    return gyroscope;
   }
 
   public static record Chassis(
@@ -546,5 +555,39 @@ public class SwerveConfig {
             driveMotor().maxCurrent(),
             1),
         KinematicsUtils.modulePositionsFromChassis(chassis()));
+  }
+
+  public static class Gyroscope {
+    private int canId;
+    private MountPoseConfigs mountPose;
+
+    public Gyroscope(int canId, MountPoseConfigs mountPose) {
+      this.canId = canId;
+      this.mountPose = mountPose;
+    }
+
+    public Gyroscope(int canId) {
+      this(canId, new MountPoseConfigs());
+    }
+
+    public MountPoseConfigs mountPose() {
+      return mountPose;
+    }
+
+    public Gyroscope withMountPose(MountPoseConfigs mountPose) {
+      this.mountPose = mountPose;
+
+      return this;
+    }
+
+    public int canId() {
+      return canId;
+    }
+
+    public Gyroscope withCANId(int canId) {
+      this.canId = canId;
+
+      return this;
+    }
   }
 }

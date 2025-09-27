@@ -62,7 +62,7 @@ public class SwerveCore extends SubsystemBase implements RobotCoordinates {
 
     kinematics = KinematicsUtils.kinematicsFromChassis(constants.chassis());
     poseEstimator =
-        new PoseEstimator(kinematics, () -> getModulePositions(), () -> getModuleStates());
+        new PoseEstimator(kinematics, () -> getModulePositions(), () -> getModuleStates(), constants);
 
     currentMovement = new SpeedsMovement();
 

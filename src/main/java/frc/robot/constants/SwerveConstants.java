@@ -15,6 +15,7 @@ import com.team6962.lib.swerve.SwerveConfig;
 import com.team6962.lib.swerve.SwerveConfig.Chassis;
 import com.team6962.lib.swerve.SwerveConfig.DriveGains;
 import com.team6962.lib.swerve.SwerveConfig.Gearing;
+import com.team6962.lib.swerve.SwerveConfig.Gyroscope;
 import com.team6962.lib.swerve.SwerveConfig.Module;
 import com.team6962.lib.swerve.SwerveConfig.Motor;
 import com.team6962.lib.swerve.SwerveConfig.Wheel;
@@ -66,7 +67,8 @@ public final class SwerveConstants {
             Wheel.BILLET.withDiameter(Inches.of(3.9052667792884215)),
             new DriveGains(new PIDConstants(0.5, 0.0, 0.1), new PIDConstants(0.25, 0.0, 0.05))
                 .withFineTranslation(new PIDConstants(3.5, 0.0, 1.5))
-                .withFineRotation(new PIDConstants(3.5, 0.0, 1.5)))
+                .withFineRotation(new PIDConstants(3.5, 0.0, 1.5)),
+            new Gyroscope(2))
         .withMaxDriveSpeed(MetersPerSecond.of(4.474))
         .withMaxLinearAcceleration(MetersPerSecondPerSecond.of(6.579))
         .withMaxRotationSpeed(RotationsPerSecond.of(1.62))

@@ -77,7 +77,6 @@ public class RobotContainer {
   public final AutoAlign autoAlign;
   public final Autonomous autov3;
   public final Algae algaeDetector;
-  private final LEDs ledStrip;
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
   private final Command autonomousCommand;
@@ -122,7 +121,7 @@ public class RobotContainer {
     Logger.logEnabledSystems();
 
     swerveDrive = new SwerveDrive(SWERVE.CONFIG);
-    ledStrip = new LEDs();
+    new LEDs();
     controls = new Controls(swerveDrive);
 
     manipulator = new Manipulator();

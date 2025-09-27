@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 public class GearingConversionTest {
   private SwerveConfig config =
-      new SwerveConfig(null, Gearing.MK4I_L2_PLUS, null, null, null, Wheel.COLSON, null);
+      new SwerveConfig(null, Gearing.MK4I_L2_PLUS, null, null, null, Wheel.COLSON, null, null);
 
   @Test
   public void driveMotorRotorToMechanismPosition() {

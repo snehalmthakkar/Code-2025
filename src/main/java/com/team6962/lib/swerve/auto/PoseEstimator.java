@@ -2,6 +2,7 @@ package com.team6962.lib.swerve.auto;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.team6962.lib.swerve.SwerveConfig;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.KinematicsUtils;
 import com.team6962.lib.utils.RotationUtils;
@@ -48,9 +49,10 @@ public class PoseEstimator extends SubsystemBase implements RobotCoordinates {
   public PoseEstimator(
       SwerveDriveKinematics kinematics,
       Supplier<SwerveModulePosition[]> modulePositions,
-      Supplier<SwerveModuleState[]> moduleStates) {
+      Supplier<SwerveModuleState[]> moduleStates,
+      SwerveConfig config) {
     this.kinematics = kinematics;
-    this.gyroscope = new SwerveGyroscope(() -> positionChanges, kinematics);
+    this.gyroscope = SwerveGyroscope.get(() -> positionChanges, kinematics, config);
     this.modulePositionsSupplier = modulePositions;
     this.moduleStatesSupplier = moduleStates;
 

@@ -67,6 +67,7 @@ public class LEDs extends SubsystemBase {
     strip.start();
   }
 
+  // TODO: Make these instance methods
   public static Command setStateCommand(State state) {
     return Commands.run(() -> setState(state));
   }
