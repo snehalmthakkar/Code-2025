@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.constants.Constants;
 import frc.robot.field.ReefPositioning;
 import frc.robot.field.ReefPositioning.CoralPosition;
 import frc.robot.field.StationPositioning;
@@ -28,7 +29,7 @@ public class GroundAuto {
             Commands.sequence(
                 CommandUtils.annotate("Move to L" + position.level, CommandUtils.selectByMode(
                     robot.pieceCombos.coral(position.level),
-                    Commands.waitSeconds(0.5)
+                    robot.elevator.coral(position.level)
                 )),
                 CommandUtils.annotate("Wait until aligned", Commands.waitUntil(
                     () -> robot.swerveDrive.isWithinToleranceOf(ReefPositioning.getCoralPlacePose(position.pole),
@@ -50,7 +51,7 @@ public class GroundAuto {
                 CommandUtils.annotate("Intake transfer", IntakeCommands.intakeTransfer(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos)),
                 CommandUtils.annotate("Move to L" + position.level, CommandUtils.selectByMode(
                     robot.pieceCombos.coral(position.level),
-                    Commands.waitSeconds(0.5)
+                    robot.elevator.coral(position.level)
                 )),
                 CommandUtils.annotate("Wait until aligned", Commands.waitUntil(
                     () -> robot.swerveDrive.isWithinToleranceOf(ReefPositioning.getCoralPlacePose(position.pole),
@@ -70,7 +71,8 @@ public class GroundAuto {
             CommandUtils.annotate("Intake coral", IntakeCommands.intakeCoral(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos)
                 .withDeadline(CommandUtils.selectByMode(
                     Commands.waitUntil(() -> robot.intake.sensors.getCoralLocation() == CoralLocation.INTAKE),
-                    Commands.waitUntil(() -> robot.swerveDrive.isWithinToleranceOf(StationPositioning.getGroundIntakePose(coralStation), Inches.of(6), Degrees.of(15)))
+                    Commands.waitUntil(() -> robot.swerveDrive.isWithinToleranceOf(StationPositioning.getGroundIntakePose(coralStation), Inches.of(6), Degrees.of(15)) &&
+                        robot.elevator.isNear(Constants.ELEVATOR.CORAL.INTAKE_HEIGHT))
                 ))),
                 CommandUtils.annotate("Drive to intake from " + coralStation + " coral station", robot.swerveDrive.driveTo(StationPositioning.getGroundIntakePose(coralStation)))
         ));

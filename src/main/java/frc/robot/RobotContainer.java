@@ -4,7 +4,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
@@ -34,7 +33,6 @@ import frc.robot.auto.AutoAlign;
 import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.GroundAuto;
-import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
 import frc.robot.constants.Constants.CAN;
@@ -42,11 +40,10 @@ import frc.robot.constants.Constants.SWERVE;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.Controls;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.SimElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
-import frc.robot.subsystems.newelevator.NewElevator;
-import frc.robot.subsystems.newelevator.SimElevator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
@@ -84,7 +81,6 @@ public class RobotContainer {
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
   public final Command autonomousCommand;
-  public final NewElevator newElevator = new SimElevator();
   public final Intake intake;
   public final CoralDetection coralDetection;
   public final TrackingField trackingField;

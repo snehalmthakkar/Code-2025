@@ -31,7 +31,7 @@ public final class IntakeConstants {
     public static final int rollerMotorID = 3;
     public static final String canBus = "rio";
 
-    public static final int intakeSensorChannel = 4;
+    public static final int intakeSensorChannel = 8;
     public static final DigitalSensor.Wiring intakeSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
     public static final TalonFXConfiguration pivotMotorConfiguration = new TalonFXConfiguration()
@@ -67,7 +67,7 @@ public final class IntakeConstants {
 
     public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration();
 
-    public static final int indexerSensorChannel = 8;
+    public static final int indexerSensorChannel = 9;
     public static final DigitalSensor.Wiring indexerSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
     public static final Voltage indexerIntakeVoltage = Volts.of(12);

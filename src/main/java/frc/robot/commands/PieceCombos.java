@@ -20,10 +20,6 @@ public class PieceCombos {
     this.safeSubsystems = safeSubsystems;
   }
 
-  public Command hold() {
-    return elevator.hold();
-  }
-
   public Command intakeCoral() {
     return safeSubsystems
         .safeMoveCommand(
@@ -62,7 +58,7 @@ public class PieceCombos {
   public Command readyL3() {
     return safeSubsystems
         .safeMoveCommand(
-            elevator.setHeight(ELEVATOR.AUTO.READY_HEIGHT), manipulator.stow(), ELEVATOR.AUTO.READY_HEIGHT)
+            elevator.ready(), manipulator.stow(), ELEVATOR.AUTO.READY_HEIGHT)
         .withName("READY L3");
   }
 
@@ -70,13 +66,6 @@ public class PieceCombos {
     return safeSubsystems
         .safeMoveCommand(elevator.coralL4(), manipulator.placeCoralL4(), ELEVATOR.CORAL.L4_HEIGHT)
         .withName("CORAL L4");
-  }
-
-  public Command pickupGroundAlgae() {
-    return safeSubsystems
-        .safeMoveCommand(
-            elevator.algaeGround(), manipulator.pickupGroundAlgae(), ELEVATOR.ALGAE.GROUND_HEIGHT)
-        .withName("ALGAE GROUND");
   }
 
   public Command algae(int level) {
@@ -112,16 +101,7 @@ public class PieceCombos {
     return Commands.sequence(
             manipulator.pivot.algaeBargeSetup(),
             manipulator.pivot.algaeBargeShoot().deadlineFor(manipulator.grabber.dropAlgae()))
-        .onlyIf(() -> elevator.inRange(ELEVATOR.ALGAE.BARGE_HEIGHT));
-  }
-
-  public Command algaeProcessor() {
-    return safeSubsystems
-        .safeMoveCommand(
-            elevator.algaeProcessor(),
-            manipulator.placeProcessorAlgae(),
-            ELEVATOR.ALGAE.PROCESSOR_HEIGHT)
-        .withName("ALGAE PROCESSOR");
+        .onlyIf(() -> elevator.isNear(ELEVATOR.ALGAE.BARGE_HEIGHT));
   }
 
   public Command stow() {
@@ -131,10 +111,6 @@ public class PieceCombos {
         .andThen(elevator.stow())
         .andThen(manipulator.stow())
         .withName("STOW");
-  }
-
-  public Command holdCoral() {
-    return elevator.hold();
   }
 
   public Command intakeAlgaeOrShootCoral() {

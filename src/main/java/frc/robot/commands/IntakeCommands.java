@@ -19,7 +19,7 @@ public final class IntakeCommands {
             safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
         ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE).andThen(Commands.deadline(
             intake.transfer(),
-            manipulator.pivot.coralIntake().alongWith(elevator.hold())
+            manipulator.pivot.coralIntake()
         ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER));
     }
 
@@ -33,7 +33,7 @@ public final class IntakeCommands {
     public static Command transferCoral(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
         return Commands.deadline(
             intake.transfer(),
-            manipulator.pivot.coralIntake().alongWith(elevator.hold())
+            manipulator.pivot.coralIntake()
         ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER);
     }
 }

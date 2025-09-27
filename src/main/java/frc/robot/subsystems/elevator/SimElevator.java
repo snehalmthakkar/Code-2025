@@ -1,4 +1,4 @@
-package frc.robot.subsystems.newelevator;
+package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
@@ -11,22 +11,22 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-public class SimElevator extends NewElevator {
+public class SimElevator extends Elevator {
     private TalonFXSimState leftSimState = new TalonFXSimState(leftMotor);
     private TalonFXSimState rightSimState = new TalonFXSimState(rightMotor);
 
     private ElevatorSim elevatorSim = new ElevatorSim(
         LinearSystemId.createElevatorSystem(
             DCMotor.getKrakenX60Foc(2),
-            NewElevatorConstants.ELEVATOR_MASS.in(Kilograms),
-            NewElevatorConstants.SPOOL_DIAMETER.in(Meters) / 2.0,
-            NewElevatorConstants.MOTOR_GEAR_REDUCTION
+            ElevatorConstants.ELEVATOR_MASS.in(Kilograms),
+            ElevatorConstants.SPOOL_DIAMETER.in(Meters) / 2.0,
+            ElevatorConstants.MOTOR_GEAR_REDUCTION
         ),
         DCMotor.getKrakenX60Foc(2),
-        NewElevatorConstants.MIN_HEIGHT.in(Meters),
-        NewElevatorConstants.MAX_HEIGHT.in(Meters),
+        ElevatorConstants.MIN_HEIGHT.in(Meters),
+        ElevatorConstants.MAX_HEIGHT.in(Meters),
         true,
-        NewElevatorConstants.MIN_HEIGHT.in(Meters)
+        ElevatorConstants.MIN_HEIGHT.in(Meters)
     );
 
     public SimElevator() {
@@ -35,36 +35,36 @@ public class SimElevator extends NewElevator {
     
     @Override
     protected boolean topLimitSwitchTriggered() {
-        return elevatorSim.getPositionMeters() >= NewElevatorConstants.MAX_HEIGHT.in(Meters) - 0.01;
+        return elevatorSim.getPositionMeters() >= ElevatorConstants.MAX_HEIGHT.in(Meters) - 0.001;
     }
 
     @Override
     protected boolean bottomLimitSwitchTriggered() {
-        return elevatorSim.getPositionMeters() <= NewElevatorConstants.MIN_HEIGHT.in(Meters) + 0.01;
+        return elevatorSim.getPositionMeters() <= ElevatorConstants.MIN_HEIGHT.in(Meters) + 0.001;
     }
 
     private double getLeftMotorVoltage() {
-        return (NewElevatorConstants.LEFT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1) * leftSimState.getMotorVoltage();
+        return (ElevatorConstants.LEFT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1) * leftSimState.getMotorVoltage();
     }
 
     private double getRightMotorVoltage() {
-        return (NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1) * rightSimState.getMotorVoltage();
+        return (ElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1) * rightSimState.getMotorVoltage();
     }
 
     private void setLeftRotorPosition(double angle) {
-        leftSimState.setRawRotorPosition(angle * (NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
+        leftSimState.setRawRotorPosition(angle * (ElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
     }
 
     private void setRightRotorPosition(double angle) {
-        rightSimState.setRawRotorPosition(angle * (NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
+        rightSimState.setRawRotorPosition(angle * (ElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
     }
 
     private void setLeftRotorVelocity(double velocity) {
-        leftSimState.setRotorVelocity(velocity * (NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
+        leftSimState.setRotorVelocity(velocity * (ElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
     }
 
     private void setRightRotorVelocity(double velocity) {
-        rightSimState.setRotorVelocity(velocity * (NewElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
+        rightSimState.setRotorVelocity(velocity * (ElevatorConstants.RIGHT_MOTOR_INVERTED_VALUE == InvertedValue.Clockwise_Positive ? -1 : 1));
     }
 
     @Override
@@ -75,8 +75,8 @@ public class SimElevator extends NewElevator {
         // double sprocketCircumference = Math.PI * NewElevatorConstants.SPOOL_DIAMETER.in(Meters);
         double position = elevatorSim.getPositionMeters();
         double velocity = elevatorSim.getVelocityMetersPerSecond();
-        double motorAngle = position * NewElevatorConstants.SENSOR_MECHANISM_RATIO;
-        double motorVelocity = velocity * NewElevatorConstants.SENSOR_MECHANISM_RATIO;
+        double motorAngle = position * ElevatorConstants.SENSOR_MECHANISM_RATIO;
+        double motorVelocity = velocity * ElevatorConstants.SENSOR_MECHANISM_RATIO;
 
         setLeftRotorPosition(motorAngle);
         setRightRotorPosition(motorAngle);

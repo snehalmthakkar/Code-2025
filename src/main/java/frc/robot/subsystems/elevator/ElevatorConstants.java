@@ -1,26 +1,30 @@
-package frc.robot.subsystems.newelevator;
+package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Voltage;
 
-public final class NewElevatorConstants {
-    private NewElevatorConstants() {
+public final class ElevatorConstants {
+    private ElevatorConstants() {
         throw new UnsupportedOperationException("This is a utility class!");
     }
 
     public static final Distance MIN_HEIGHT = Inches.of(41.50);
     public static final Distance MAX_HEIGHT = Inches.of(70.65);
+    public static final Distance TOLERANCE = Inches.of(0.5);
 
     public static final Mass ELEVATOR_MASS = Pounds.of(20.0);
 
@@ -37,7 +41,9 @@ public final class NewElevatorConstants {
     public static final Slot0Configs slot0Configs = new Slot0Configs()
             .withKP(10) // Replace with actual P value
             .withKI(0.0) // Replace with actual I value
-            .withKD(0.0); // Replace with actual D value
+            .withKD(0.0) // Replace with actual D value
+            .withKG(0.2)
+            .withGravityType(GravityTypeValue.Elevator_Static);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(1500) // Replace with actual cruise velocity
             .withMotionMagicAcceleration(600); // Replace with actual acceleration
@@ -48,6 +54,8 @@ public final class NewElevatorConstants {
         .withNeutralMode(NeutralModeValue.Brake);
 
     public static final int DIO_FLOOR_PORT = 6; // Replace with actual DIO port
-    public static final int DIO_CEILING_PORT = 7; // Replace with actual DIO port
+    public static final int DIO_CEILING_PORT = 5; // Replace with actual DIO port
     // 6 7
+
+    public static final Voltage FINE_CONTROL_VOLTAGE = Volts.of(0.5);
 }
