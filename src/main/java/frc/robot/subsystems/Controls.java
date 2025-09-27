@@ -294,11 +294,9 @@ public class Controls {
         swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face))
           .deadlineFor(
             manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE),
-            elevator.ready(),
-            manipulator.grabber.holdAlgae().repeatedly()
+            elevator.ready()
           )
-          .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30))),
-        Commands.runOnce(() -> manipulator.grabber.expectAlgae(true))
+          .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30)))
       );
     }, Set.of(swerveDrive.useRotation(), swerveDrive.useTranslation(), elevator, manipulator));
   }
@@ -318,8 +316,7 @@ public class Controls {
         Commands.deadline(
           Commands.deadline(
             manipulator.pivot.stow().until(() -> manipulator.pivot.getAngle().gt(Degrees.of(-10))),
-            elevator.hold(),
-            manipulator.grabber.hold()
+            elevator.hold()
           ),
           swerveDrive
             .driveTo(ReefPositioning.getAlgaeAlignPose(face))
@@ -329,8 +326,7 @@ public class Controls {
           Commands.sequence(
             Commands.deadline(
               (level == 2 ? elevator.algaeL2() : elevator.algaeL3()),
-              manipulator.pivot.stow().andThen(manipulator.pivot.hold()),
-              manipulator.grabber.hold()
+              manipulator.pivot.stow().andThen(manipulator.pivot.hold())
             ),
             Commands.parallel(
               manipulator.grabber.intakeAlgae(),
@@ -342,11 +338,9 @@ public class Controls {
         swerveDrive.driveTo(ReefPositioning.getAlgaeAlignPose(face))
           .deadlineFor(
             manipulator.pivot.pivotTo(() -> MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE).andThen(manipulator.pivot.hold()),
-            elevator.ready().andThen(elevator.hold()),
-            manipulator.grabber.holdAlgae().repeatedly()
+            elevator.ready().andThen(elevator.hold())
           )
-          .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30))),
-        Commands.runOnce(() -> manipulator.grabber.expectAlgae(true))
+          .until(() -> swerveDrive.isWithinToleranceOf(ReefPositioning.getAlgaeAlignPose(face), Inches.of(3), Degrees.of(30)))
       );
     }, Set.of(swerveDrive.useRotation(), swerveDrive.useTranslation(), elevator, manipulator));
   }

@@ -256,6 +256,7 @@ public final class Constants {
     public static final int MANIPULATOR_PIVOT = 4;
     public static final int MANIPULATOR_GRABBER = 5;
     public static final int MANIPULATOR_FUNNEL = 6;
+    public static final int ALGAE_SENSOR = 7;
   }
 
   public static final class DIO {

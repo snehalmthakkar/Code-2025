@@ -56,7 +56,7 @@ public class Manipulator extends SubsystemBase {
   }
 
   public Command stop() {
-    return pivot.stop().alongWith(grabber.stop());
+    return pivot.stop();
   }
 
   public Command test() {

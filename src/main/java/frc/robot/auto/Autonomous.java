@@ -13,12 +13,12 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.constants.Constants.ELEVATOR;
 import frc.robot.commands.PieceCombos;
+import frc.robot.constants.Constants.ELEVATOR;
 import frc.robot.field.Field;
 import frc.robot.field.ReefPositioning;
-import frc.robot.field.StationPositioning;
 import frc.robot.field.ReefPositioning.CoralPosition;
+import frc.robot.field.StationPositioning;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.manipulator.Manipulator;
@@ -91,8 +91,7 @@ public class Autonomous {
             .deadlineFor(
                 Commands.parallel(
                     elevator.ready().repeatedly(),
-                    manipulator.pivot.hold(),
-                    manipulator.grabber.hold())),
+                    manipulator.pivot.hold())),
         placeCoral(new CoralPosition(side == Side.LEFT ? 1 : 10, 4)),
         swerveDrive
             .followChoreoPath("side-intake-1-" + side.id)
@@ -122,18 +121,17 @@ public class Autonomous {
             .deadlineFor(
                 Commands.parallel(
                     elevator.ready().repeatedly(),
-                    manipulator.pivot.hold(),
-                    manipulator.grabber.hold())),
+                    manipulator.pivot.hold())),
         CommandUtils.annotate("place coral", placeCoral(new CoralPosition(0, 4))),
         CommandUtils.annotate(
             "safe manipulator pivot",
             Commands.deadline(
-                manipulator.pivot.safe(), elevator.hold(), manipulator.grabber.stop())),
+                manipulator.pivot.safe(), elevator.hold())),
         CommandUtils.annotate("pickup algae", pickupAlgae(0)),
         CommandUtils.annotate("middle-algae-place", swerveDrive.followChoreoPath("middle-algae-place"))
             .deadlineFor(
                 Commands.parallel(
-                    elevator.hold(), manipulator.pivot.hold(), manipulator.grabber.hold())),
+                    elevator.hold(), manipulator.pivot.hold())),
         CommandUtils.annotate(
             "align to barge",
             swerveDrive
@@ -155,9 +153,7 @@ public class Autonomous {
                         Commands.waitUntil(
                             () -> elevator.getAverageHeight().lt(ELEVATOR.CORAL.L4_HEIGHT)),
                         Commands.waitSeconds(0.25))))
-            .alongWith(
-                Commands.sequence(pieceCombos.stow(), pieceCombos.hold()),
-                manipulator.grabber.hold()));
+            .alongWith(Commands.sequence(pieceCombos.stow(), pieceCombos.hold())));
   }
 
   private Command pickupAlgae(int face) {
@@ -179,14 +175,13 @@ public class Autonomous {
                 "elevator to algae l2",
                 CommandUtils.selectByMode(
                     Commands.deadline(
-                        elevator.algaeL2(), manipulator.pivot.hold(), manipulator.grabber.stop()),
+                        elevator.algaeL2(), manipulator.pivot.hold()),
                     Commands.waitSeconds(0.5)))),
         CommandUtils.annotate(
             "manipulator to algae l2",
             Commands.deadline(
                 CommandUtils.selectByMode(manipulator.pivot.algaeReef(), Commands.waitSeconds(0.2)),
-                elevator.hold(),
-                manipulator.grabber.hold())),
+                elevator.hold())),
         CommandUtils.annotate(
             "twist to pickup",
             Commands.deadline(
@@ -201,7 +196,7 @@ public class Autonomous {
     return Commands.sequence(
         pieceCombos.intakeCoral(),
         Commands.parallel(
-            elevator.ready().repeatedly(), manipulator.pivot.hold(), manipulator.grabber.hold()));
+            elevator.ready().repeatedly(), manipulator.pivot.hold()));
   }
 
   public Command placeCoral(CoralPosition position) {
@@ -273,8 +268,7 @@ public class Autonomous {
                     Commands.deadline(
                         CommandUtils.selectByMode(
                             manipulator.pivot.stow(), Commands.waitSeconds(0.1)),
-                        elevator.hold(),
-                        manipulator.grabber.stop())))));
+                        elevator.hold())))));
   }
 
   public Command intakeCoral(CoralStation coralStation, int slot, Time waitTime) {

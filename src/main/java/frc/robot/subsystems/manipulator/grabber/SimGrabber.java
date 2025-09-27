@@ -3,6 +3,7 @@ package frc.robot.subsystems.manipulator.grabber;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.team6962.lib.utils.CommandUtils;
+
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,10 +20,6 @@ public class SimGrabber extends Grabber {
   private final Time algaeIntakeTime;
   private final Time algaeDropTime;
 
-  private final Time algaeGripTime;
-
-  private final Time stopTime;
-
   public SimGrabber(
       Time coralIntakeTime,
       Time coralDropTime,
@@ -35,10 +32,11 @@ public class SimGrabber extends Grabber {
 
     this.algaeIntakeTime = algaeIntakeTime;
     this.algaeDropTime = algaeDropTime;
+  }
 
-    this.algaeGripTime = algaeGripTime;
-
-    this.stopTime = stopTime;
+  @Override
+  public boolean isAlgaeFullyIntaked() {
+      return hasAlgae;
   }
 
   public static SimGrabber simulated() {
@@ -62,11 +60,6 @@ public class SimGrabber extends Grabber {
 
     command.addRequirements(this);
     return command;
-  }
-
-  @Override
-  public Command hold() {
-    return Commands.none();
   }
 
   @Override
@@ -98,7 +91,6 @@ public class SimGrabber extends Grabber {
     return hasAlgae;
   }
 
-  @Override
   public void expectAlgae(boolean hasAlgae) {
     this.hasAlgae = hasAlgae;
   }
@@ -111,16 +103,6 @@ public class SimGrabber extends Grabber {
   @Override
   public Command dropAlgae() {
     return waitTimeCommand(algaeDropTime).andThen(runOnce(() -> expectAlgae(false)));
-  }
-
-  @Override
-  public Command holdAlgae() {
-    return waitTimeCommand(algaeGripTime);
-  }
-
-  @Override
-  public Command stop() {
-    return waitTimeCommand(stopTime);
   }
 
   @Override
