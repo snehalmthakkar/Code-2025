@@ -86,7 +86,8 @@ public class GroundAuto {
             intakeCoral(coralStation),
             scoreCoral(new CoralPosition(8, 4).reflectedIf(reflect)),
             intakeCoral(coralStation),
-            scoreCoral(new CoralPosition(9, 4).reflectedIf(reflect))
+            scoreCoral(new CoralPosition(9, 4).reflectedIf(reflect)),
+            intakeCoral(coralStation)
         ));
     }
 }
