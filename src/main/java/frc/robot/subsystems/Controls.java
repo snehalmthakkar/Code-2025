@@ -27,7 +27,6 @@ import frc.robot.commands.XBoxSwerve;
 import frc.robot.field.ReefPositioning;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.hang.Hang;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.manipulator.Manipulator;
 
@@ -56,7 +55,6 @@ public class Controls {
       SwerveDrive swerveDrive,
       Elevator elevator,
       Manipulator manipulator,
-      Hang hang,
       AutoAlign autoAlign,
       Autonomous autonomous,
       PieceCombos pieceCombos,
@@ -138,8 +136,6 @@ public class Controls {
     // Intake Algae with The Box
     // Output Algae from The Box
     // Output Coral
-    // Deploy Hang
-    // Retract Hang
     // L2 Algae Removal height
     // L3 Algae Removal Height
     // Algae ground Height

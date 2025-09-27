@@ -534,7 +534,6 @@ public class Logger extends SubsystemBase {
     log("Enabled Systems/Drive", ENABLED_SYSTEMS.isDriveEnabled());
     log("Enabled Systems/Elevator", ENABLED_SYSTEMS.isElevatorEnabled());
     log("Enabled Systems/Funnel", ENABLED_SYSTEMS.isFunnelEnabled());
-    log("Enabled Systems/Hang", ENABLED_SYSTEMS.isHangEnabled());
     log("Enabled Systems/Manipulator", ENABLED_SYSTEMS.isManipulatorEnabled());
   }
 }

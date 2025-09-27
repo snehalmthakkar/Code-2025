@@ -12,9 +12,14 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
-import com.pathplanner.lib.config.PIDConstants;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.function.Supplier;
+
 import com.team6962.lib.swerve.SwerveConfig;
 import com.team6962.lib.utils.MeasureMath;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -26,10 +31,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.util.CachedRobotState;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.function.Supplier;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -50,7 +51,6 @@ public final class Constants {
   public static final class ENABLED_SYSTEMS {
     private static final boolean DRIVE = true;
     private static final boolean DASHBOARD = true;
-    private static final boolean HANG = false;
     private static final boolean MANIPULATOR = true;
     private static final boolean ELEVATOR = true;
     private static final boolean FUNNEL = true;
@@ -61,10 +61,6 @@ public final class Constants {
 
     public static boolean isDashboardEnabled() {
       return DASHBOARD;
-    }
-
-    public static boolean isHangEnabled() {
-      return HANG;
     }
 
     public static boolean isManipulatorEnabled() {
@@ -250,7 +246,6 @@ public final class Constants {
   public static final class CAN {
     // In order of: front left, front right, back left, back right, where the battery is in the back
     public static final int PDH = 1;
-    public static final int HANG = 34;
     public static final int ELEVATOR_LEFT = 2;
     public static final int ELEVATOR_RIGHT = 3;
     public static final int MANIPULATOR_PIVOT = 4;
@@ -260,7 +255,6 @@ public final class Constants {
   }
 
   public static final class DIO {
-    public static final int HANG_ENCODER = 10;
     public static final int CORAL_CLEAR_BEAM_BREAK = 3;
     public static final int CORAL_DETECT_BEAM_BREAK = 0;
     public static final int ELEVATOR_FLOOR_LIMIT = 1;
@@ -308,18 +302,6 @@ public final class Constants {
     public static double maxTorqueCurrentLimited(int currentLimit) {
       return STATS.stallTorqueNewtonMeters / STATS.stallCurrentAmps * currentLimit;
     }
-  }
-
-  public static final class HANG { // Adjust these as needed
-    public static final Current MAX_CURRENT = Amps.of(80);
-    public static final PIDConstants DEPLOY_PROFILE = new PIDConstants(1.0, 0.0, 0.0);
-
-    public static final Angle ENCODER_OFFSET = Radians.of(0.0);
-
-    public static final Angle HANG_ANGLE = Degrees.of(180.0);
-    public static final Angle SWAP_ANGLE = Degrees.of(80.0);
-    public static final Angle DEPLOY_ANGLE = Degrees.of(0.0);
-    public static final Angle STOW_ANGLE = Degrees.of(110.0);
   }
 
   public static final boolean SAFETIES_ENABLED = true;
@@ -456,23 +438,6 @@ public final class Constants {
     public static final double FUNNEL_IN_SPEED = 0.5;
   }
 
-  public static final class HANG_PIVOT {
-    public static final double GEARING = (9.0 / 1.0) * (9.0 / 1.0) * (3.0 / 1.0) * (26.0 / 12.0);
-    public static final Angle ENCODER_OFFSET = Rotations.of(0.085);
-
-    public static final Angle MAX_ANGLE = Degrees.of(140.0);
-    public static final Angle MIN_ANGLE = Degrees.of(-40.0);
-    public static final Angle STOW_ANGLE = Degrees.of(0.0);
-    public static final Angle HANG_ANGLE = Degrees.of(-40.0);
-
-    public static final class PROFILE {
-      public static final double kP = 0.5;
-      public static final double kS = 0.5; // volts per rad/s
-      public static final double kD = 0.0;
-      public static final double kI = 0.0;
-    }
-  }
-
   // LED
   public static final class LED {
     public static final Distance Spacing = Meters.of(1 / 60.0);
@@ -490,7 +455,6 @@ public final class Constants {
     public static final double SWERVE_DRIVE = 7.0;
     public static final double ELEVATOR = 7.5;
     public static final double MANIPULATOR = 8.0;
-    public static final double HANG = 9.0;
   }
 
   public static final class TIMING {

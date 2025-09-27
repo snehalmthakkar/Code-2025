@@ -3,11 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Milliseconds;
-
-import java.io.InputStream;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
@@ -19,8 +16,6 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -44,7 +39,6 @@ import frc.robot.constants.Constants.CAN;
 import frc.robot.constants.Constants.SWERVE;
 import frc.robot.subsystems.Controls;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.hang.Hang;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
@@ -80,7 +74,6 @@ public class RobotContainer {
   public final SwerveDrive swerveDrive;
   public final Manipulator manipulator;
   public final Elevator elevator;
-  public final Hang hang;
   public final AutoAlign autoAlign;
   public final Autonomous autov3;
   public final Algae algaeDetector;
@@ -139,7 +132,6 @@ public class RobotContainer {
     autoAlign = new AutoAlign(swerveDrive);
     autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
     algaeDetector = new Algae();
-    hang = Hang.create();
     intake = new Intake(manipulator.grabber);
 
     coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
@@ -154,7 +146,7 @@ public class RobotContainer {
 
     // // Configure the trigger bindings
     controls.configureBindings(
-        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos, autoPickup, intake);
+        swerveDrive, elevator, manipulator, autoAlign, autov3, pieceCombos, autoPickup, intake);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");
