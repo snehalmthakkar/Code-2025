@@ -7,9 +7,15 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
+
 import com.team6962.lib.swerve.SwerveDrive;
 import com.team6962.lib.swerve.auto.RobotCoordinates;
 import com.team6962.lib.telemetry.Logger;
+import com.team6962.lib.utils.KinematicsUtils;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,6 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.constants.Constants.SWERVE_DRIVE;
 import frc.robot.constants.Constants.TEAM_COLOR;
 import frc.robot.util.CachedRobotState;
@@ -40,6 +47,8 @@ public class XBoxSwerve extends Command {
 
   private Command translateCommand;
   private Command rotateCommand;
+
+  private List<Function<ChassisSpeeds, ChassisSpeeds>> speedsModifiers = new LinkedList<>();
 
   public XBoxSwerve(SwerveDrive swerveDrive, XboxController xboxController) {
     this.swerveDrive = swerveDrive;
@@ -166,8 +175,15 @@ public class XBoxSwerve extends Command {
 
     ChassisSpeeds drivenSpeeds =
         new ChassisSpeeds(velocity.getX(), velocity.getY(), angularVelocity);
+    
+    for (Function<ChassisSpeeds, ChassisSpeeds> modifier : speedsModifiers) {
+      drivenSpeeds = modifier.apply(drivenSpeeds);
+    }
 
     Logger.log("XBoxSwerve/drivenSpeeds", drivenSpeeds);
+
+    velocity = KinematicsUtils.getTranslation(drivenSpeeds);
+    angularVelocity = drivenSpeeds.omegaRadiansPerSecond;
 
     boolean movingTranslation = Math.abs(velocity.getNorm()) > 0.05;
 
@@ -209,5 +225,12 @@ public class XBoxSwerve extends Command {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public Command modifySpeeds(Function<ChassisSpeeds, ChassisSpeeds> modifier) {
+    return Commands.startEnd(
+      () -> speedsModifiers.add(modifier),
+      () -> speedsModifiers.remove(modifier)
+    );
   }
 }

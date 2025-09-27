@@ -7,6 +7,11 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Milliseconds;
+
+import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -14,6 +19,10 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
@@ -27,6 +36,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.AutoAlign;
+import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
@@ -43,6 +53,10 @@ import frc.robot.subsystems.newelevator.SimElevator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
+import frc.robot.vision.CoralDetection;
+import frc.robot.vision.field.SimulatedField;
+import frc.robot.vision.field.TrackingField;
+import frc.robot.vision.field.TrackingField.Coral.Orientation;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,6 +90,10 @@ public class RobotContainer {
   private final Command autonomousCommand;
   public final NewElevator newElevator = new SimElevator();
   private final Intake intake;
+  private final CoralDetection coralDetection;
+  private final TrackingField trackingField;
+  private final AutoPickup autoPickup;
+  private final Controls controls;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -112,6 +130,7 @@ public class RobotContainer {
 
     swerveDrive = new SwerveDrive(SWERVE.CONFIG);
     ledStrip = new LEDs();
+    controls = new Controls(swerveDrive);
 
     manipulator = new Manipulator();
     elevator = Elevator.create();
@@ -123,9 +142,19 @@ public class RobotContainer {
     hang = Hang.create();
     intake = new Intake(manipulator.grabber);
 
+    coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
+    trackingField = TrackingField.createInstance();
+    trackingField.startLogging();
+    autoPickup = new AutoPickup(swerveDrive, controls.getSwerveController(), trackingField);
+
+    ((SimulatedField) trackingField).setGamePieces(List.of(
+      new TrackingField.Coral().withTranslation(new Translation2d(1, 2)).withOrientation(Orientation.Vertical),
+      new TrackingField.Coral().withTranslation(new Translation2d(7, 4))
+    ));
+
     // // Configure the trigger bindings
-    Controls.configureBindings(
-        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos, intake);
+    controls.configureBindings(
+        swerveDrive, elevator, manipulator, hang, autoAlign, autov3, pieceCombos, autoPickup, intake);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");
