@@ -115,7 +115,7 @@ public class NewElevator extends SubsystemBase {
     
     @Override
     public void periodic() {
-        if (RobotState.isDisabled()) {
+        if (RobotState.isDisabled() || positionControl == null) {
             startPositionControl(getPosition());
         }
 
