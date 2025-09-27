@@ -12,7 +12,9 @@
       "/Shuffleboard/Status Checks/Refresh": "Command",
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/PathPlanner": "Alerts"
+      "/SmartDashboard/Mechanisms": "Mechanism2d",
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/Robot": "Mechanism2d"
     },
     "windows": {
       "/SmartDashboard/Field": {
@@ -104,6 +106,11 @@
         "right": 3466,
         "top": 291,
         "width": 17.54825210571289,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Robot": {
         "window": {
           "visible": true
         }
