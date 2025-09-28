@@ -254,9 +254,8 @@ public final class Constants {
   }
 
   public static final class DIO {
-    public static final int CORAL_CLEAR_BEAM_BREAK = 3; // Incorrect
-    public static final int CORAL_DETECT_BEAM_BREAK = 0; // Incorrect
-    public static final int MANIPULATOR_ENCODER = 4; // Incorrect
+    public static final int CORAL_CLEAR_BEAM_BREAK = 3; // May be switched with 5
+    public static final int CORAL_DETECT_BEAM_BREAK = 5; // May be switched with 3
   }
 
   public static final class PWM {

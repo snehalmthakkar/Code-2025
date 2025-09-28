@@ -67,7 +67,7 @@ public final class IntakeConstants {
 
     public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration();
 
-    public static final int indexerSensorChannel = 9;
+    public static final int indexerSensorChannel = 6;
     public static final DigitalSensor.Wiring indexerSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
     public static final Voltage indexerIntakeVoltage = Volts.of(12);

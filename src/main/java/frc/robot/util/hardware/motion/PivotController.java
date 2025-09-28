@@ -54,7 +54,6 @@ public class PivotController extends SubsystemBase {
   public PivotController(
       String name,
       int motorCAN,
-      int absoluteEncoderDIO,
       double absolutePositionOffset,
       double kP,
       double kI,

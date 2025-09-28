@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants.CAN;
-import frc.robot.constants.Constants.DIO;
 import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
 import frc.robot.util.hardware.motion.PivotController;
 
@@ -23,7 +22,6 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
     super(
         "Manipulator Pivot", 
         CAN.MANIPULATOR_PIVOT,
-        DIO.MANIPULATOR_ENCODER,
         MANIPULATOR_PIVOT.ABSOLUTE_POSITION_OFFSET.in(Rotations),
         MANIPULATOR_PIVOT.PROFILE.kP,
         MANIPULATOR_PIVOT.PROFILE.kI,
