@@ -21,7 +21,7 @@ import frc.robot.util.hardware.motion.PivotController;
 public class RealManipulatorPivot extends PivotController implements ManipulatorPivot {
   public RealManipulatorPivot() {
     super(
-        "Manipulator Pivot",
+        "Manipulator Pivot", 
         CAN.MANIPULATOR_PIVOT,
         DIO.MANIPULATOR_ENCODER,
         MANIPULATOR_PIVOT.ABSOLUTE_POSITION_OFFSET.in(Rotations),

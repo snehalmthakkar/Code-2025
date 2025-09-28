@@ -32,8 +32,8 @@ public final class ElevatorConstants {
     public static final Distance SPOOL_DIAMETER = Inches.of(1.0); // change
     public static final double SENSOR_MECHANISM_RATIO = MOTOR_GEAR_REDUCTION / SPOOL_DIAMETER.times(Math.PI).in(Meters); // Adjust if necessary
 
-    public static final int LEFT_MOTOR_ID = 60; // Replace with actual CAN ID
-    public static final int RIGHT_MOTOR_ID = 61; // Replace with actual CAN ID
+    public static final int LEFT_MOTOR_ID = 5; // Replace with actual CAN ID
+    public static final int RIGHT_MOTOR_ID = 4; // Replace with actual CAN ID
 
     public static final InvertedValue LEFT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
@@ -53,9 +53,8 @@ public final class ElevatorConstants {
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);
 
-    public static final int DIO_FLOOR_PORT = 6; // Replace with actual DIO port
-    public static final int DIO_CEILING_PORT = 5; // Replace with actual DIO port
-    // 6 7
+    public static final int DIO_FLOOR_PORT = 1;
+    public static final int DIO_CEILING_PORT = 0;
 
     public static final Voltage FINE_CONTROL_VOLTAGE = Volts.of(0.5);
 }

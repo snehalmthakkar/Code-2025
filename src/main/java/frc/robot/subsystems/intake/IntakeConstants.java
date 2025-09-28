@@ -26,12 +26,12 @@ import edu.wpi.first.units.measure.Voltage;
 public final class IntakeConstants {
     private IntakeConstants() {}
 
-    public static final int pivotMotorID = 1;
-    public static final int absoluteEncoderID = 2;
+    public static final int pivotMotorID = 2;
+    public static final int absoluteEncoderID = 1;
     public static final int rollerMotorID = 3;
     public static final String canBus = "rio";
 
-    public static final int intakeSensorChannel = 8;
+    public static final int intakeSensorChannel = 4;
     public static final DigitalSensor.Wiring intakeSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
     public static final TalonFXConfiguration pivotMotorConfiguration = new TalonFXConfiguration()
@@ -63,7 +63,7 @@ public final class IntakeConstants {
 
     public static final Time delayAfterIntake = Seconds.of(0);
 
-    public static final int indexerMotorId = 8;
+    public static final int indexerMotorId = 1;
 
     public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration();
 

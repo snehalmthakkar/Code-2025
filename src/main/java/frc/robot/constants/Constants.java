@@ -250,16 +250,13 @@ public final class Constants {
     public static final int ELEVATOR_RIGHT = 3;
     public static final int MANIPULATOR_PIVOT = 4;
     public static final int MANIPULATOR_GRABBER = 5;
-    public static final int MANIPULATOR_FUNNEL = 6;
     public static final int ALGAE_SENSOR = 7;
   }
 
   public static final class DIO {
-    public static final int CORAL_CLEAR_BEAM_BREAK = 3;
-    public static final int CORAL_DETECT_BEAM_BREAK = 0;
-    public static final int ELEVATOR_FLOOR_LIMIT = 1;
-    public static final int ELEVATOR_CEIL_LIMIT = 2;
-    public static final int MANIPULATOR_ENCODER = 4;
+    public static final int CORAL_CLEAR_BEAM_BREAK = 3; // Incorrect
+    public static final int CORAL_DETECT_BEAM_BREAK = 0; // Incorrect
+    public static final int MANIPULATOR_ENCODER = 4; // Incorrect
   }
 
   public static final class PWM {
