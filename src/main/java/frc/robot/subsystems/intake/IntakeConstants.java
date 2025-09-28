@@ -29,7 +29,7 @@ public final class IntakeConstants {
     public static final int pivotMotorID = 2;
     public static final int absoluteEncoderID = 1;
     public static final int rollerMotorID = 3;
-    public static final String canBus = "rio";
+    public static final String canBus = "drivetrain";
 
     public static final int intakeSensorChannel = 4;
     public static final DigitalSensor.Wiring intakeSensorWiring = DigitalSensor.Wiring.NormallyOpen;

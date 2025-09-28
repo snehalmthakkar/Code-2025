@@ -2,6 +2,7 @@ package frc.robot.subsystems.manipulator.grabber;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
@@ -16,7 +17,7 @@ public class AlgaeSensor extends SubsystemBase {
     private final CANrange canRange;
 
     private final StatusSignal<Distance> distanceSignal;
-    private Distance distance;
+    private Distance distance = Meters.of(0);
 
     public AlgaeSensor(int deviceId, String canBus) {
         canRange = new CANrange(deviceId, canBus);
@@ -38,7 +39,7 @@ public class AlgaeSensor extends SubsystemBase {
     }
 
     public boolean hasAlgae() {
-        return distance.lt(Inches.of(6.0));
+        return distance.lt(Inches.of(3.0));
     }
 
     public boolean isAlgaeFullyIntaked() {

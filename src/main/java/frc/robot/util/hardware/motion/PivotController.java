@@ -99,7 +99,7 @@ public class PivotController extends SubsystemBase {
     Logger.logNumber(this.getName() + "/duty/applied", () -> motor.getAppliedOutput());
     Logger.logNumber(this.getName() + "/duty/pid", () -> motor.get());
 
-    Logger.logNumber(this.getName() + "/angle/target", () -> targetPosition.in(Rotations));
+    Logger.logNumber(this.getName() + "/angle/target", () -> targetPosition == null ? 0 : targetPosition.in(Rotations));
     Logger.logNumber(this.getName() + "/angle/relative", () -> getPosition().in(Rotations));
     Logger.logNumber(this.getName() + "/angle/absolute", () -> getAbsolutePosition().in(Rotations));
     Logger.logNumber(this.getName() + "/angle/raw", () -> getRawAbsolutePosition().in(Rotations));

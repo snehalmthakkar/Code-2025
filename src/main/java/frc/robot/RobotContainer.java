@@ -3,11 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -15,8 +13,6 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
@@ -40,17 +36,13 @@ import frc.robot.constants.Constants.SWERVE;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.Controls;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.SimElevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
-import frc.robot.vision.CoralDetection;
-import frc.robot.vision.field.SimulatedField;
 import frc.robot.vision.field.TrackingField;
-import frc.robot.vision.field.TrackingField.Coral.Orientation;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -82,7 +74,6 @@ public class RobotContainer {
   public final SafeSubsystems safeties;
   public final Command autonomousCommand;
   public final Intake intake;
-  public final CoralDetection coralDetection;
   public final TrackingField trackingField;
   public final AutoPickup autoPickup;
   public final Controls controls;
@@ -133,16 +124,10 @@ public class RobotContainer {
     algaeDetector = new Algae();
     intake = new Intake(manipulator.grabber);
 
-    coralDetection = new CoralDetection("limelight-btag", new Translation3d(0, 0.6, 0), Degrees.of(-45));
     trackingField = TrackingField.createInstance();
     trackingField.startLogging();
     autoPickup = new AutoPickup(swerveDrive, controls.getSwerveController(), trackingField);
     groundAuto = new GroundAuto(this);
-
-    ((SimulatedField) trackingField).setGamePieces(List.of(
-      new TrackingField.Coral().withTranslation(new Translation2d(1, 2)).withOrientation(Orientation.Vertical),
-      new TrackingField.Coral().withTranslation(new Translation2d(7, 4))
-    ));
 
     // // Configure the trigger bindings
     controls.configureBindings(
