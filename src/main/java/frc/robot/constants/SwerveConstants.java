@@ -68,7 +68,7 @@ public final class SwerveConstants {
             new DriveGains(new PIDConstants(0.5, 0.0, 0.1), new PIDConstants(0.25, 0.0, 0.05))
                 .withFineTranslation(new PIDConstants(3.5, 0.0, 1.5))
                 .withFineRotation(new PIDConstants(3.5, 0.0, 1.5)),
-            new Gyroscope(2))
+            new Gyroscope(1))
         .withMaxDriveSpeed(MetersPerSecond.of(4.474))
         .withMaxLinearAcceleration(MetersPerSecondPerSecond.of(6.579))
         .withMaxRotationSpeed(RotationsPerSecond.of(1.62))
