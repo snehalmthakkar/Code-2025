@@ -9,7 +9,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -42,7 +42,7 @@ public class Elevator extends SubsystemBase {
     protected DigitalInput bottomLimitSwitch;
     protected DigitalInput topLimitSwitch;
 
-    protected PositionVoltage positionControl;
+    protected PositionTorqueCurrentFOC positionControl;
 
     protected boolean elevatorZeroed = false;
     protected Distance targetPosition = Inches.of(0);
@@ -157,7 +157,7 @@ public class Elevator extends SubsystemBase {
         
         Distance clampedPosition = MeasureMath.clamp(position, ElevatorConstants.MIN_HEIGHT, ElevatorConstants.MAX_HEIGHT);
         
-        PositionVoltage controlRequest = new PositionVoltage(clampedPosition.in(Meters))
+        PositionTorqueCurrentFOC controlRequest = new PositionTorqueCurrentFOC(clampedPosition.in(Meters))
             .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
 
         positionControl = controlRequest;
@@ -174,7 +174,7 @@ public class Elevator extends SubsystemBase {
 
             @Override
             public void end(boolean interrupted) {
-                if (interrupted) {
+                if (interrupted && !isNear(position)) {
                     startPositionControl(getPosition());
                 } else {
                     startPositionControl(position);
@@ -190,7 +190,10 @@ public class Elevator extends SubsystemBase {
 
     private Command fineControl(Voltage voltage) {
         return startEnd(
-            () -> leftMotor.setControl(new VoltageOut(voltage)),
+            () -> {
+                leftMotor.setControl(new VoltageOut(voltage));
+                positionControl = null;
+            },
             () -> startPositionControl(getPosition())
         );
     }
@@ -206,23 +209,29 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         refreshStatusSignals();
-        
-        if (RobotState.isDisabled() || positionControl == null) {
-            startPositionControl(getPosition());
-        }
-
-        positionControl = positionControl
-            .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed)
-            .withLimitReverseMotion(bottomLimitSwitchTriggered());
-        
-        CTREUtils.check(leftMotor.setControl(positionControl));
-        CTREUtils.check(rightMotor.setControl(positionControl));
 
         if (bottomLimitSwitchTriggered() && !elevatorZeroed) {
             CTREUtils.check(leftMotor.setPosition(ElevatorConstants.MIN_HEIGHT.in(Meters)));
             CTREUtils.check(rightMotor.setPosition(ElevatorConstants.MIN_HEIGHT.in(Meters)));
 
             elevatorZeroed = true;
+
+            startPositionControl(ElevatorConstants.MIN_HEIGHT);
+
+            return;
+        }
+        
+        if (RobotState.isDisabled()) {
+            startPositionControl(getPosition());
+        }
+
+        if (positionControl != null) {
+            positionControl = positionControl
+                .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed)
+                .withLimitReverseMotion(bottomLimitSwitchTriggered());
+            
+            CTREUtils.check(leftMotor.setControl(positionControl));
+            CTREUtils.check(rightMotor.setControl(positionControl));
         }
     }
 

@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.ENABLED_SYSTEMS;
 
@@ -76,6 +77,7 @@ public class Logger extends SubsystemBase {
     System.out.println("Starting periodic");
     notifier.startPeriodic(period.in(Seconds));
     SmartDashboard.putData(field2d);
+    SmartDashboard.putData(CommandScheduler.getInstance());
     MechanismLogger.start();
 
     new Logger();
