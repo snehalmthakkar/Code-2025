@@ -1,9 +1,10 @@
 package frc.robot.vision.field;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SimulatedField implements TrackingField {
-    private List<GamePiece> gamePieces;
+    private List<GamePiece> gamePieces = new ArrayList<>();
 
     @Override
     public void addDetection(GamePiece detectedGamePiece) {

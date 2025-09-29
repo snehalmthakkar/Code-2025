@@ -82,6 +82,8 @@ public class IntakePivot extends SubsystemBase {
             .withRotorToSensorRatio(IntakeConstants.pivotRotorToSensor)
             .withSensorToMechanismRatio(IntakeConstants.pivotSensorToMechanism)
             .withRemoteCANcoder(encoder);
+        
+        modifyConfiguration(motorConfig);
 
         CTREUtils.check(motor.getConfigurator().apply(motorConfig));
 
@@ -90,6 +92,8 @@ public class IntakePivot extends SubsystemBase {
         encoderConfig.MagnetSensor
             .withSensorDirection(IntakeConstants.absoluteEncoderDirection)
             .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.times(IntakeConstants.pivotSensorToMechanism));
+        
+        modifyConfiguration(encoderConfig);
         
         CTREUtils.check(encoder.getConfigurator().apply(encoderConfig));
 
@@ -103,11 +107,23 @@ public class IntakePivot extends SubsystemBase {
         Logger.logMeasure("Intake/Pivot/appliedVoltage", () -> CTREUtils.unwrap(appliedVoltageIn));
 
         MechanismRoot2d root = MechanismLogger.getRoot("Intake", 13.0, 7.8);
-        MechanismLigament2d ligament = MechanismLogger.getLigament("Intake Pivot", 14.4, getPosition().in(Degrees));
+        MechanismLigament2d ligament = MechanismLogger.getLigament("Intake Pivot", 14.4, getCenterOfMassPosition().in(Degrees));
 
         root.append(ligament);
 
-        MechanismLogger.addDynamicAngle(ligament, this::getPosition);
+        MechanismLogger.addDynamicAngle(ligament, this::getCenterOfMassPosition);
+    }
+
+    private Angle getCenterOfMassPosition() {
+        return positionIn.getValue().plus(IntakeConstants.centerOfMassAngularOffset);
+    }
+
+    protected TalonFXConfiguration modifyConfiguration(TalonFXConfiguration config) {
+        return config;
+    }
+
+    protected CANcoderConfiguration modifyConfiguration(CANcoderConfiguration config) {
+        return config;
     }
 
     /**

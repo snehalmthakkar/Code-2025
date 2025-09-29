@@ -5,11 +5,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.team6962.lib.utils.CTREUtils;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -53,6 +58,18 @@ public class IntakePivotSim extends IntakePivot {
     }
 
     @Override
+    public TalonFXConfiguration modifyConfiguration(TalonFXConfiguration config) {
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        return config;
+    }
+
+    @Override
+    protected CANcoderConfiguration modifyConfiguration(CANcoderConfiguration config) {
+        config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        return config;
+    }
+
+    @Override
     public void periodic() {
         super.periodic();
 
@@ -70,10 +87,14 @@ public class IntakePivotSim extends IntakePivot {
 
         physicsSim.update(dtSeconds);
 
-        CTREUtils.check(controllerSim.setRawRotorPosition(Radians.of(physicsSim.getAngleRads()).times(IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism)));
+        Angle physicsAngle = Radians.of(physicsSim.getAngleRads());
+        Angle externalAngle = physicsAngle.minus(IntakeConstants.centerOfMassAngularOffset);
+        Angle motorAngle = externalAngle.minus(IntakeConstants.absoluteEncoderOffset);
+
+        CTREUtils.check(controllerSim.setRawRotorPosition(motorAngle.times(IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism)));
         CTREUtils.check(controllerSim.setRotorVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec()).times(IntakeConstants.pivotRotorToSensor * IntakeConstants.pivotSensorToMechanism)));
         
-        CTREUtils.check(encoderSim.setRawPosition(Radians.of(physicsSim.getAngleRads()).times(IntakeConstants.pivotSensorToMechanism)));
+        CTREUtils.check(encoderSim.setRawPosition(motorAngle.times(IntakeConstants.pivotSensorToMechanism)));
         CTREUtils.check(encoderSim.setVelocity(RadiansPerSecond.of(physicsSim.getVelocityRadPerSec()).times(IntakeConstants.pivotSensorToMechanism)));
     }
 }
