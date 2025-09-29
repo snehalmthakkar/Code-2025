@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
@@ -13,6 +14,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Voltage;
@@ -28,15 +30,15 @@ public final class ElevatorConstants {
 
     public static final Mass ELEVATOR_MASS = Pounds.of(20.0);
 
-    public static final double MOTOR_GEAR_REDUCTION = 4.375;
-    public static final Distance SPOOL_DIAMETER = Inches.of(1.0); // change
-    public static final double SENSOR_MECHANISM_RATIO = MOTOR_GEAR_REDUCTION / SPOOL_DIAMETER.times(Math.PI).in(Meters); // Adjust if necessary
+    public static final double MOTOR_GEAR_REDUCTION = 50.0 / 12.0;
+    public static final Distance SPOOL_DIAMETER = Inches.of(2.148);
+    public static final double SENSOR_MECHANISM_RATIO = MOTOR_GEAR_REDUCTION / SPOOL_DIAMETER.times(Math.PI).in(Meters);
 
-    public static final int LEFT_MOTOR_ID = 5; // Replace with actual CAN ID
-    public static final int RIGHT_MOTOR_ID = 4; // Replace with actual CAN ID
+    public static final int LEFT_MOTOR_ID = 5;
+    public static final int RIGHT_MOTOR_ID = 4;
 
-    public static final InvertedValue LEFT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
-    public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
+    public static final InvertedValue LEFT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
             .withKP(0) // Replace with actual P value
@@ -48,7 +50,7 @@ public final class ElevatorConstants {
             .withMotionMagicCruiseVelocity(1500) // Replace with actual cruise velocity
             .withMotionMagicAcceleration(600); // Replace with actual acceleration
     public static final CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(80) // Replace with actual peak current limit
+            .withSupplyCurrentLimit(60) // Replace with actual peak current limit
             .withSupplyCurrentLimitEnable(true);
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);
@@ -56,5 +58,5 @@ public final class ElevatorConstants {
     public static final int DIO_FLOOR_PORT = 1;
     public static final int DIO_CEILING_PORT = 0;
 
-    public static final Voltage FINE_CONTROL_VOLTAGE = Volts.of(0.5);
+    public static final Current FINE_CONTROL_CURRENT = Amps.of(53); // 22
 }

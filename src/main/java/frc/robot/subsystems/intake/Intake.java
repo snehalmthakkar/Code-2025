@@ -65,7 +65,7 @@ public class Intake {
     public Command intake() {
         Command command = Commands.parallel(
             rollers.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER),
-            pivot.deploy().until(() -> sensors.getCoralLocation() == CoralLocation.INTAKE),
+            pivot.deploy().until(() -> sensors.getCoralLocation() == CoralLocation.INTAKE || sensors.getCoralLocation() == CoralLocation.INDEXER),
             indexer.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER)
         );
 

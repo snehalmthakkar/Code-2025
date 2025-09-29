@@ -65,6 +65,7 @@ public final class IntakeConstants {
     public static final Angle absoluteEncoderOffset = Degrees.of(47.7);
     public static final Angle centerOfMassAngularOffset = Degrees.of(-40);
     public static final SensorDirectionValue absoluteEncoderDirection = SensorDirectionValue.Clockwise_Positive;
+    public static final Angle absoluteEncoderDiscontinuityPoint = Degrees.of(10);
 
     public static final Angle pivotMinAngle = Degrees.of(21);
     public static final Angle pivotMaxAngle = Degrees.of(157);

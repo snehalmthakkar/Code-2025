@@ -99,7 +99,8 @@ public class IntakePivot extends SubsystemBase {
 
         encoderConfig.MagnetSensor
             .withSensorDirection(IntakeConstants.absoluteEncoderDirection)
-            .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.times(IntakeConstants.pivotSensorToMechanism));
+            .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.times(IntakeConstants.pivotSensorToMechanism))
+            .withAbsoluteSensorDiscontinuityPoint(IntakeConstants.absoluteEncoderDiscontinuityPoint.times(IntakeConstants.pivotSensorToMechanism));
         
         modifyConfiguration(encoderConfig);
         
@@ -131,7 +132,7 @@ public class IntakePivot extends SubsystemBase {
     }
 
     private Angle getCenterOfMassPosition() {
-        return positionIn.getValue().plus(IntakeConstants.centerOfMassAngularOffset);
+        return getPosition().plus(IntakeConstants.centerOfMassAngularOffset);
     }
 
     protected TalonFXConfiguration modifyConfiguration(TalonFXConfiguration config) {
@@ -147,7 +148,7 @@ public class IntakePivot extends SubsystemBase {
      * @return The current position of the pivot, in a measure.
      */
     public Angle getPosition() {
-        return MeasureMath.toAngle(BaseStatusSignal.getLatencyCompensatedValue(positionIn, velocityIn));
+        return MeasureMath.toAngle(BaseStatusSignal.getLatencyCompensatedValue(positionIn, velocityIn)).plus(Degrees.of(160));
     }
 
     /**
@@ -243,7 +244,7 @@ public class IntakePivot extends SubsystemBase {
     private void setPositionControl(Angle targetPosition) {
         this.targetPosition = targetPosition;
 
-        setControlWithLimits(new PositionTorqueCurrentFOC(targetPosition));
+        setControlWithLimits(new PositionTorqueCurrentFOC(targetPosition.minus(Degrees.of(160))));
     }
 
     private void setControlWithLimits(ControlRequest request) {
