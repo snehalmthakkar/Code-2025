@@ -39,10 +39,10 @@ public final class ElevatorConstants {
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.CounterClockwise_Positive; // Set inversion for left motor
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            .withKP(10) // Replace with actual P value
-            .withKI(0.0) // Replace with actual I value
-            .withKD(0.0) // Replace with actual D value
-            .withKG(0.2)
+            .withKP(0) // Replace with actual P value
+            .withKI(0) // Replace with actual I value
+            .withKD(0) // Replace with actual D value
+            .withKG(0)
             .withGravityType(GravityTypeValue.Elevator_Static);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(1500) // Replace with actual cruise velocity

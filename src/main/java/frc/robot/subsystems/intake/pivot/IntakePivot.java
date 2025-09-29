@@ -1,16 +1,18 @@
 package frc.robot.subsystems.intake.pivot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -77,7 +79,7 @@ public class IntakePivot extends SubsystemBase {
         TalonFXConfiguration motorConfig = IntakeConstants.pivotMotorConfiguration;
 
         motorConfig.Feedback
-            .withRotorToSensorRatio(IntakeConstants.pivotSensorToMechanism)
+            .withRotorToSensorRatio(IntakeConstants.pivotRotorToSensor)
             .withSensorToMechanismRatio(IntakeConstants.pivotSensorToMechanism)
             .withRemoteCANcoder(encoder);
 
@@ -87,7 +89,7 @@ public class IntakePivot extends SubsystemBase {
 
         encoderConfig.MagnetSensor
             .withSensorDirection(IntakeConstants.absoluteEncoderDirection)
-            .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.plus(IntakeConstants.centerOfMassAngularOffset));
+            .withMagnetOffset(IntakeConstants.absoluteEncoderOffset.times(IntakeConstants.pivotSensorToMechanism));
         
         CTREUtils.check(encoder.getConfigurator().apply(encoderConfig));
 
@@ -113,8 +115,7 @@ public class IntakePivot extends SubsystemBase {
      * @return The current position of the pivot, in a measure.
      */
     public Angle getPosition() {
-        return MeasureMath.toAngle(BaseStatusSignal.getLatencyCompensatedValue(positionIn, velocityIn))
-            .minus(IntakeConstants.centerOfMassAngularOffset);
+        return MeasureMath.toAngle(BaseStatusSignal.getLatencyCompensatedValue(positionIn, velocityIn));
     }
 
     /**
@@ -180,17 +181,32 @@ public class IntakePivot extends SubsystemBase {
         setControlWithLimits(controlRequest);
     }
 
+    private Current calculateGravityFeedforwardCurrent() {
+        return IntakeConstants.kG.times(Math.cos(getPosition().plus(IntakeConstants.centerOfMassAngularOffset).in(Radians)));
+    }
+
     private void setPositionControl(Angle targetPosition) {
         this.targetPosition = targetPosition;
 
-        setControlWithLimits(new PositionVoltage(targetPosition.plus(IntakeConstants.centerOfMassAngularOffset)));
+        setControlWithLimits(new PositionTorqueCurrentFOC(targetPosition));
     }
 
     private void setControlWithLimits(ControlRequest request) {
         controlRequest = request;
 
         applyLimitsToControlRequest(controlRequest);
+        applyFeedforwardToControlRequest(controlRequest);
         CTREUtils.check(motor.setControl(controlRequest));
+    }
+
+    private void applyFeedforwardToControlRequest(ControlRequest request) {
+        if (request instanceof PositionTorqueCurrentFOC r) {
+            r.FeedForward = calculateGravityFeedforwardCurrent().in(Amps);
+        } else if (request instanceof MotionMagicTorqueCurrentFOC r) {
+            r.FeedForward = calculateGravityFeedforwardCurrent().in(Amps);
+        } else if (request instanceof MotionMagicExpoTorqueCurrentFOC r) {
+            r.FeedForward = calculateGravityFeedforwardCurrent().in(Amps);
+        }
     }
 
     private void initStatusSignals() {
@@ -238,11 +254,11 @@ public class IntakePivot extends SubsystemBase {
     private void applyLimitsToControlRequest(ControlRequest request) {
         if (request == null) return;
 
-        if (request instanceof MotionMagicVoltage r) {
+        if (request instanceof MotionMagicTorqueCurrentFOC r) {
             r.withLimitForwardMotion(limitForwardMotion()).withLimitReverseMotion(limitReverseMotion());
-        } else if (request instanceof MotionMagicExpoVoltage r) {
+        } else if (request instanceof MotionMagicExpoTorqueCurrentFOC r) {
             r.withLimitForwardMotion(limitForwardMotion()).withLimitReverseMotion(limitReverseMotion());
-        } else if (request instanceof PositionVoltage r) {
+        } else if (request instanceof PositionTorqueCurrentFOC r) {
             r.withLimitForwardMotion(limitForwardMotion()).withLimitReverseMotion(limitReverseMotion());
         }
     }

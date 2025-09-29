@@ -146,7 +146,8 @@ public class RobotContainer {
   }
 
   private Command createAutonomousCommand() {
-    return groundAuto.sideAutonomous(CoralStation.RIGHT);
+    return intake.stow();
+    // return groundAuto.sideAutonomous(CoralStation.RIGHT);
     // return newElevator.moveToPosition(Inches.of(60));
     // AUTO ROUTINES - Uncomment the one you want to run
 

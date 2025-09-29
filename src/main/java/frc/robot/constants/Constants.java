@@ -254,8 +254,8 @@ public final class Constants {
   }
 
   public static final class DIO {
-    public static final int CORAL_CLEAR_BEAM_BREAK = 3; // May be switched with 5
-    public static final int CORAL_DETECT_BEAM_BREAK = 5; // May be switched with 3
+    public static final int CORAL_CLEAR_BEAM_BREAK = 3;
+    public static final int CORAL_DETECT_BEAM_BREAK = 2;
   }
 
   public static final class PWM {

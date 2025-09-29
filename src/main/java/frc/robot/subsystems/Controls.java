@@ -167,8 +167,8 @@ public class Controls {
                         pieceCombos.coralL2()
                     ))); // big right paddle
 
-    operator.rightBumper().whileTrue(manipulator.grabber.adjustCoral()); // intake coral
-    operator
+    operator.rightBumper().whileTrue(intake.rollers.intake()); // intake coral
+  operator
         .rightTrigger()
         .whileTrue(
             pieceCombos
