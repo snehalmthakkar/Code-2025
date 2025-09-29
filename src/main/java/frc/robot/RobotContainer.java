@@ -6,6 +6,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -13,6 +14,7 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DataLog;
@@ -25,7 +27,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoAlign;
+import frc.robot.auto.AutoChooser;
 import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.GroundAuto;
@@ -72,11 +76,11 @@ public class RobotContainer {
   public final Algae algaeDetector;
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
-  public final Command autonomousCommand;
   public final Intake intake;
   public final TrackingField trackingField;
   public final AutoPickup autoPickup;
   public final Controls controls;
+  public final AutoChooser autoChooser;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -142,49 +146,17 @@ public class RobotContainer {
 
     Logger.start(Milliseconds.of(20));
 
-    autonomousCommand = createAutonomousCommand();
-  }
-
-  private Command createAutonomousCommand() {
-    return intake.stow();
-    // return groundAuto.sideAutonomous(CoralStation.RIGHT);
-    // return newElevator.moveToPosition(Inches.of(60));
-    // AUTO ROUTINES - Uncomment the one you want to run
-
-    // 1. Start in the middle of the field, then score 3 coral on the right side.
-    // return autov3.createSideAutonomous(Side.RIGHT, true);
-
-    // 2. Start in the middle of the field, then score 3 coral on the left side.
-    // return autov3.createSideAutonomous(Side.LEFT, true);
-
-    // 3. Start on the right side of the field, then score 3 coral on the right side.
-    // return autov3.createSideAutonomous(Side.RIGHT, false);
-
-    // 4. Start on the left side of the field, then score 3 coral on the left side.
-    // return autov3.createSideAutonomous(Side.LEFT, false);
-
-    // 5. Start in the middle field, score preloaded coral on the back face then
-    //    throw the algae on the back face into the barge.
-    // return autov3.createMiddleAutonomous();
-
-    // 6. Drive foreward until astop
-    // return swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0));
-
-    // 7. Do nothing
-    // return Commands.none();
-
-    // 8. Old autonomous
-    // return autoGen.getCommand();
-
-    ////////////////////////////////////////////////////////////////////////////
-    // OTHER COMMANDS - Do not use in matches
-
-    // 9. Calibrate wheel size for odometry
-    // return swerveDrive.calibrateWheelSize();
+    autoChooser = new AutoChooser(Map.of(
+      "Nothing", () -> Commands.none(),
+      "Right Side", () -> groundAuto.sideAutonomous(CoralStation.RIGHT),
+      "Left Side", () -> groundAuto.sideAutonomous(CoralStation.LEFT),
+      "Drive Forward", () -> swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0)),
+      "Wheel Size Calibration", () -> swerveDrive.calibrateWheelSize()
+    ), "Nothing");
   }
 
   public Command getAutonomousCommand() {
-    return autonomousCommand;
+    return autoChooser.getAutonomousCommand();
   }
 
   public static double getVoltage() {

@@ -44,15 +44,15 @@ public class Intake {
      * Creates a new Intake subsystem.
      */
     public Intake(Grabber grabber) {
-        if (RobotBase.isSimulation()) {
-            pivot = new IntakePivotSim();
-        } else {
-            pivot = new IntakePivot();
-        }
-
         indexer = new Indexer();
         rollers = new IntakeRollers();
         sensors = new IntakeSensors(grabber, indexer);
+
+        if (RobotBase.isSimulation()) {
+            pivot = new IntakePivotSim(sensors);
+        } else {
+            pivot = new IntakePivot(sensors);
+        }
     }
 
     /**
@@ -63,10 +63,11 @@ public class Intake {
      * @return the command that intakes a piece of coral from the ground
      */
     public Command intake() {
-        Command command = rollers.intake().alongWith(Commands.sequence(
+        Command command = Commands.parallel(
+            rollers.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER),
             pivot.deploy().until(() -> sensors.getCoralLocation() == CoralLocation.INTAKE),
             indexer.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER)
-        ));
+        );
 
         if (RobotBase.isSimulation()) {
             command = command.deadlineFor(Commands.sequence(

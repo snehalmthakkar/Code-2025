@@ -114,7 +114,7 @@ public class Controls {
     ));
 
     driver.leftBumper().onTrue(intake.drop());
-    driver.rightBumper().onTrue(intake.intake());
+    driver.rightBumper().whileTrue(intake.intake());
     driver.rightStick().onTrue(intake.transfer().withDeadline(manipulator.intakeCoral()));
     driver.leftStick().whileTrue(autoPickup.driftToCoral());
     driver.povCenter(); // USED
@@ -158,8 +158,7 @@ public class Controls {
     operator
         .rightStick()
         .whileTrue(
-            pieceCombos
-                .intakeCoral()
+            intake.intake()
                 .andThen(
                     Commands.parallel(
                         rumbleBoth(),
@@ -167,7 +166,13 @@ public class Controls {
                         pieceCombos.coralL2()
                     ))); // big right paddle
 
-    operator.rightBumper().whileTrue(intake.rollers.intake()); // intake coral
+  operator.rightBumper().whileTrue(intake.transfer()
+    .andThen(
+      Commands.parallel(
+          rumbleBoth(),
+          LEDs.setStateCommand(LEDs.State.GOOD),
+          pieceCombos.coralL2()
+      ))); // transfer coral
   operator
         .rightTrigger()
         .whileTrue(

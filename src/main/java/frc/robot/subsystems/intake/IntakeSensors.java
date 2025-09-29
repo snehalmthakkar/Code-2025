@@ -72,6 +72,10 @@ public class IntakeSensors extends SubsystemBase {
             location = CoralLocation.TRANSFER_TO_MANIPULATOR;
         }
 
+        if (location == CoralLocation.INDEXER && !indexerSensor.isTriggered()) {
+            location = CoralLocation.OUTSIDE;
+        }
+
         if (location == CoralLocation.TRANSFER_TO_MANIPULATOR && grabber.isCoralClear() && grabber.hasCoral()) {
             location = CoralLocation.OUTSIDE;
         }

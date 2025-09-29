@@ -85,13 +85,17 @@ public final class IntakeConstants {
 
     public static final int indexerMotorId = 1;
 
-    public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration();
+    public static final TalonFXConfiguration indexerMotorConfiguration = new TalonFXConfiguration()
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive)
+        );
 
     public static final int indexerSensorChannel = 6;
     public static final DigitalSensor.Wiring indexerSensorWiring = DigitalSensor.Wiring.NormallyOpen;
 
-    public static final Voltage indexerIntakeVoltage = Volts.of(12);
-    public static final Voltage indexerDropVoltage = Volts.of(-12);
+    public static final Voltage indexerIntakeVoltage = Volts.of(8);
+    public static final Voltage indexerDropVoltage = Volts.of(-10);
 
     public static final Time indexerDropExtraTime = Seconds.of(0.2);
 

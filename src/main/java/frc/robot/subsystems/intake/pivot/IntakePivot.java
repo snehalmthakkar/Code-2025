@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Radians;
 
+import java.util.Set;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -29,8 +31,10 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeSensors;
 
 /**
  * The intake pivot subsystem, which pivots the ground coral intake up and down.
@@ -60,6 +64,8 @@ public class IntakePivot extends SubsystemBase {
     protected TalonFX motor;
     protected CANcoder encoder;
 
+    private IntakeSensors sensors;
+
     private StatusSignal<Angle> positionIn;
     private StatusSignal<AngularVelocity> velocityIn;
     private StatusSignal<Current> statorCurrentIn;
@@ -72,7 +78,9 @@ public class IntakePivot extends SubsystemBase {
     /**
      * Creates a new IntakePivot.
      */
-    public IntakePivot() {
+    public IntakePivot(IntakeSensors sensors) {
+        this.sensors = sensors;
+
         motor = new TalonFX(IntakeConstants.pivotMotorID, IntakeConstants.canBus);
         encoder = new CANcoder(IntakeConstants.absoluteEncoderID, IntakeConstants.canBus);
 
@@ -112,6 +120,14 @@ public class IntakePivot extends SubsystemBase {
         root.append(ligament);
 
         MechanismLogger.addDynamicAngle(ligament, this::getCenterOfMassPosition);
+
+        // While using a hold command as the default command is problematic,
+        // because in sequential command groups the mechanism will sag when not
+        // actively being held, using the stow command as default is really
+        // useful here. In this case, we want to the pivot to not be stowed when
+        // a sequential command is running, but we want it to stow automatically
+        // when no command are running that require it
+        setDefaultCommand(stow().repeatedly());
     }
 
     private Angle getCenterOfMassPosition() {
@@ -142,6 +158,25 @@ public class IntakePivot extends SubsystemBase {
         return CTREUtils.unwrap(velocityIn);
     }
 
+    private boolean isSafeToMove() {
+        return sensors.getCoralLocation() != IntakeSensors.CoralLocation.TRANSFER_TO_INDEXER;
+    }
+
+
+    /**
+     * Gets the position the pivot should move to when a command ends, based
+     * on the previous target position.
+     * @param previousTarget The previous target position of the pivot.
+     * @return The position the pivot should move to when a command ends.
+     */
+    private Angle getEndPosition(Angle previousTarget) {
+        if (isNear(previousTarget)) {
+            return previousTarget;
+        } else {
+            return getPosition();
+        }
+    }
+
     /**
      * Creates a command that moves the pivot to the specified angle, ending
      * when the target is reached.
@@ -149,14 +184,18 @@ public class IntakePivot extends SubsystemBase {
      * @return A command that moves the pivot to the specified angle.
      */
     private Command moveTo(Angle targetPosition) {
-        return startEnd(
-            () -> setPositionControl(targetPosition),
-            () -> {
-                if (!isNear(targetPosition)) {
-                    setPositionControl(getPosition());
-                }
+        return Commands.defer(() -> {
+            Command pivotCommand = startEnd(
+                () -> setPositionControl(targetPosition),
+                () -> setPositionControl(getEndPosition(targetPosition))
+            ).until(() -> isNear(targetPosition));
+
+            if (isSafeToMove()) {
+                return pivotCommand;
+            } else {
+                return Commands.none();
             }
-        ).until(() -> isNear(targetPosition));
+        }, Set.of(this));
     }
 
     /**

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeSensors;
 
 /**
  * A simulation of the intake pivot, which pivots the ground coral intake up and
@@ -35,8 +36,8 @@ public class IntakePivotSim extends IntakePivot {
     /**
      * Creates a new IntakePivotSim.
      */
-    public IntakePivotSim() {
-        super();
+    public IntakePivotSim(IntakeSensors sensors) {
+        super(sensors);
 
         physicsSim = new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(
