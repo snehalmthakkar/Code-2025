@@ -140,10 +140,10 @@ public class Controls {
     // L3 Algae Removal Height
     // Algae ground Height
 
-    operator.a().onTrue(elevator.coralL1());
-    operator.b().onTrue(elevator.coralL2());
-    operator.x().onTrue(elevator.coralL3());
-    operator.y().onTrue(elevator.coralL4());
+    operator.a().onTrue(pieceCombos.coralL1());
+    operator.b().onTrue(autoscoreCoral(swerveDrive, elevator, manipulator, pieceCombos, 2));
+    operator.x().onTrue(autoscoreCoral(swerveDrive, elevator, manipulator, pieceCombos, 3));
+    operator.y().onTrue(autoscoreCoral(swerveDrive, elevator, manipulator, pieceCombos, 4));
 
     operator.povUp().whileTrue(elevator.fineControlUp());
     operator.povDown().whileTrue(elevator.fineControlDown());
