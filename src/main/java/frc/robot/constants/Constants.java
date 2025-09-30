@@ -306,7 +306,6 @@ public final class Constants {
     public static final double GEARING = 6.72;
     public static final Distance CYCLE_HEIGHT = Inches.of(2.16 * Math.PI); // CALCULATE
     public static final Distance TOLERANCE = Inches.of(0.5);
-    public static final Distance Bhobe_HEIGHT = Inches.of(1);
 
     public static final class PROFILE {
       public static final double kP = 4.5;
@@ -315,29 +314,28 @@ public final class Constants {
 
     // HEIGHT IS MEASURED FROM THE GROUND TO THE TOP OF THE ELEVATOR
     public static final Distance BASE_HEIGHT = Inches.of(41.50);
-    public static final Distance MAX_HEIGHT = Inches.of(70.65);
+    public static final Distance MAX_HEIGHT = Inches.of(73);
     public static final Distance MIN_HEIGHT = BASE_HEIGHT;
     public static final Distance STOW_HEIGHT = BASE_HEIGHT;
-    public static final Distance MAX_UNLIMITED_HEIGHT = Inches.of(41.0); // AVERAGE
 
     public static final class CORAL {
-      public static final Distance L1_HEIGHT = Inches.of(46.0); // change
-      public static final Distance L2_HEIGHT = Inches.of(49.2);
-      public static final Distance L3_HEIGHT = Inches.of(56.1);
+      public static final Distance L1_HEIGHT = Inches.of(46.15); // change
+      public static final Distance L2_HEIGHT = Inches.of(49.45);
+      public static final Distance L3_HEIGHT = Inches.of(56.6);
       public static final Distance L4_HEIGHT = MAX_HEIGHT;
       public static final Distance INTAKE_HEIGHT = MIN_HEIGHT;
     }
 
     public static final class ALGAE {
-      public static final Distance L2_HEIGHT = Inches.of(49.35);
-      public static final Distance L3_HEIGHT = Inches.of(56.75);
+      public static final Distance L2_HEIGHT = Inches.of(49.6);
+      public static final Distance L3_HEIGHT = Inches.of(57.3);
       public static final Distance BARGE_HEIGHT = MAX_HEIGHT;
       public static final Distance GROUND_HEIGHT = MIN_HEIGHT;
-      public static final Distance PROCESSOR_HEIGHT = Inches.of(41.50);
+      public static final Distance PROCESSOR_HEIGHT = MIN_HEIGHT;
     }
 
     public static final class AUTO {
-      public static final Distance READY_HEIGHT = Inches.of(53);
+      public static final Distance READY_HEIGHT = Inches.of(53.4);
     }
   }
 
@@ -363,7 +361,7 @@ public final class Constants {
     public static final Angle SAFE_ANGLE = Degrees.of(-5.0);
 
     // TODO: update for v2
-    public static final Angle SAFE_MIN_ANGLE = MIN_ANGLE;
+    public static final Angle SAFE_MIN_ANGLE = Degrees.of(-10.0);
     public static final Angle SAFE_MAX_ANGLE = Degrees.of(0.0);
 
     public static final Angle PID_MIN_ANGLE = Degrees.of(-90.0);

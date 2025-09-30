@@ -11,7 +11,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.team6962.lib.telemetry.Logger;
@@ -198,11 +198,11 @@ public class Elevator extends SubsystemBase {
         };
     }
 
-    private Command fineControl(Current voltage) {
+    private Command fineControl(Voltage voltage) {
         return startEnd(
             () -> {
-                leftMotor.setControl(new TorqueCurrentFOC(voltage));
-                rightMotor.setControl(new TorqueCurrentFOC(voltage));
+                leftMotor.setControl(new VoltageOut(voltage));
+                rightMotor.setControl(new VoltageOut(voltage));
                 positionControl = null;
             },
             () -> startPositionControl(getPosition(), true)
@@ -210,11 +210,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command fineControlUp() {
-        return fineControl(ElevatorConstants.FINE_CONTROL_CURRENT);
+        return fineControl(ElevatorConstants.FINE_CONTROL_UP);
     }
 
     public Command fineControlDown() {
-        return fineControl(ElevatorConstants.FINE_CONTROL_CURRENT.unaryMinus());
+        return fineControl(ElevatorConstants.FINE_CONTROL_DOWN);
     }
     
     @Override

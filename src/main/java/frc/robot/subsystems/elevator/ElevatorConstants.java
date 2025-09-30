@@ -1,9 +1,9 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -14,9 +14,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Voltage;
 
 public final class ElevatorConstants {
     private ElevatorConstants() {
@@ -24,7 +24,7 @@ public final class ElevatorConstants {
     }
 
     public static final Distance MIN_HEIGHT = Inches.of(41.50);
-    public static final Distance MAX_HEIGHT = Inches.of(70.65);
+    public static final Distance MAX_HEIGHT = Inches.of(73);
     public static final Distance TOLERANCE = Inches.of(0.5);
 
     public static final Mass ELEVATOR_MASS = Pounds.of(20.0);
@@ -40,9 +40,9 @@ public final class ElevatorConstants {
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            .withKP(600)
+            .withKP(900)
             .withKI(40)
-            .withKD(150)
+            .withKD(250)
             .withKS(21)
             .withKG(53)
             .withKA(4.85)
@@ -60,5 +60,6 @@ public final class ElevatorConstants {
     public static final int DIO_FLOOR_PORT = 1;
     public static final int DIO_CEILING_PORT = 0;
 
-    public static final Current FINE_CONTROL_CURRENT = Amps.of(37.5); // 22-53
+    public static final Voltage FINE_CONTROL_UP = Volts.of(2);
+    public static final Voltage FINE_CONTROL_DOWN = Volts.of(-0.5);
 }
