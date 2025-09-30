@@ -70,7 +70,7 @@ public class Logger extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.log("Logger/notifierAlive", Timer.getFPGATimestamp() - threadLastPing < 0.25);
+    // Logger.log("Logger/notifierAlive", Timer.getFPGATimestamp() - threadLastPing < 0.25);
   }
 
   public static void start(Time period) {

@@ -40,26 +40,35 @@ public final class ElevatorConstants {
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            .withKP(900)
-            .withKI(40)
-            .withKD(250)
-            .withKS(21)
-            .withKG(53)
-            .withKA(4.85)
+            // .withKP(900)
+            // .withKI(40)
+            // .withKD(250)
+            // .withKS(13.25)
+            // .withKG(30.9)
+            // .withKA(4.85)
+            .withKG(0.7995 + 0.02)
+            .withKV(3.13)
+            .withKA(0.079)
+            .withKS(0.2805 - 0.02)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(4)
-            .withMotionMagicAcceleration(10);
+            .withMotionMagicCruiseVelocity(2)
+            .withMotionMagicAcceleration(4);
     public static final CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(60)
+            .withSupplyCurrentLimit(80)
             .withSupplyCurrentLimitEnable(true);
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);
 
+    // KG - KS correct
+    // KG + KS too low
+
+
     public static final int DIO_FLOOR_PORT = 1;
     public static final int DIO_CEILING_PORT = 0;
 
-    public static final Voltage FINE_CONTROL_UP = Volts.of(2);
-    public static final Voltage FINE_CONTROL_DOWN = Volts.of(-0.5);
+    public static final Voltage KG = Volts.of(0.7955);
+    public static final Voltage FINE_CONTROL_UP = KG.plus(Volts.of(1));
+    public static final Voltage FINE_CONTROL_DOWN = KG.minus(Volts.of(1));
 }
