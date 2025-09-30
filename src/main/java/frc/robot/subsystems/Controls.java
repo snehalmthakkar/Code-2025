@@ -177,9 +177,10 @@ public class Controls {
           Commands.parallel(
               rumbleBoth(),
               LEDs.setStateCommand(LEDs.State.GOOD),
-              pieceCombos.readyL2()
+              pieceCombos.readyL2(),
+              manipulator.grabber.repositionCoral()
           )),
-      manipulator.grabber.adjustCoral(),
+      manipulator.grabber.repositionCoral(),
       () -> !manipulator.grabber.hasCoral() && manipulator.grabber.isCoralClear()
     )); // transfer coral
   operator

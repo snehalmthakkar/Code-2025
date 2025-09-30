@@ -90,16 +90,17 @@ public class Intake {
      */
     public Command drop() {
         Command command = Commands.either(
-            Commands.parallel(
-                pivot.deploy(),
-                indexer.drop(),
-                rollers.drop()
-            ),
             Commands.sequence(
                 pivot.stow(),
                 indexer.drop()
             ),
-            () -> (sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER) || sensors.getCoralLocation() == CoralLocation.INTAKE
+            Commands.parallel(
+                pivot.deploy(),
+                indexer.drop(),
+                rollers.drop(),
+                Commands.runOnce(() -> sensors.setCoralDropped())
+            ),
+            () -> sensors.getCoralLocation() == CoralLocation.INDEXER
         );
 
         if (RobotBase.isSimulation()) {
