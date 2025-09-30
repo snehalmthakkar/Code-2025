@@ -14,13 +14,17 @@ public final class IntakeCommands {
     }
 
     public static Command intakeTransfer(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
-        return Commands.deadline(
-            intake.intake(),
-            safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
-        ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE).andThen(Commands.deadline(
-            intake.transfer(),
-            manipulator.pivot.coralIntake()
-        ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER));
+        return Commands.sequence(
+            Commands.deadline(
+                intake.intake(),
+                safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
+            ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE),
+            safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+            Commands.deadline(
+                intake.transfer(),
+                pieceCombos.intakeCoral()
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER)
+        );
     }
 
     public static Command intakeCoral(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
@@ -31,9 +35,12 @@ public final class IntakeCommands {
     }
 
     public static Command transferCoral(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
-        return Commands.deadline(
-            intake.transfer(),
-            manipulator.pivot.coralIntake()
-        ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER);
+        return Commands.sequence(
+            safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+            Commands.deadline(
+                intake.transfer(),
+                pieceCombos.intakeCoral()
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER)
+        );
     }
 }

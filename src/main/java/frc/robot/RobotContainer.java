@@ -135,7 +135,7 @@ public class RobotContainer {
 
     // // Configure the trigger bindings
     controls.configureBindings(
-        swerveDrive, elevator, manipulator, autoAlign, autov3, pieceCombos, autoPickup, intake);
+        swerveDrive, elevator, manipulator, autoAlign, autov3, safeties, pieceCombos, autoPickup, intake);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");

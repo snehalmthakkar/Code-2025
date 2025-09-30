@@ -22,12 +22,15 @@ import frc.robot.auto.AutoAlign;
 import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.AutoAlign.PolePattern;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PieceCombos;
+import frc.robot.commands.SafeSubsystems;
 import frc.robot.commands.XBoxSwerve;
 import frc.robot.field.ReefPositioning;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
 import frc.robot.subsystems.manipulator.Manipulator;
 
 import java.util.Set;
@@ -57,6 +60,7 @@ public class Controls {
       Manipulator manipulator,
       AutoAlign autoAlign,
       Autonomous autonomous,
+      SafeSubsystems manipulatorSafeties,
       PieceCombos pieceCombos,
       AutoPickup autoPickup,
       Intake intake) {
@@ -166,13 +170,18 @@ public class Controls {
                         pieceCombos.coralL2()
                     ))); // big right paddle
 
-  operator.rightBumper().whileTrue(intake.transfer()
-    .andThen(
-      Commands.parallel(
-          rumbleBoth(),
-          LEDs.setStateCommand(LEDs.State.GOOD),
-          pieceCombos.coralL2()
-      ))); // transfer coral
+  operator.rightBumper().whileTrue(
+    Commands.either(
+      IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
+        .andThen(
+          Commands.parallel(
+              rumbleBoth(),
+              LEDs.setStateCommand(LEDs.State.GOOD),
+              pieceCombos.readyL2()
+          )),
+      manipulator.grabber.adjustCoral(),
+      () -> intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE
+    )); // transfer coral
   operator
         .rightTrigger()
         .whileTrue(

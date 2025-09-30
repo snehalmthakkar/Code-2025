@@ -62,6 +62,13 @@ public class PieceCombos {
         .withName("READY L3");
   }
 
+  public Command readyL2() {
+    return safeSubsystems
+        .safeMoveCommand(
+            elevator.coralL2(), manipulator.stow(), ELEVATOR.AUTO.READY_HEIGHT)
+        .withName("READY L3");
+  }
+
   public Command coralL4() {
     return safeSubsystems
         .safeMoveCommand(elevator.coralL4(), manipulator.placeCoralL4(), ELEVATOR.CORAL.L4_HEIGHT)
