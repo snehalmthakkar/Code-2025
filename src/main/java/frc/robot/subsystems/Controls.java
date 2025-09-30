@@ -191,7 +191,9 @@ public class Controls {
                     rumbleBoth()
                         .alongWith(
                             LEDs.setStateCommand(LEDs.State.GOOD)))); // drop coral/intake algae
-    operator.leftBumper().whileTrue(pieceCombos.algaeBargeShoot()); // shoot barge
+    operator.leftBumper().whileTrue(
+      intake.drop()
+    ); // shoot barge
     operator
         .leftTrigger()
         .whileTrue(

@@ -91,8 +91,7 @@ public class Intake {
     public Command drop() {
         Command command = Commands.sequence(
             pivot.stow(),
-            indexer.drop().until(() -> sensors.getCoralLocation() == CoralLocation.OUTSIDE),
-            Commands.waitTime(IntakeConstants.indexerDropExtraTime)
+            indexer.drop()
         );
 
         if (RobotBase.isSimulation()) {

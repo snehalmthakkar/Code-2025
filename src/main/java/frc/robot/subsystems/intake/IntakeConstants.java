@@ -98,8 +98,6 @@ public final class IntakeConstants {
     public static final Voltage indexerIntakeVoltage = Volts.of(8);
     public static final Voltage indexerDropVoltage = Volts.of(-10);
 
-    public static final Time indexerDropExtraTime = Seconds.of(0.2);
-
     public static final class Simulation {
         private Simulation() {}
 
