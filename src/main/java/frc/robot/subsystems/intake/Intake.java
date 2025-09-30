@@ -90,14 +90,14 @@ public class Intake {
      */
     public Command drop() {
         Command command = Commands.either(
-            Commands.sequence(
-                pivot.stow(),
-                indexer.drop()
-            ),
             Commands.parallel(
                 pivot.deploy(),
                 indexer.drop(),
                 rollers.drop()
+            ),
+            Commands.sequence(
+                pivot.stow(),
+                indexer.drop()
             ),
             () -> (sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER) || sensors.getCoralLocation() == CoralLocation.INTAKE
         );
