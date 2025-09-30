@@ -40,16 +40,13 @@ public final class ElevatorConstants {
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            // .withKP(900)
-            // .withKI(40)
-            // .withKD(250)
-            // .withKS(13.25)
-            // .withKG(30.9)
-            // .withKA(4.85)
-            .withKG(0.7995 + 0.02)
+            .withKP(6)
+            .withKI(0.3)
+            .withKD(1)
+            .withKG(0.8195)
             .withKV(3.13)
             .withKA(0.079)
-            .withKS(0.2805 - 0.02)
+            .withKS(0.2605)
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
