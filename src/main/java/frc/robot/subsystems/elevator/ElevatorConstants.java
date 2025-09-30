@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -13,11 +12,11 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Voltage;
 
 public final class ElevatorConstants {
     private ElevatorConstants() {
@@ -41,16 +40,19 @@ public final class ElevatorConstants {
     public static final InvertedValue RIGHT_MOTOR_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
 
     public static final Slot0Configs slot0Configs = new Slot0Configs()
-            .withKP(0) // Replace with actual P value
-            .withKI(0) // Replace with actual I value
-            .withKD(0) // Replace with actual D value
-            .withKG(0)
-            .withGravityType(GravityTypeValue.Elevator_Static);
+            .withKP(600)
+            .withKI(40)
+            .withKD(150)
+            .withKS(21)
+            .withKG(53)
+            .withKA(4.85)
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(1500) // Replace with actual cruise velocity
-            .withMotionMagicAcceleration(600); // Replace with actual acceleration
+            .withMotionMagicCruiseVelocity(4)
+            .withMotionMagicAcceleration(10);
     public static final CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(60) // Replace with actual peak current limit
+            .withSupplyCurrentLimit(60)
             .withSupplyCurrentLimitEnable(true);
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);
@@ -58,5 +60,5 @@ public final class ElevatorConstants {
     public static final int DIO_FLOOR_PORT = 1;
     public static final int DIO_CEILING_PORT = 0;
 
-    public static final Current FINE_CONTROL_CURRENT = Amps.of(53); // 22
+    public static final Current FINE_CONTROL_CURRENT = Amps.of(37.5); // 22-53
 }

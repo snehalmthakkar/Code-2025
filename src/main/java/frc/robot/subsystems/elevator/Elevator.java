@@ -9,7 +9,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -42,7 +43,7 @@ public class Elevator extends SubsystemBase {
     protected DigitalInput bottomLimitSwitch;
     protected DigitalInput topLimitSwitch;
 
-    protected PositionTorqueCurrentFOC positionControl;
+    protected MotionMagicTorqueCurrentFOC positionControl;
 
     protected boolean elevatorZeroed = false;
     protected Distance targetPosition = Inches.of(0);
@@ -64,11 +65,11 @@ public class Elevator extends SubsystemBase {
         topLimitSwitch = new DigitalInput(ElevatorConstants.DIO_CEILING_PORT); // Replace with actual DIO port
 
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration()
-        .withSlot0(ElevatorConstants.slot0Configs)
-        .withMotionMagic(ElevatorConstants.motionMagicConfigs)
-        .withCurrentLimits(ElevatorConstants.currentLimitsConfigs)
-        .withMotorOutput(ElevatorConstants.motorOutputConfigs)
-        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(ElevatorConstants.SENSOR_MECHANISM_RATIO)); // Assuming 1:1 ratio, adjust if necessary
+            .withSlot0(ElevatorConstants.slot0Configs)
+            .withMotionMagic(ElevatorConstants.motionMagicConfigs)
+            .withCurrentLimits(ElevatorConstants.currentLimitsConfigs)
+            .withMotorOutput(ElevatorConstants.motorOutputConfigs)
+            .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(ElevatorConstants.SENSOR_MECHANISM_RATIO)); // Assuming 1:1 ratio, adjust if necessary
 
         talonFXConfiguration.MotorOutput.Inverted = ElevatorConstants.LEFT_MOTOR_INVERTED_VALUE; // Set inversion for left motor
         CTREUtils.check(leftMotor.getConfigurator().apply(talonFXConfiguration));
@@ -152,15 +153,24 @@ public class Elevator extends SubsystemBase {
         return !bottomLimitSwitch.get();
     }
 
-    private void startPositionControl(Distance position) {
+    private void startPositionControl(Distance position, boolean hold) {
         targetPosition = position;
         
         Distance clampedPosition = MeasureMath.clamp(position, ElevatorConstants.MIN_HEIGHT, ElevatorConstants.MAX_HEIGHT);
-        
-        PositionTorqueCurrentFOC controlRequest = new PositionTorqueCurrentFOC(clampedPosition.in(Meters))
-            .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
 
-        positionControl = controlRequest;
+        ControlRequest controlRequest;
+
+        // if (hold && position.isNear(clampedPosition, Inches.of(0.125))) {
+        //     controlRequest = new TorqueCurrentFOC(ElevatorConstants.slot0Configs.kG);
+        //     positionControl = null;
+        // } else {
+            MotionMagicTorqueCurrentFOC motionMagicTorqueCurrentFOC = new MotionMagicTorqueCurrentFOC(clampedPosition.in(Meters))
+                .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
+            
+            positionControl = motionMagicTorqueCurrentFOC;
+            controlRequest = motionMagicTorqueCurrentFOC;
+        // }
+
         leftMotor.setControl(controlRequest);
         rightMotor.setControl(controlRequest);
     }
@@ -169,15 +179,15 @@ public class Elevator extends SubsystemBase {
         return new Command() {
             @Override
             public void initialize() {
-                startPositionControl(position);
+                startPositionControl(position, false);
             }
 
             @Override
             public void end(boolean interrupted) {
                 if (interrupted && !isNear(position)) {
-                    startPositionControl(getPosition());
+                    startPositionControl(getPosition(), true);
                 } else {
-                    startPositionControl(position);
+                    startPositionControl(position, true);
                 }
             }
 
@@ -195,7 +205,7 @@ public class Elevator extends SubsystemBase {
                 rightMotor.setControl(new TorqueCurrentFOC(voltage));
                 positionControl = null;
             },
-            () -> startPositionControl(getPosition())
+            () -> startPositionControl(getPosition(), true)
         );
     }
 
@@ -217,13 +227,13 @@ public class Elevator extends SubsystemBase {
 
             elevatorZeroed = true;
 
-            startPositionControl(ElevatorConstants.MIN_HEIGHT);
+            startPositionControl(ElevatorConstants.MIN_HEIGHT, false);
 
             return;
         }
         
         if (RobotState.isDisabled()) {
-            startPositionControl(getPosition());
+            startPositionControl(getPosition(), true);
         }
 
         if (positionControl != null) {
