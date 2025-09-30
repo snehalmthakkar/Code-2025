@@ -18,7 +18,7 @@ public final class IntakeCommands {
             Commands.deadline(
                 intake.intake(),
                 safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
-            ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE),
+            ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE),
             safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
             Commands.deadline(
                 intake.transfer(),
@@ -31,7 +31,7 @@ public final class IntakeCommands {
         return Commands.deadline(
             intake.intake(),
             safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
-        ).onlyIf(() -> RobotBase.isSimulation() || (!manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE));
+        ).onlyIf(() -> RobotBase.isSimulation() || (!manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE));
     }
 
     public static Command transferCoral(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {

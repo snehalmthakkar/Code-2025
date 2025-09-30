@@ -180,7 +180,7 @@ public class Controls {
               pieceCombos.readyL2()
           )),
       manipulator.grabber.adjustCoral(),
-      () -> intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE
+      () -> !manipulator.grabber.hasCoral() && manipulator.grabber.isCoralClear()
     )); // transfer coral
   operator
         .rightTrigger()

@@ -81,6 +81,7 @@ public final class IntakeConstants {
                 .withInverted(InvertedValue.Clockwise_Positive)
             );
     public static final Voltage rollerIntakeVoltage = Volts.of(12);
+    public static final Voltage rollerDropVoltage = Volts.of(-12);
 
     public static final Time delayAfterIntake = Seconds.of(0);
 

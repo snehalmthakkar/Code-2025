@@ -101,6 +101,10 @@ public class IntakeRollers extends SubsystemBase {
         return run(IntakeConstants.rollerIntakeVoltage);
     }
 
+    public Command drop() {
+        return run(IntakeConstants.rollerDropVoltage);
+    }
+
     /**
      * Returns whether the intake is currently moving. This is determined by
      * checking if the rollers are spinning at a non-negligible speed.

@@ -323,7 +323,7 @@ public final class Constants {
       public static final Distance L2_HEIGHT = Inches.of(49.45);
       public static final Distance L3_HEIGHT = Inches.of(56.6);
       public static final Distance L4_HEIGHT = Inches.of(71.5);
-      public static final Distance INTAKE_HEIGHT = MIN_HEIGHT;
+      public static final Distance INTAKE_HEIGHT = Inches.of(42.3);
     }
 
     public static final class ALGAE {
@@ -375,7 +375,7 @@ public final class Constants {
       public static final Angle L1_ANGLE = Degrees.of(-10.0);
       public static final Angle L23_ANGLE = Degrees.of(-22.35);
       public static final Angle L4_ANGLE = Degrees.of(-48.5);
-      public static final Angle INTAKE_ANGLE = Degrees.of(-22.0);
+      public static final Angle INTAKE_ANGLE = Degrees.of(0.0);
     }
 
     public static final class ALGAE {
