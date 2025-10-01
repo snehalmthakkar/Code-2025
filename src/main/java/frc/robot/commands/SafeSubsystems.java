@@ -33,6 +33,10 @@ public class SafeSubsystems extends SubsystemBase {
   }
 
   public static Angle calcSafeMaxAngle(Distance elevatorHeight) {
+    if (elevatorHeight.lt(ELEVATOR.CORAL.INTAKE_HEIGHT.plus(Inches.of(2)))) {
+      return MANIPULATOR_PIVOT.CORAL.INTAKE_ANGLE;
+    }
+
     Angle returnAngle = MANIPULATOR_PIVOT.MAX_ANGLES.ceilingEntry(elevatorHeight).getValue();
     if (returnAngle == null) {
       return MANIPULATOR_PIVOT.SAFE_ANGLE;

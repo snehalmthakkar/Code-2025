@@ -360,7 +360,6 @@ public final class Constants {
     public static final Angle STOW_ANGLE = Degrees.of(-5.0);
     public static final Angle SAFE_ANGLE = Degrees.of(-5.0);
 
-    // TODO: update for v2
     public static final Angle SAFE_MIN_ANGLE = Degrees.of(-10.0);
     public static final Angle SAFE_MAX_ANGLE = Degrees.of(0.0);
 
@@ -375,7 +374,7 @@ public final class Constants {
       public static final Angle L1_ANGLE = Degrees.of(-10.0);
       public static final Angle L23_ANGLE = Degrees.of(-22.35);
       public static final Angle L4_ANGLE = Degrees.of(-48.5);
-      public static final Angle INTAKE_ANGLE = Degrees.of(0.0);
+      public static final Angle INTAKE_ANGLE = Degrees.of(2.0);
     }
 
     public static final class ALGAE {
@@ -421,7 +420,7 @@ public final class Constants {
 
     public static final double CORAL_OUT_SPEED = 0.7;
     public static final double CORAL_IN_SPEED = 1;
-    public static final double CORAL_SLOW_IN_SPEED = 0.1;
+    public static final double CORAL_SLOW_IN_SPEED = 0.2;
     public static final double CORAL_ADJUST_SPEED = -0.1;
     public static final double CORAL_REPOSITION_SPEED = 0.05;
     public static final double CORAL_HOLD_SPEED = -0.0;

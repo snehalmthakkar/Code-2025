@@ -121,6 +121,7 @@ public class Controls {
     driver.rightBumper().whileTrue(intake.drop());
     driver.rightStick().whileTrue(
       IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
+        .andThen(Commands.waitUntil(() -> intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE))
         .andThen(
           Commands.parallel(
               rumbleBoth(),

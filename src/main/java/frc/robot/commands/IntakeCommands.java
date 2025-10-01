@@ -16,13 +16,25 @@ public final class IntakeCommands {
     public static Command intakeTransfer(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
         return Commands.sequence(
             Commands.deadline(
-                intake.intake(),
+                Commands.parallel(
+                    intake.rollers.intake(),
+                    intake.pivot.deploy().until(() -> intake.sensors.getCoralLocation() == CoralLocation.INTAKE || intake.sensors.getCoralLocation() == CoralLocation.INDEXER)
+                        .andThen(
+                            Commands.waitUntil(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER),
+                            intake.pivot.stow()
+                        ),
+                    intake.indexer.intake()
+                ).until(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER),
                 safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
-            ).onlyIf(() -> !manipulator.grabber.hasCoral() && intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE),
-            safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+            ).onlyIf(() -> !manipulator.grabber.hasCoral() && (intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER)),
+            Commands.deadline(
+                safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+                intake.pivot.stow()
+            ),
             Commands.deadline(
                 intake.transfer(),
-                pieceCombos.intakeCoral()
+                pieceCombos.intakeCoral(),
+                intake.pivot.stow()
             ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER)
         );
     }

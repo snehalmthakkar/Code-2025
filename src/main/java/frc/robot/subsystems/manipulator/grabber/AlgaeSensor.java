@@ -21,7 +21,7 @@ public class AlgaeSensor extends SubsystemBase {
 
     private final StatusSignal<Distance> distanceSignal;
     private Distance distance = Meters.of(0);
-    private Debouncer debouncer = new Debouncer(0.05, DebounceType.kBoth);
+    private Debouncer debouncer = new Debouncer(0.1, DebounceType.kBoth);
     private Debouncer fullyIntakedDebouncer = new Debouncer(0.3, DebounceType.kRising);
     private boolean hasAlgae;
     private boolean fullyIntaked;
@@ -60,7 +60,7 @@ public class AlgaeSensor extends SubsystemBase {
     @Override
     public void periodic() {
         distance = CTREUtils.unwrap(distanceSignal.refresh());
-        hasAlgae = debouncer.calculate(distance.lt(Inches.of(3.0)));
+        hasAlgae = debouncer.calculate(distance.lt(Inches.of(1.0)));
         fullyIntaked = fullyIntakedDebouncer.calculate(distance.lt(Inches.of(0.25)));
     }
 }

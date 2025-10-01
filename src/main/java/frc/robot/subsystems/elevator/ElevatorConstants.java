@@ -53,9 +53,9 @@ public final class ElevatorConstants {
         .withKP(6)
         .withKI(0.3)
         .withKD(1)
-        .withKG(0.8195)
+        .withKG(0.93)
         .withKV(3.13)
-        .withKA(0.079)
+        .withKA(0.0795)
         .withKS(0.2605)
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
@@ -63,15 +63,15 @@ public final class ElevatorConstants {
         .withKP(6)
         .withKI(0.3)
         .withKD(1)
-        .withKG(0.8195)
+        .withKG(0.9)
         .withKV(3.13)
         .withKA(0.079)
         .withKS(0.2605)
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(2.25)
-            .withMotionMagicAcceleration(4);
+            .withMotionMagicCruiseVelocity(2)
+            .withMotionMagicAcceleration(3);
     public static final CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(90)
             .withSupplyCurrentLimitEnable(true);
