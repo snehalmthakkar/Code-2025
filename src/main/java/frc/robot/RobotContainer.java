@@ -120,7 +120,7 @@ public class RobotContainer {
     controls = new Controls(swerveDrive);
 
     manipulator = new Manipulator();
-    elevator = Elevator.create();
+    elevator = Elevator.create(manipulator.grabber);
     safeties = new SafeSubsystems(elevator, manipulator);
     pieceCombos = new PieceCombos(elevator, manipulator, safeties);
     autoAlign = new AutoAlign(swerveDrive);

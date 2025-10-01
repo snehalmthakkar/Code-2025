@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.subsystems.manipulator.grabber.Grabber;
 
 public class SimElevator extends Elevator {
     private TalonFXSimState leftSimState = new TalonFXSimState(leftMotor);
@@ -29,8 +30,8 @@ public class SimElevator extends Elevator {
         ElevatorConstants.MIN_HEIGHT.in(Meters)
     );
 
-    public SimElevator() {
-        super();
+    public SimElevator(Grabber grabber) {
+        super(grabber);
     }
     
     @Override

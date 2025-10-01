@@ -8,13 +8,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.MechanismLogger;
 import com.team6962.lib.utils.CTREUtils;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
+import frc.robot.subsystems.manipulator.grabber.Grabber;
 import frc.robot.util.software.MathUtils;
 
 public class Elevator extends SubsystemBase {
@@ -60,7 +62,11 @@ public class Elevator extends SubsystemBase {
     private StatusSignal<Voltage> motorVoltageRight;
     private StatusSignal<Double> profilePositionSignal;
 
-    public Elevator() {
+    private Grabber grabber;
+
+    public Elevator(Grabber grabber) {
+        this.grabber = grabber;
+
         leftMotor = new TalonFX(ElevatorConstants.LEFT_MOTOR_ID, "drivetrain"); // Replace with actual CAN ID
         rightMotor = new TalonFX(ElevatorConstants.RIGHT_MOTOR_ID, "drivetrain"); // Replace with actual CAN ID
 
@@ -68,17 +74,9 @@ public class Elevator extends SubsystemBase {
         topLimitSwitch = new DigitalInput(ElevatorConstants.DIO_CEILING_PORT); // Replace with actual DIO port
 
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration()
-            .withSlot0(ElevatorConstants.slot0Configs)
-            .withSlot1(
-                new Slot1Configs()
-                    .withKP(ElevatorConstants.slot0Configs.kP)
-                    .withKI(ElevatorConstants.slot0Configs.kI)
-                    .withKD(ElevatorConstants.slot0Configs.kD)
-                    .withKG(ElevatorConstants.slot0Configs.kG)
-                    .withKS(ElevatorConstants.slot0Configs.kS)
-                    .withGravityType(ElevatorConstants.slot0Configs.GravityType)
-                    .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-            )
+            .withSlot0(Slot0Configs.from(ElevatorConstants.emptySlot))
+            .withSlot1(Slot1Configs.from(ElevatorConstants.coralSlot))
+            .withSlot2(Slot2Configs.from(ElevatorConstants.algaeSlot))
             .withMotionMagic(ElevatorConstants.motionMagicConfigs)
             .withCurrentLimits(ElevatorConstants.currentLimitsConfigs)
             .withMotorOutput(ElevatorConstants.motorOutputConfigs)
@@ -179,7 +177,8 @@ public class Elevator extends SubsystemBase {
         MotionMagicVoltage controlRequest = new MotionMagicVoltage(clampedPosition.in(Meters))
             .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
         
-        if (position.isNear(getPosition(), Inches.of(2))) controlRequest.Slot = 1;
+        if (grabber.hasCoral()) controlRequest.Slot = 1;
+        else if (grabber.hasAlgae()) controlRequest.Slot = 2;
         else controlRequest.Slot = 0;
         
         positionControl = controlRequest;
@@ -324,7 +323,7 @@ public class Elevator extends SubsystemBase {
         };
     }
 
-    public static Elevator create() {
-        return RobotBase.isReal() ? new Elevator() : new SimElevator();
+    public static Elevator create(Grabber grabber) {
+        return RobotBase.isReal() ? new Elevator(grabber) : new SimElevator(grabber);
     }
 }
