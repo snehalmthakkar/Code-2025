@@ -25,7 +25,7 @@ public final class ElevatorConstants {
 
     public static final Distance MIN_HEIGHT = Inches.of(41.50);
     public static final Distance MAX_HEIGHT = Inches.of(73);
-    public static final Distance TOLERANCE = Inches.of(0.5);
+    public static final Distance TOLERANCE = Inches.of(0.75);
 
     public static final Mass ELEVATOR_MASS = Pounds.of(20.0);
 
@@ -50,10 +50,10 @@ public final class ElevatorConstants {
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
     public static final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(2)
+            .withMotionMagicCruiseVelocity(2.25)
             .withMotionMagicAcceleration(4);
     public static final CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(80)
+            .withSupplyCurrentLimit(90)
             .withSupplyCurrentLimitEnable(true);
     public static final MotorOutputConfigs motorOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake);

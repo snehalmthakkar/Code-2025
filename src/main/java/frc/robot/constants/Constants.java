@@ -233,8 +233,8 @@ public final class Constants {
     public static final double TELEOPERATED_DRIVE_POWER = 0.5; // Percent driving power
     public static final double TELEOPERATED_BOOST_POWER =
         1.0; // Percent power when using the triggers
-    public static final double TELEOPERATED_ROTATE_POWER = 0.1; // Percent rotating power
-    public static final double TELEOPERATED_ROTATE_BOOST_POWER = 0.2; // Percent rotating power
+    public static final double TELEOPERATED_ROTATE_POWER = 0.3; // Percent rotating power
+    public static final double TELEOPERATED_ROTATE_BOOST_POWER = 0.5; // Percent rotating power
     public static final double TELEOPERATED_SUPER_ROTATE_POWER = 0.7; // Percent rotating power
     public static final double TELEOPERATED_ULTRA_FINE_TUNE_DRIVE_POWER = 0.5;
   }
@@ -314,7 +314,7 @@ public final class Constants {
 
     // HEIGHT IS MEASURED FROM THE GROUND TO THE TOP OF THE ELEVATOR
     public static final Distance BASE_HEIGHT = Inches.of(41.50);
-    public static final Distance MAX_HEIGHT = Inches.of(71.5);
+    public static final Distance MAX_HEIGHT = Inches.of(72);
     public static final Distance MIN_HEIGHT = BASE_HEIGHT;
     public static final Distance STOW_HEIGHT = BASE_HEIGHT;
 
@@ -322,7 +322,7 @@ public final class Constants {
       public static final Distance L1_HEIGHT = Inches.of(46.15); // change
       public static final Distance L2_HEIGHT = Inches.of(49.45);
       public static final Distance L3_HEIGHT = Inches.of(56.6);
-      public static final Distance L4_HEIGHT = Inches.of(71.5);
+      public static final Distance L4_HEIGHT = Inches.of(72);
       public static final Distance INTAKE_HEIGHT = Inches.of(42.3);
     }
 
@@ -421,7 +421,7 @@ public final class Constants {
 
     public static final double CORAL_OUT_SPEED = 0.7;
     public static final double CORAL_IN_SPEED = 1;
-    public static final double CORAL_SLOW_IN_SPEED = 0.2;
+    public static final double CORAL_SLOW_IN_SPEED = 0.1;
     public static final double CORAL_ADJUST_SPEED = -0.1;
     public static final double CORAL_REPOSITION_SPEED = 0.05;
     public static final double CORAL_HOLD_SPEED = -0.0;

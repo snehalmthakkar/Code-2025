@@ -117,10 +117,18 @@ public class Controls {
         .alongWith(LEDs.setStateCommand(LEDs.State.AUTO_ALIGN))
     ));
 
-    driver.leftBumper().onTrue(intake.drop());
-    driver.rightBumper().whileTrue(intake.intake());
-    driver.rightStick().onTrue(intake.transfer().withDeadline(manipulator.intakeCoral()));
-    driver.leftStick().whileTrue(autoPickup.driftToCoral());
+    // driver.leftBumper();
+    driver.rightBumper().whileTrue(intake.drop());
+    driver.rightStick().whileTrue(
+      IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
+        .andThen(
+          Commands.parallel(
+              rumbleBoth(),
+              LEDs.setStateCommand(LEDs.State.GOOD),
+              pieceCombos.readyL2()
+          ))
+      );
+    driver.leftStick().whileTrue(intake.intake());
     driver.povCenter(); // USED
     driver.povUp(); // USED
     driver.povDown(); // USED
@@ -161,29 +169,27 @@ public class Controls {
             pieceCombos.algaeBargeSetup().andThen(pieceCombos.algaeBargeShoot())); // barge combo
     operator
         .rightStick()
-        .whileTrue(
-            intake.intake()
-                .andThen(
-                    Commands.parallel(
-                        rumbleBoth(),
-                        LEDs.setStateCommand(LEDs.State.GOOD),
-                        pieceCombos.coralL2()
-                    ))); // big right paddle
+        .whileTrue(pieceCombos.stow()); // big right paddle
+    
+    operator.rightBumper().onTrue(manipulator.grabber.repositionCoral());
+    operator
+        .leftBumper()
+        .onTrue(pieceCombos.algaeBargeShoot());
 
-  operator.rightBumper().whileTrue(
-    Commands.either(
-      IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
-        .andThen(
-          Commands.parallel(
-              rumbleBoth(),
-              LEDs.setStateCommand(LEDs.State.GOOD),
-              pieceCombos.readyL2(),
-              manipulator.grabber.repositionCoral()
-          )),
-      manipulator.grabber.repositionCoral(),
-      () -> !manipulator.grabber.hasCoral() && manipulator.grabber.isCoralClear()
-    )); // transfer coral
-  operator
+    // operator.rightBumper().whileTrue(
+    //   Commands.either(
+    //     IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
+    //       .andThen(
+    //         Commands.parallel(
+    //             rumbleBoth(),
+    //             LEDs.setStateCommand(LEDs.State.GOOD),
+    //             pieceCombos.readyL2(),
+    //             manipulator.grabber.repositionCoral()
+    //         )),
+    //     manipulator.grabber.repositionCoral(),
+    //     () -> !manipulator.grabber.hasCoral() && manipulator.grabber.isCoralClear()
+    //   )); // transfer coral
+    operator
         .rightTrigger()
         .whileTrue(
             pieceCombos
@@ -192,9 +198,9 @@ public class Controls {
                     rumbleBoth()
                         .alongWith(
                             LEDs.setStateCommand(LEDs.State.GOOD)))); // drop coral/intake algae
-    operator.leftBumper().whileTrue(
-      intake.drop()
-    ); // shoot barge
+    // operator.leftBumper().whileTrue(
+    //   intake.drop()
+    // ); // shoot barge
     operator
         .leftTrigger()
         .whileTrue(

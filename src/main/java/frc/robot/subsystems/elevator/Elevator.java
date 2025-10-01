@@ -179,7 +179,7 @@ public class Elevator extends SubsystemBase {
         MotionMagicVoltage controlRequest = new MotionMagicVoltage(clampedPosition.in(Meters))
             .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
         
-        if (hold && isNear(position)) controlRequest.Slot = 1;
+        if (position.isNear(getPosition(), Inches.of(2))) controlRequest.Slot = 1;
         else controlRequest.Slot = 0;
         
         positionControl = controlRequest;

@@ -67,7 +67,7 @@ public class IntakeSensors extends SubsystemBase {
     }
 
     public void setCoralDropped() {
-        if (location == CoralLocation.INDEXER || location == CoralLocation.TRANSFER_TO_INDEXER) {
+        if (location == CoralLocation.INDEXER || location == CoralLocation.TRANSFER_TO_INDEXER || location == CoralLocation.TRANSFER_TO_MANIPULATOR) {
             location = CoralLocation.OUTSIDE;
         }
     }

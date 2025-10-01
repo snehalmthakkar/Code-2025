@@ -142,8 +142,7 @@ public class RealGrabber extends Grabber {
 
   @Override
   public boolean hasAlgae() {
-    return false;
-    // return algaeSensor.hasAlgae();
+    return algaeSensor.hasAlgae();
   }
 
   @Override
