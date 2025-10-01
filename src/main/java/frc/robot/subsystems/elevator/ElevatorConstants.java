@@ -63,9 +63,9 @@ public final class ElevatorConstants {
         .withKP(6)
         .withKI(0.3)
         .withKD(1)
-        .withKG(0.9)
+        .withKG(1.0)
         .withKV(3.13)
-        .withKA(0.079)
+        .withKA(0.081)
         .withKS(0.2605)
         .withGravityType(GravityTypeValue.Elevator_Static)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);
