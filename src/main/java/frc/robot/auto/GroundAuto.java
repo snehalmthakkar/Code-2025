@@ -18,7 +18,6 @@ import frc.robot.field.ReefPositioning.CoralPosition;
 import frc.robot.field.StationPositioning;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
-import frc.robot.vision.CoralDetection;
 
 public class GroundAuto {
     private RobotContainer robot;
@@ -127,4 +126,8 @@ public class GroundAuto {
             )
         );
     }
+
+    // public Command prepareLollipops(CoralStation coralStation) {
+    //     Pose2d lollipopPose = new Pose2d(2.96, 1.36, Rotation2d.fromDegrees(0));
+    // }
 }

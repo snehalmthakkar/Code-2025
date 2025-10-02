@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
@@ -12,7 +13,9 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -46,7 +49,7 @@ public class Elevator extends SubsystemBase {
     protected DigitalInput bottomLimitSwitch;
     protected DigitalInput topLimitSwitch;
 
-    protected MotionMagicVoltage positionControl;
+    protected ControlRequest positionControl;
 
     protected boolean elevatorZeroed = false;
     protected Distance targetPosition = Inches.of(0);
@@ -174,8 +177,13 @@ public class Elevator extends SubsystemBase {
         
         Distance clampedPosition = MeasureMath.clamp(position, ElevatorConstants.MIN_HEIGHT, ElevatorConstants.MAX_HEIGHT);
 
-        MotionMagicVoltage controlRequest = new MotionMagicVoltage(clampedPosition.in(Meters))
-            .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed).withLimitReverseMotion(bottomLimitSwitchTriggered());
+        MotionMagicVoltage controlRequest = new MotionMagicVoltage(clampedPosition.in(Meters));
+        // VelocityVoltage controlRequest = new VelocityVoltage(InchesPerSecond.of(6).in(MetersPerSecond));
+
+        // 0.145
+        // 0.1524
+
+        setLimits(controlRequest);
         
         if (grabber.hasCoral()) controlRequest.Slot = 1;
         else if (grabber.hasAlgae()) controlRequest.Slot = 2;
@@ -256,12 +264,26 @@ public class Elevator extends SubsystemBase {
         }
 
         if (positionControl != null) {
-            positionControl = positionControl
-                .withLimitForwardMotion(topLimitSwitchTriggered() || !elevatorZeroed)
-                .withLimitReverseMotion(bottomLimitSwitchTriggered());
+            positionControl = setLimits(positionControl);
             
             CTREUtils.check(leftMotor.setControl(positionControl));
             CTREUtils.check(rightMotor.setControl(positionControl));
+        }
+    }
+
+    private ControlRequest setLimits(ControlRequest request) {
+        return setLimits(request, topLimitSwitchTriggered() || !elevatorZeroed, bottomLimitSwitchTriggered());
+    }
+
+    private static ControlRequest setLimits(ControlRequest request, boolean forward, boolean reverse) {
+        if (request instanceof MotionMagicVoltage r) {
+            return r.withLimitForwardMotion(forward).withLimitReverseMotion(reverse);
+        } else if (request instanceof VoltageOut r) {
+            return r.withLimitForwardMotion(forward).withLimitReverseMotion(reverse);
+        } else if (request instanceof VelocityVoltage r) {
+            return r.withLimitForwardMotion(forward).withLimitReverseMotion(reverse);
+        } else {
+            return request;
         }
     }
 

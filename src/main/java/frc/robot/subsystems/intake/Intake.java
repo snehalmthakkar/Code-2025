@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
 import frc.robot.subsystems.intake.indexer.Indexer;
 import frc.robot.subsystems.intake.pivot.IntakePivot;
@@ -34,7 +35,7 @@ import frc.robot.subsystems.manipulator.grabber.Grabber;
  * of the rollers, pivot, and sensor subsystems that fully simulate the physics
  * and device behavior of those subsystems.
  */
-public class Intake {
+public class Intake extends SubsystemBase {
     public final IntakeRollers rollers;
     public final IntakePivot pivot;
     public final Indexer indexer;
@@ -100,7 +101,7 @@ public class Intake {
                 rollers.drop(),
                 Commands.runOnce(() -> sensors.setCoralDropped())
             ),
-            () -> sensors.getCoralLocation() == CoralLocation.INDEXER
+            () -> sensors.getCoralLocation() == CoralLocation.INDEXER || sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR
         );
 
         if (RobotBase.isSimulation()) {
@@ -138,5 +139,12 @@ public class Intake {
 
     public CoralLocation getCoralLocation() {
         return sensors.getCoralLocation();
+    }
+    
+    @Override
+    public void periodic() {
+        // if (rollers.getCurrentCommand() == null && sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER || sensors.getCoralLocation() == CoralLocation.INTAKE) {
+        //     intake().schedule();
+        // }
     }
 }

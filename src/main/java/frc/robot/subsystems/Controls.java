@@ -117,15 +117,19 @@ public class Controls {
 
     // driver.leftBumper();
     driver.rightBumper().whileTrue(intake.drop());
-    driver.rightStick().whileTrue(
+    driver.rightStick().whileTrue(Commands.parallel(
       IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
-        .andThen(
-          Commands.parallel(
-              rumbleBoth(),
-              LEDs.setStateCommand(LEDs.State.GOOD),
-              pieceCombos.readyL2()
-          ))
-      );
+        .andThen(Commands.waitUntil(() -> intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE))
+        .andThen(Commands.parallel(
+            pieceCombos.readyL2()
+        ))
+        .andThen(rumbleOperator()),
+      Commands.waitUntil(() -> intake.sensors.getCoralLocation() == CoralLocation.INTAKE)
+        .andThen(Commands.parallel(
+            rumbleDriver(),
+            LEDs.setStateCommand(LEDs.State.GOOD)
+        ))
+    ));
     driver.leftStick().whileTrue(intake.intake());
     driver.povCenter(); // USED
     driver.povUp(); // USED
