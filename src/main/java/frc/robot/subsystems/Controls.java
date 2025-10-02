@@ -32,6 +32,7 @@ import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
 import frc.robot.field.ReefPositioning;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
 import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
 
