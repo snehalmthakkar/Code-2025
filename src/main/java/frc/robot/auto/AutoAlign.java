@@ -8,11 +8,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.team6962.lib.swerve.SwerveDrive;
+import com.team6962.lib.utils.MeasureMath;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.field.ReefPositioning;
@@ -174,6 +176,34 @@ public class AutoAlign {
       Pose2d closestBargePose = new Pose2d(BARGE_X, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), Rotation2d.fromDegrees(0));
 
       return swerveDrive.driveTo(closestBargePose).until(() -> swerveDrive.isWithinToleranceOf(closestBargePose, Inches.of(4), Degrees.of(6)));
+    }, Set.of(swerveDrive.useMotion()));
+  }
+
+  public Command autoAlignSetupBarge() {
+    return Commands.defer(() -> {
+      Angle currentRotation = swerveDrive.getEstimatedPose().getRotation().getMeasure();
+      Angle rotationDifference = MeasureMath.minDifference(Degrees.of(0), currentRotation);
+      Angle clampedDifference = MeasureMath.clamp(rotationDifference, Degrees.of(-60), Degrees.of(60));
+      Rotation2d targetRotation = new Rotation2d(currentRotation.plus(clampedDifference));
+
+      Pose2d closestBargePose = new Pose2d(BARGE_X - 0.5, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), targetRotation);
+
+      return swerveDrive.driveQuicklyTo(closestBargePose).until(() -> swerveDrive.isWithinToleranceOf(closestBargePose, Inches.of(4), Degrees.of(6)));
+    }, Set.of(swerveDrive.useMotion()))
+      .andThen(
+        Commands.defer(() -> {
+          Pose2d closestBargePose = new Pose2d(BARGE_X - 0.5, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), Rotation2d.fromDegrees(0));
+    
+          return swerveDrive.driveQuicklyTo(closestBargePose).until(() -> swerveDrive.isWithinToleranceOf(closestBargePose, Inches.of(4), Degrees.of(6)));
+        }, Set.of(swerveDrive.useMotion()))
+      );
+  }
+
+  public Command autoAlignBargeFast() {
+    return Commands.defer(() -> {
+      Pose2d closestBargePose = new Pose2d(BARGE_X, MathUtil.clamp(swerveDrive.getEstimatedPose().getY(), MIN_BARGE_Y, MAX_BARGE_Y), Rotation2d.fromDegrees(0));
+
+      return swerveDrive.driveQuicklyTo(closestBargePose).until(() -> swerveDrive.isWithinToleranceOf(closestBargePose, Inches.of(8), Degrees.of(10)));
     }, Set.of(swerveDrive.useMotion()));
   }
 }

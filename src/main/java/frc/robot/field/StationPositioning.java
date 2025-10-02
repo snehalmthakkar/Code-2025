@@ -105,17 +105,29 @@ public final class StationPositioning {
     return getCenterAlignPose(coralStation == CoralStation.LEFT);
   }
 
+  public static Pose2d reflectPose(Pose2d pose, boolean reflect) {
+    return reflect ? new Pose2d(pose.getX(), Field.WIDTH - pose.getY(), pose.getRotation().unaryMinus()) : pose;
+  }
+
   public static Pose2d getGroundIntakePose(boolean reflect) {
     Pose2d pose = new Pose2d(2, 1.514, Rotation2d.fromDegrees(46.83));
 
-    if (reflect) {
-      pose = new Pose2d(pose.getX(), Field.WIDTH - pose.getY(), pose.getRotation().unaryMinus());
-    }
-
-    return pose;
+    return reflectPose(pose, reflect);
   }
 
   public static Pose2d getGroundIntakePose(CoralStation coralStation) {
     return getGroundIntakePose(coralStation == CoralStation.LEFT);
+  }
+
+  public static Pose2d getGroundStartIntakePose(CoralStation coralStation) {
+    return reflectPose(new Pose2d(2.78, 0.7, Rotation2d.fromDegrees(0)), coralStation == CoralStation.LEFT);
+  }
+
+  public static Pose2d getGroundEndIntakePose(CoralStation coralStation) {
+    return reflectPose(new Pose2d(1.37, 1.44, Rotation2d.fromDegrees(0)), coralStation == CoralStation.LEFT);
+  }
+
+  public static Pose2d rotate180(Pose2d pose) {
+    return new Pose2d(pose.getTranslation(), pose.getRotation().plus(Rotation2d.fromDegrees(180)));
   }
 }

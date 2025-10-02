@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import com.team6962.lib.utils.CommandUtils;
+import com.team6962.lib.utils.KinematicsUtils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.commands.IntakeCommands;
-import frc.robot.constants.Constants;
 import frc.robot.field.Field;
 import frc.robot.field.ReefPositioning;
 import frc.robot.field.ReefPositioning.CoralPosition;
@@ -108,15 +108,28 @@ public class GroundAuto {
         ));
     }
 
-    public Command intakeCoral(CoralStation coralStation) {
+    public Command intakeCoralFromStation(CoralStation coralStation, boolean approachSlow) {
         return CommandUtils.annotate("Intake coral from " + coralStation + " coral station", Commands.deadline(
-            CommandUtils.annotate("Intake coral", IntakeCommands.intakeCoral(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos)
-                .withDeadline(CommandUtils.selectByMode(
-                    Commands.waitUntil(() -> robot.intake.sensors.getCoralLocation() == CoralLocation.INTAKE),
-                    Commands.waitUntil(() -> robot.swerveDrive.isWithinToleranceOf(StationPositioning.getGroundIntakePose(coralStation), Inches.of(6), Degrees.of(15)) &&
-                        robot.elevator.isNear(Constants.ELEVATOR.CORAL.INTAKE_HEIGHT))
-                ))),
-                CommandUtils.annotate("Drive to intake from " + coralStation + " coral station", autoPickupCoral(StationPositioning.getGroundIntakePose(coralStation)))
+            CommandUtils.selectByMode(
+                Commands.waitUntil(() -> robot.intake.sensors.getCoralLocation() == CoralLocation.INTAKE),
+                Commands.waitUntil(() -> robot.swerveDrive.isWithinToleranceOf(StationPositioning.getGroundStartIntakePose(coralStation), Inches.of(12), Degrees.of(30)))
+                    .andThen(Commands.defer(() -> Commands.waitSeconds(Math.pow(Math.random(), 1.5) * Math.signum(Math.random() - 0.5) + 1.25), Set.of()))
+            ),
+            CommandUtils.annotate("Intake coral", IntakeCommands.intakeCoral(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos)),
+            CommandUtils.annotate(
+                "Drive over to intake from " + coralStation + " coral station",
+                approachSlow ? robot.swerveDrive.driveQuicklyTo(StationPositioning.getGroundStartIntakePose(coralStation), MetersPerSecond.of(2)) :
+                robot.swerveDrive.driveQuicklyTo(StationPositioning.getGroundStartIntakePose(coralStation))
+            ).andThen(Commands.repeatingSequence(
+                CommandUtils.annotate(
+                    "Drive beside coral station",
+                    robot.swerveDrive.driveQuicklyTo(StationPositioning.getGroundEndIntakePose(coralStation), MetersPerSecond.of(2))
+                ),
+                CommandUtils.annotate(
+                    "Drive over to intake from " + coralStation + " coral station",
+                    robot.swerveDrive.driveQuicklyTo(StationPositioning.getGroundStartIntakePose(coralStation))
+                )
+            ))
         ));
     }
 
@@ -125,13 +138,18 @@ public class GroundAuto {
 
         return CommandUtils.annotate(coralStation + " Side Autonomous", Commands.sequence(
             scorePreloadCoral(new CoralPosition(10, 4).reflectedIf(reflect), false),
-            intakeCoral(coralStation),
+            robot.swerveDrive.driveQuicklyTo(
+                StationPositioning.reflectPose(new Pose2d(4.3, 2.42, Rotation2d.fromDegrees(120)), reflect),
+                KinematicsUtils.createChassisSpeeds(new Translation2d(2, Rotation2d.fromDegrees(210).times(reflect ? -1 : 1)), new Rotation2d())
+            ).deadlineFor(robot.intake.pivot.deploy()),
+            intakeCoralFromStation(coralStation, true),
             scoreCoral(new CoralPosition(7, 4).reflectedIf(reflect)),
-            intakeCoral(coralStation),
+            intakeCoralFromStation(coralStation, false),
             scoreCoral(new CoralPosition(8, 4).reflectedIf(reflect)),
-            intakeCoral(coralStation),
+            intakeCoralFromStation(coralStation, false),
             scoreCoral(new CoralPosition(9, 4).reflectedIf(reflect)),
-            intakeCoral(coralStation)
+            intakeCoralFromStation(coralStation, false),
+            scoreCoral(new CoralPosition(7, 3).reflectedIf(reflect))
         ));
     }
 
@@ -232,18 +250,88 @@ public class GroundAuto {
             scorePreloadCoral((scoreL4 ? new CoralPosition(7, 4) : new CoralPosition(6, 4)).reflectedIf(reflect), scoreL4),
             intakeLollipop(lollipop1, false),
             Commands.either(
-                scoreL4 ? scoreCoral(new CoralPosition(6, 4).reflectedIf(reflect)) : scoreCoral(new CoralPosition(6, 2).reflectedIf(reflect)),
+                scoreL4 ? scoreCoral(new CoralPosition(6, 4).reflectedIf(reflect)) : scoreCoral(new CoralPosition(5, 4).reflectedIf(reflect)),
                 recoverFromLollipopFailure(lollipop1, lollipop2),
                 successfullyIntaked()
             ),
             intakeLollipop(lollipop2, false),
             Commands.either(
-                scoreCoral(new CoralPosition(5, 4).reflectedIf(reflect)),
+                scoreCoral(new CoralPosition(6, 2).reflectedIf(reflect)),
                 recoverFromLollipopFailure(lollipop2, lollipop3),
                 successfullyIntaked()
             ),
             intakeLollipop(lollipop3, true),
             scoreCoral(new CoralPosition(5, 2).reflectedIf(reflect)).onlyIf(successfullyIntaked())
+        ));
+    }
+
+    private Command pickupAlgae(int face) {
+        int level = ReefPositioning.getAlgaeHeight(face);
+
+        return Commands.sequence(
+            Commands.deadline(
+                CommandUtils.selectByMode(
+                    robot.manipulator.pivot.stow().until(() -> robot.manipulator.pivot.getPosition().gt(Degrees.of(-10))),
+                    Commands.waitSeconds(0.5)
+                ),
+                robot.swerveDrive
+                    .driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face)),
+                robot.pieceCombos.algae(level)
+            ),
+            Commands.parallel(
+                robot.swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
+                CommandUtils.selectByMode(
+                    Commands.sequence(
+                        Commands.deadline(
+                            robot.pieceCombos.algae(level),
+                            robot.manipulator.pivot.stow()
+                        ),
+                        Commands.parallel(
+                            robot.manipulator.grabber.intakeAlgae(),
+                            robot.manipulator.pivot.algaeReef()
+                        )
+                    ),
+                    Commands.waitSeconds(0.5)
+                )
+            ).withDeadline(CommandUtils.selectByMode(
+                Commands.waitUntil(robot.manipulator.grabber::hasAlgae),
+                Commands.waitSeconds(2)
+            )),
+            robot.swerveDrive.driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face))
+        );
+    }
+
+    private Command scoreAlgae() {
+        return Commands.sequence(
+            Commands.sequence(
+                robot.autoAlign.autoAlignSetupBarge(),
+                robot.autoAlign.autoAlignBargeFast()
+            ).alongWith(CommandUtils.selectByMode(
+                robot.pieceCombos.algaeBargeSetup(),
+                Commands.waitSeconds(1)
+            )),
+            CommandUtils.selectByMode(
+                robot.pieceCombos.algaeBargeShoot(),
+                Commands.waitSeconds(1)
+            )
+        );
+    }
+
+    public Command centerAuto(boolean algae) {
+        return CommandUtils.annotate("Center Auto", Commands.sequence(
+            Commands.either(
+                scorePreloadCoral(new CoralPosition(0, 4), false),
+                scorePreloadCoral(new CoralPosition(11, 4), false),
+                () -> robot.swerveDrive.getEstimatedPose().getY() > ReefPositioning.REEF_CENTER.getY()
+            ),
+            Commands.sequence(
+                pickupAlgae(0),
+                scoreAlgae(),
+                robot.swerveDrive.driveQuicklyTo(new Pose2d(6.3, 5.25, Rotation2d.fromDegrees(-40))).deadlineFor(robot.pieceCombos.algaeL3()),
+                robot.swerveDrive.driveQuicklyTo(new Pose2d(5.6, 5.5, Rotation2d.fromDegrees(-120))).deadlineFor(robot.pieceCombos.algaeL3()),
+                pickupAlgae(1),
+                scoreAlgae()
+            ).onlyIf(() -> algae)
         ));
     }
 }

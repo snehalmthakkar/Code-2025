@@ -28,7 +28,7 @@ public final class ReefPositioning {
   public static final Distance ROBOT_TO_EDGE_PICKUP_ALGAE =
       SWERVE.CONFIG.chassis().outerLength().div(2);
   public static final Distance ROBOT_TO_EDGE_ALIGN_ALGAE =
-      ROBOT_TO_EDGE_PLACE_CORAL.plus(Inches.of(8));
+      ROBOT_TO_EDGE_PLACE_CORAL.plus(Inches.of(12));
 
   public static final Translation2d PLACE_CORAL_RELATIVE =
       new Translation2d(

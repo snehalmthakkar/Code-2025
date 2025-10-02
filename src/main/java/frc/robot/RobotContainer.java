@@ -152,10 +152,12 @@ public class RobotContainer {
 
     autoChooser = new AutoChooser(Map.of(
       "Nothing", () -> Commands.none(),
-      "Right Side", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, true),
-      "Left Side", () -> groundAuto.lollipopAuto(CoralStation.LEFT, true),
-      "Lollipop Right", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, false),
-      "Lollipop Left", () -> groundAuto.lollipopAuto(CoralStation.LEFT, false),
+      "Right Side & Lollipop", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, true),
+      "Left Side & Lollipop", () -> groundAuto.lollipopAuto(CoralStation.LEFT, true),
+      "Right Station", () -> groundAuto.sideAutonomous(CoralStation.RIGHT),
+      "Left Station", () -> groundAuto.sideAutonomous(CoralStation.LEFT),
+      "Right Lollipop", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, false),
+      "Left Lollipop", () -> groundAuto.lollipopAuto(CoralStation.LEFT, false),
       "Drive Forward", () -> swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0)),
       "Wheel Size Calibration", () -> swerveDrive.calibrateWheelSize()
     ), "Nothing");
@@ -164,7 +166,8 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getAutonomousCommand();
+    // return autoChooser.getAutonomousCommand();
+    return groundAuto.sideAutonomous(CoralStation.RIGHT);
   }
 
   public static double getVoltage() {
