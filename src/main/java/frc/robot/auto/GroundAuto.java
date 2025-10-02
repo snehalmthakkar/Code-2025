@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Inches;
 
 import com.team6962.lib.utils.CommandUtils;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -115,4 +117,8 @@ public class GroundAuto {
             intakeCoral(coralStation)
         ));
     }
+
+    // public Command prepareLollipops(CoralStation coralStation) {
+    //     Pose2d lollipopPose = new Pose2d(2.96, 1.36, Rotation2d.fromDegrees(0));
+    // }
 }
