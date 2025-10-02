@@ -169,15 +169,17 @@ public class Controls {
     operator
         .leftStick()
         .onTrue(
-            pieceCombos.algaeBargeSetup().andThen(pieceCombos.algaeBargeShoot())); // barge combo
+          elevator.launchBarge()
+            .withDeadline(Commands.sequence(
+              Commands.waitUntil(() -> elevator.getPosition().gt(Inches.of(52.5))),
+              manipulator.grabber.dropAlgae().withTimeout(0.5)
+            ))
+        ); // barge combo
     operator
         .rightStick()
         .whileTrue(pieceCombos.stow()); // big right paddle
     
     operator.rightBumper().onTrue(manipulator.grabber.repositionCoral());
-    operator
-        .leftBumper()
-        .onTrue(pieceCombos.algaeBargeShoot());
 
     // operator.rightBumper().whileTrue(
     //   Commands.either(

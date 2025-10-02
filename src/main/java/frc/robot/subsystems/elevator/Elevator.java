@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -49,7 +50,7 @@ public class Elevator extends SubsystemBase {
     protected DigitalInput bottomLimitSwitch;
     protected DigitalInput topLimitSwitch;
 
-    protected ControlRequest positionControl;
+    protected ControlRequest controlRequest;
 
     protected boolean elevatorZeroed = false;
     protected Distance targetPosition = Inches.of(0);
@@ -189,7 +190,7 @@ public class Elevator extends SubsystemBase {
         else if (grabber.hasAlgae()) controlRequest.Slot = 2;
         else controlRequest.Slot = 0;
         
-        positionControl = controlRequest;
+        this.controlRequest = controlRequest;
 
         leftMotor.setControl(controlRequest);
         rightMotor.setControl(controlRequest);
@@ -225,23 +226,25 @@ public class Elevator extends SubsystemBase {
         return moveToCommand;
     }
 
-    private Command fineControl(Voltage voltage) {
+    private Command moveVoltage(Voltage voltage) {
         return startEnd(
             () -> {
-                leftMotor.setControl(new VoltageOut(voltage));
-                rightMotor.setControl(new VoltageOut(voltage));
-                positionControl = null;
+                VoltageOut controlRequest = new VoltageOut(voltage);
+
+                leftMotor.setControl(controlRequest);
+                rightMotor.setControl(controlRequest);
+                this.controlRequest = controlRequest;
             },
             () -> startPositionControl(getPosition(), true)
         );
     }
 
     public Command fineControlUp() {
-        return fineControl(ElevatorConstants.FINE_CONTROL_UP);
+        return moveVoltage(ElevatorConstants.FINE_CONTROL_UP);
     }
 
     public Command fineControlDown() {
-        return fineControl(ElevatorConstants.FINE_CONTROL_DOWN);
+        return moveVoltage(ElevatorConstants.FINE_CONTROL_DOWN);
     }
     
     @Override
@@ -263,11 +266,11 @@ public class Elevator extends SubsystemBase {
             startPositionControl(getPosition(), true);
         }
 
-        if (positionControl != null) {
-            positionControl = setLimits(positionControl);
+        if (controlRequest != null) {
+            controlRequest = setLimits(controlRequest);
             
-            CTREUtils.check(leftMotor.setControl(positionControl));
-            CTREUtils.check(rightMotor.setControl(positionControl));
+            CTREUtils.check(leftMotor.setControl(controlRequest));
+            CTREUtils.check(rightMotor.setControl(controlRequest));
         }
     }
 
@@ -325,6 +328,12 @@ public class Elevator extends SubsystemBase {
 
     public Command ready() {
         return moveToPosition(Constants.ELEVATOR.AUTO.READY_HEIGHT);
+    }
+
+    public Command launchBarge() {
+        return moveToPosition(Constants.ELEVATOR.MIN_HEIGHT)
+            .andThen(moveVoltage(Volts.of(12)).until(() -> getPosition().gte(Inches.of(62.5))))
+            .andThen(moveVoltage(Volts.of(-6)).until(() -> getVelocity().lte(InchesPerSecond.of(2))));
     }
 
     public Command coral(int level) {
