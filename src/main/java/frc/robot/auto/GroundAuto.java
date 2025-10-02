@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import com.team6962.lib.utils.CommandUtils;
 
@@ -19,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.constants.Constants;
-import frc.robot.constants.Constants.ELEVATOR;
 import frc.robot.field.Field;
 import frc.robot.field.ReefPositioning;
 import frc.robot.field.ReefPositioning.CoralPosition;
@@ -39,15 +39,23 @@ public class GroundAuto {
             throw new IllegalArgumentException("Level must be between 2 and 4");
         }
 
+        if (RobotBase.isSimulation()) {
+            return Commands.waitSeconds(0.5);
+        }
+
         Command elevatorCommand = fast && level >= 3 ? robot.elevator.ready() : robot.elevator.coral(level);
         Command pivotCommand = level == 4 ? robot.manipulator.pivot.safe() : robot.manipulator.placeCoralL23();
 
-        return CommandUtils.annotate("Ready coral for L" + level, RobotBase.isReal() ? Commands.parallel(elevatorCommand, pivotCommand) : elevatorCommand);
+        return CommandUtils.annotate("Ready coral for L" + level, Commands.parallel(elevatorCommand, pivotCommand));
     }
 
     public Command scoreCoralWithMechanisms(int level) {
         if (level <= 1 || level > 4) {
             throw new IllegalArgumentException("Level must be between 2 and 4");
+        }
+
+        if (RobotBase.isSimulation()) {
+            return Commands.waitSeconds(0.5);
         }
         
         if (level == 4) {
@@ -149,45 +157,93 @@ public class GroundAuto {
         return robot.swerveDrive.driveQuicklyTo(pose, speeds);
     }
 
-    public Command intakeLollipop(int id) {
+    public static Translation2d LOLLIPOP_1 = new Translation2d(1.27, 2.2);
+    public static Translation2d LOLLIPOP_2 = new Translation2d(1.27, 4.025);
+    public static Translation2d LOLLIPOP_3 = new Translation2d(1.27, 5.85);
+
+    public Command intakeLollipop(int id, boolean finalLollipop) {
         return Commands.defer(() -> {
             Translation2d currentPosition = robot.swerveDrive.getEstimatedPose().getTranslation();
             
-            Translation2d lollipopPosition = id == 0 ? new Translation2d(1.27, 2.2)
-            : id == 1 ? new Translation2d(1.27, 4.025) :
-            new Translation2d(1.27, 5.85);
+            Translation2d lollipopPosition = id == 0 ? LOLLIPOP_1 : id == 1 ?
+            LOLLIPOP_2 : LOLLIPOP_3;
 
             Rotation2d angleToLollipop = currentPosition.minus(lollipopPosition).getAngle();
 
-            Pose2d finalPose = new Pose2d(lollipopPosition, angleToLollipop);
-            Pose2d intermediatePose = new Pose2d(lollipopPosition.plus(new Translation2d(Units.inchesToMeters(50), angleToLollipop)), angleToLollipop);
-            Pose2d exitPose = new Pose2d(lollipopPosition.minus(new Translation2d(0.3, angleToLollipop)), angleToLollipop);
+            Pose2d approachPose = new Pose2d(lollipopPosition.plus(new Translation2d(Units.inchesToMeters(50), angleToLollipop)), angleToLollipop);
+            Pose2d finalPose = new Pose2d(lollipopPosition.minus(new Translation2d(0.3, angleToLollipop)), angleToLollipop);
 
-            // ChassisSpeeds finalSpeeds = new ChassisSpeeds(-0.1 * angleToLollipop.getCos(), -0.1 * angleToLollipop.getSin(), 0);
-            ChassisSpeeds intermediateSpeeds = new ChassisSpeeds(-0.25 * angleToLollipop.getCos(), -0.5 * angleToLollipop.getSin(), 0);
-            ChassisSpeeds exitSpeeds = new ChassisSpeeds(0 * angleToLollipop.getCos(), 0 * angleToLollipop.getSin(), 0);
-        
-            return Commands.parallel(
-                IntakeCommands.intakeTransferAuto(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos),
-                robot.swerveDrive.driveQuicklyTo(intermediatePose, intermediateSpeeds)
-                    // .andThen(robot.swerveDrive.driveQuicklyTo(finalPose, finalSpeeds))
-                    .andThen(robot.swerveDrive.driveQuicklyTo(exitPose, exitSpeeds, MetersPerSecond.of(1.25)))
+            ChassisSpeeds approachSpeeds = new ChassisSpeeds(-0.5 * angleToLollipop.getCos(), -0.5 * angleToLollipop.getSin(), 0);
+            ChassisSpeeds finalSpeeds = new ChassisSpeeds(0 * angleToLollipop.getCos(), 0 * angleToLollipop.getSin(), 0);
+
+            return Commands.deadline(
+                robot.swerveDrive.driveQuicklyTo(approachPose, approachSpeeds)
+                        .andThen(robot.swerveDrive.driveQuicklyTo(finalPose, finalSpeeds, MetersPerSecond.of(1.25)))
+                        .andThen(finalLollipop ? Commands.waitUntil(() -> false) : Commands.waitSeconds(1)),
+                IntakeCommands.intakeTransferAuto(robot.intake, robot.elevator, robot.manipulator, robot.safeties, robot.pieceCombos)
             ).until(() -> robot.intake.sensors.getCoralLocation() == CoralLocation.INTAKE);
         }, Set.of(robot.intake.indexer, robot.intake.pivot, robot.intake.rollers, robot.elevator, robot.manipulator.grabber, robot.manipulator.pivot, robot.swerveDrive));
+    }
+
+    public Command recoverFromLollipopFailure(int failedId, int nextId) {
+        return Commands.defer(() -> {
+            // Translation2d failedLollipop = failedId == 0 ? LOLLIPOP_1 : failedId == 1 ?
+            // LOLLIPOP_2 : LOLLIPOP_3;
+
+            Translation2d nextLollipop = nextId == 0 ? LOLLIPOP_1 : nextId == 1 ?
+            LOLLIPOP_2 : LOLLIPOP_3;
+
+            Rotation2d angleToNextLollipop = Rotation2d.fromDegrees(-30).times(Math.signum(nextId - failedId));
+
+            Translation2d setupTranslation = new Translation2d(nextLollipop.getX(), nextLollipop.getY()).plus(new Translation2d(Units.inchesToMeters(50), angleToNextLollipop));
+
+            Pose2d setupPose = new Pose2d(setupTranslation, angleToNextLollipop);
+
+            ChassisSpeeds setupSpeeds = new ChassisSpeeds(0.5 * angleToNextLollipop.getCos(), 0.5 * angleToNextLollipop.getSin(), 0);
+            // ChassisSpeeds recoverSpeeds = new ChassisSpeeds(1.5, 2 * Math.signum(nextId - failedId), 0);
+
+            return Commands.parallel(
+                robot.swerveDrive.driveQuicklyTo(setupPose, setupSpeeds),
+                CommandUtils.selectByMode(
+                    robot.intake.pivot.stow().andThen(robot.intake.pivot.deploy()),
+                    Commands.waitSeconds(0.5)
+                )
+            );
+        }, Set.of(robot.intake.indexer, robot.intake.pivot, robot.intake.rollers, robot.elevator, robot.manipulator.grabber, robot.manipulator.pivot, robot.swerveDrive));
+    }
+
+    public BooleanSupplier successfullyIntaked() {
+        return () -> robot.intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE;
+    }
+
+    public BooleanSupplier failedToIntake() {
+        return () -> robot.intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE;
     }
 
     public Command lollipopAuto(CoralStation coralStation, boolean scoreL4) {
         boolean reflect = coralStation == CoralStation.LEFT;
 
+        int lollipop1 = coralStation == CoralStation.LEFT ? 2 : 0;
+        int lollipop2 = 1;
+        int lollipop3 = coralStation == CoralStation.LEFT ? 0 : 2;
+
         return CommandUtils.annotate(coralStation + " Side Lollipop", Commands.sequence(
             prepareLollipops(coralStation, scoreL4),
-            scorePreloadCoral(new CoralPosition(7, 4).reflectedIf(reflect), scoreL4),
-            intakeLollipop(coralStation == CoralStation.LEFT ? 2 : 0),
-            scoreL4 ? scoreCoral(new CoralPosition(6, 4).reflectedIf(reflect)) : scoreCoral(new CoralPosition(6, 2).reflectedIf(reflect)),
-            intakeLollipop(1),
-            scoreCoral(new CoralPosition(5, 4).reflectedIf(reflect)),
-            intakeLollipop(coralStation == CoralStation.LEFT ? 0 : 2),
-            scoreCoral(new CoralPosition(5, 2).reflectedIf(reflect))
+            scorePreloadCoral((scoreL4 ? new CoralPosition(7, 4) : new CoralPosition(6, 4)).reflectedIf(reflect), scoreL4),
+            intakeLollipop(lollipop1, false),
+            Commands.either(
+                scoreL4 ? scoreCoral(new CoralPosition(6, 4).reflectedIf(reflect)) : scoreCoral(new CoralPosition(6, 2).reflectedIf(reflect)),
+                recoverFromLollipopFailure(lollipop1, lollipop2),
+                successfullyIntaked()
+            ),
+            intakeLollipop(lollipop2, false),
+            Commands.either(
+                scoreCoral(new CoralPosition(5, 4).reflectedIf(reflect)),
+                recoverFromLollipopFailure(lollipop2, lollipop3),
+                successfullyIntaked()
+            ),
+            intakeLollipop(lollipop3, true),
+            scoreCoral(new CoralPosition(5, 2).reflectedIf(reflect)).onlyIf(successfullyIntaked())
         ));
     }
 }

@@ -40,6 +40,15 @@ public final class IntakeCommands {
     }
 
     public static Command intakeTransferAuto(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
+        if (RobotBase.isSimulation()) {
+            return Commands.either(
+                Commands.waitSeconds(2).andThen(() -> intake.sensors.simIntakeCoral()),
+                Commands.waitUntil(() -> false),
+                () -> Math.random() < 0.75
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE)
+                .andThen(Commands.waitSeconds(0.5));
+        }
+
         return Commands.sequence(
             Commands.deadline(
                 Commands.parallel(

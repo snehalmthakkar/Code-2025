@@ -165,7 +165,6 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getAutonomousCommand();
-    // return groundAuto.lollipopAuto(CoralStation.RIGHT);
   }
 
   public static double getVoltage() {
