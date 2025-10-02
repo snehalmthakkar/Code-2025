@@ -26,6 +26,52 @@ public final class IntakeCommands {
                     intake.indexer.intake()
                 ).until(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER),
                 safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
+            ).onlyIf(() -> !manipulator.grabber.hasCoral() && (intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE || intake.sensors.getCoralLocation() == CoralLocation.INTAKE || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER)),
+            Commands.deadline(
+                safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+                intake.pivot.stow()
+            ),
+            Commands.deadline(
+                intake.transfer(),
+                pieceCombos.intakeCoral(),
+                intake.pivot.stow()
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR)
+        );
+    }
+
+    public static Command intakeTransferAuto(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
+        return Commands.sequence(
+            Commands.deadline(
+                Commands.parallel(
+                    intake.rollers.intake(),
+                    intake.pivot.deploy().until(() -> intake.sensors.getCoralLocation() == CoralLocation.INTAKE || intake.sensors.getCoralLocation() == CoralLocation.INDEXER),
+                    intake.indexer.intake()
+                ).until(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER),
+                safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
+            ).onlyIf(() -> !manipulator.grabber.hasCoral() && (intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE || intake.sensors.getCoralLocation() == CoralLocation.INTAKE || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER)),
+            safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),
+            Commands.deadline(
+                intake.transfer(),
+                pieceCombos.intakeCoral()
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR)
+        );
+    }
+
+    public static Command intakeTransferVertical(Intake intake, Elevator elevator, Manipulator manipulator, SafeSubsystems safeSubsystems, PieceCombos pieceCombos) {
+        return Commands.sequence(
+            Commands.deadline(
+                Commands.sequence(
+                    Commands.parallel(
+                        intake.rollers.intake(),
+                        intake.pivot.deployVertical()
+                    ).until(() -> intake.sensors.getCoralLocation() == CoralLocation.INTAKE),
+                    intake.pivot.deploy(),
+                    Commands.parallel(
+                        intake.rollers.intake(),
+                        intake.indexer.intake()
+                    ).until(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER)
+                ),
+                safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT)
             ).onlyIf(() -> !manipulator.grabber.hasCoral() && (intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_INDEXER)),
             Commands.deadline(
                 safeSubsystems.safeMoveCommand(elevator.coralIntake(), manipulator.pivot.coralIntake(), ELEVATOR.CORAL.INTAKE_HEIGHT),

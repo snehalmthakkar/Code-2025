@@ -185,7 +185,7 @@ public class AprilTags extends SubsystemBase {
 
   private static boolean isHighAmbiguity(PoseEstimate poseEstimate) {
     for (RawFiducial fiducial : poseEstimate.rawFiducials) {
-      if (fiducial.ambiguity < 0.2) {
+      if (fiducial.ambiguity < 0.3) {
         return false;
       }
     }

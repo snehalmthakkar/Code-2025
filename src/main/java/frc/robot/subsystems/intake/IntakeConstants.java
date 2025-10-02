@@ -72,6 +72,7 @@ public final class IntakeConstants {
 
     public static final Angle pivotIntakeAngle = Degrees.of(21);
     public static final Angle pivotStowAngle = Degrees.of(150);
+    public static final Angle pivotVerticalAngle = Degrees.of(50);
 
     public static final Angle pivotTolerance = Degrees.of(4);
 

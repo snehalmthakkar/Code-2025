@@ -132,7 +132,7 @@ public class RobotContainer {
 
     coralDetection = new CoralDetection(
       "limelight-boral",
-      new Translation3d(Inches.of(-0.014924).in(Meters), Inches.of(0).in(Meters), Inches.of(36.139118).in(Meters)),
+      new Translation3d(Inches.of(-0.014924).in(Meters), Inches.of(0).in(Meters), Inches.of(36.139118 - 2).in(Meters)),
       Degrees.of(-40),
       swerveDrive
     );
@@ -152,8 +152,10 @@ public class RobotContainer {
 
     autoChooser = new AutoChooser(Map.of(
       "Nothing", () -> Commands.none(),
-      "Right Side", () -> groundAuto.sideAutonomous(CoralStation.RIGHT),
-      "Left Side", () -> groundAuto.sideAutonomous(CoralStation.LEFT),
+      "Right Side", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, true),
+      "Left Side", () -> groundAuto.lollipopAuto(CoralStation.LEFT, true),
+      "Lollipop Right", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, false),
+      "Lollipop Left", () -> groundAuto.lollipopAuto(CoralStation.LEFT, false),
       "Drive Forward", () -> swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0)),
       "Wheel Size Calibration", () -> swerveDrive.calibrateWheelSize()
     ), "Nothing");
@@ -163,6 +165,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getAutonomousCommand();
+    // return groundAuto.lollipopAuto(CoralStation.RIGHT);
   }
 
   public static double getVoltage() {

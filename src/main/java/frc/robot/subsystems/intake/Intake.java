@@ -82,6 +82,25 @@ public class Intake extends SubsystemBase {
         return command;
     }
 
+    public Command intakeVertical() {
+        Command command = Commands.parallel(
+            rollers.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER),
+            pivot.deployVertical().until(() -> sensors.getCoralLocation() == CoralLocation.INTAKE || sensors.getCoralLocation() == CoralLocation.INDEXER),
+            indexer.intake().until(() -> sensors.getCoralLocation() == CoralLocation.INDEXER)
+        );
+
+        if (RobotBase.isSimulation()) {
+            command = command.deadlineFor(Commands.sequence(
+                Commands.waitSeconds(0.25),
+                Commands.runOnce(() -> sensors.simIntakeCoral()),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> sensors.simIndexCoral())
+            ));
+        }
+
+        return command;
+    }
+
     /**
      * Returns a command that drops a piece of coral from the indexer onto the
      * ground. This command will stow the pivot, run the indexer in

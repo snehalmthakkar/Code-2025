@@ -374,7 +374,7 @@ public final class Constants {
       public static final Angle L1_ANGLE = Degrees.of(-10.0);
       public static final Angle L23_ANGLE = Degrees.of(-22.35);
       public static final Angle L4_ANGLE = Degrees.of(-48.5);
-      public static final Angle INTAKE_ANGLE = Degrees.of(2.0);
+      public static final Angle INTAKE_ANGLE = Degrees.of(1.5);
     }
 
     public static final class ALGAE {

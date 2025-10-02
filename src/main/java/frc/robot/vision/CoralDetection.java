@@ -11,11 +11,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.team6962.lib.swerve.SwerveDrive;
 import com.team6962.lib.telemetry.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.TimestampedString;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -25,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.limelightvision.LimelightHelpers;
 import io.limelightvision.LimelightHelpers.LimelightResults;
 import io.limelightvision.LimelightHelpers.LimelightTarget_Classifier;
+import io.limelightvision.LimelightHelpers.LimelightTarget_Detector;
 
 public class CoralDetection extends SubsystemBase {
     private static Time MAX_LATENCY = Seconds.of(0.5);
@@ -48,6 +52,7 @@ public class CoralDetection extends SubsystemBase {
     private Time lastMeasurementTimestamp = Seconds.of(-10000);
 
     private final ReentrantLock loggingLock = new ReentrantLock();
+    private StringEntry timestampEntry;
 
     public CoralDetection(String cameraName, Translation3d cameraPosition, Angle cameraPitch, SwerveDrive drivetrain) {
         this.cameraName = cameraName;
@@ -67,13 +72,16 @@ public class CoralDetection extends SubsystemBase {
         Logger.logMeasure("CoralDetection/" + cameraName + "/detectionTimestamp", () -> lastCoralTimestamp);
         Logger.logNumber("CoralDetection/" + cameraName + "/coralPositionX", () -> getCoralLocation() == null ? 0 : getCoralLocation().getX());
         Logger.logNumber("CoralDetection/" + cameraName + "/coralPositionY", () -> getCoralLocation() == null ? 0 : getCoralLocation().getY());
+        Logger.logPose("CoralDetection/" + cameraName + "/coralPosition", () -> new Pose2d(getCoralLocation() == null ? 0 : getCoralLocation().getX(), getCoralLocation() == null ? 0 : getCoralLocation().getY(), new Rotation2d()));
+
+        timestampEntry = LimelightHelpers.getLimelightNTTable(cameraName).getStringTopic("json").getEntry("");
     }
 
-    private void processClassifierTarget(LimelightTarget_Classifier target, Time timestamp, Time latency) {
-        if (target.className != "Coral") return;
+    private void processDetectorTarget(LimelightTarget_Detector target, Time timestamp, Time latency) {
+        if (!target.className.equals("Coral")) return;
 
-        tx = Degrees.of(target.tx);
-        ty = Degrees.of(target.ty);
+        tx = Degrees.of(-target.tx_nocrosshair);
+        ty = Degrees.of(target.ty_nocrosshair);
 
         double focalLength = 1.0;
 
@@ -88,17 +96,18 @@ public class CoralDetection extends SubsystemBase {
         double cameraZ = slopeOfGroundRelativeToCamera * cameraY + distanceForwardFromCameraToGround;
         double cameraX = sensorX * cameraZ / focalLength;
 
-        objectInView = new Translation3d(cameraX, cameraY, cameraZ);
+        objectInView = new Translation3d(cameraZ, cameraX, cameraY);
+
         Transform3d objectInViewPose = new Transform3d(objectInView, new Rotation3d());
 
-        Rotation3d cameraRotation = new Rotation3d(Degrees.of(0), cameraPitch, Degrees.of(0));
+        Rotation3d cameraRotation = new Rotation3d(Degrees.of(0), cameraPitch, Degrees.of(180));
         Transform3d cameraPose = new Transform3d(cameraPosition, cameraRotation);
 
         Pose3d robotPose = new Pose3d(drivetrain.getEstimatedPose(timestamp));
 
         Transform3d robotToObject = cameraPose.plus(objectInViewPose);
         Pose3d fieldToObject = robotPose.plus(robotToObject);
-        Translation2d objectOnField = fieldToObject.getTranslation().toTranslation2d();
+        objectOnField = fieldToObject.getTranslation().toTranslation2d();
 
         Distance distance = Meters.of(objectOnField.getDistance(drivetrain.getEstimatedPose().getTranslation()));
         
@@ -128,31 +137,31 @@ public class CoralDetection extends SubsystemBase {
 
     @Override
     public void periodic() {
-        LimelightTarget_Classifier target = new LimelightTarget_Classifier();
-        target.tx = 0;
-        target.ty = 0;
-        target.className = "Coral";
+        // LimelightTarget_Classifier target = new LimelightTarget_Classifier();
+        // target.tx = LimelightHelpers.getTX(cameraName);
+        // target.ty = LimelightHelpers.getTY(cameraName);
+        // target.className = "Coral";
 
-        processClassifierTarget(target, RobotController.getMeasureTime(), Seconds.of(0));
-        // TimestampedString timestampedTx = LimelightHelpers.getLimelightNTTable(cameraName).getStringTopic("json").getEntry("").getAtomic();
-        // double internalLatencyMs = LimelightHelpers.getLatency_Pipeline(cameraName) + LimelightHelpers.getLatency_Capture(cameraName);
-        // Time timestamp = Seconds.of((timestampedTx.timestamp / 1000000.0) - (internalLatencyMs / 1000.0));
+        // processClassifierTarget(target, RobotController.getMeasureTime(), Seconds.of(0));
+        TimestampedString timestampedString = timestampEntry.getAtomic();
+        double internalLatencyMs = LimelightHelpers.getLatency_Pipeline(cameraName) + LimelightHelpers.getLatency_Capture(cameraName);
+        Time timestamp = Seconds.of((timestampedString.timestamp / 1000000.0) - (internalLatencyMs / 1000.0));
 
         // if (timestamp.isNear(lastMeasurementTimestamp, Seconds.of(0.001))) return;
         
-        // lastMeasurementTimestamp = timestamp;
+        lastMeasurementTimestamp = timestamp;
 
-        // Time latency = Seconds.of(RobotController.getFPGATime()).minus(timestamp);
+        Time latency = Seconds.of(RobotController.getFPGATime()).minus(timestamp);
 
         // if (latency.gt(MAX_LATENCY)) return;
 
-        // LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
-        // LimelightTarget_Classifier[] classifierTargets = results.targets_Classifier;
+        LimelightResults results = LimelightHelpers.getLatestResults(cameraName);
+        LimelightTarget_Detector[] classifierTargets = results.targets_Detector;
 
-        // if (classifierTargets != null) {
-        //     for (LimelightTarget_Classifier target : classifierTargets) {
-        //         processClassifierTarget(target, timestamp, latency);
-        //     }
-        // }
+        if (classifierTargets != null) {
+            for (LimelightTarget_Detector target : classifierTargets) {
+                processDetectorTarget(target, timestamp, latency);
+            }
+        }
     }
 }

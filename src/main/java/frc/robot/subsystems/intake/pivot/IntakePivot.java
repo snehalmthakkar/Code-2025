@@ -208,6 +208,10 @@ public class IntakePivot extends SubsystemBase {
         return moveTo(IntakeConstants.pivotIntakeAngle);
     }
 
+    public Command deployVertical() {
+        return moveTo(IntakeConstants.pivotVerticalAngle);
+    }
+
     /**
      * Creates a command that moves the pivot to the stow position, ending
      * when the target is reached.
