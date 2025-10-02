@@ -11,9 +11,11 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Status Checks/Refresh": "Command",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Autonomous": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Mechanisms": "Mechanism2d",
-      "/SmartDashboard/PathPlanner": "Alerts"
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/Scheduler": "Scheduler"
     },
     "windows": {
       "/SmartDashboard/Field": {

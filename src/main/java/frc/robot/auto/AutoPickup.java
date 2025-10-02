@@ -16,24 +16,24 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.XBoxSwerve;
-import frc.robot.vision.field.TrackingField;
+import frc.robot.vision.CoralDetection;
 
 public class AutoPickup {
     private SwerveDrive swerveDrive;
     private XBoxSwerve swerveController;
-    private TrackingField trackingField;
+    private CoralDetection coralDetection;
 
-    public AutoPickup(SwerveDrive swerveDrive, XBoxSwerve swerveController, TrackingField trackingField) {
+    public AutoPickup(SwerveDrive swerveDrive, XBoxSwerve swerveController, CoralDetection coralDetection) {
         this.swerveDrive = swerveDrive;
         this.swerveController = swerveController;
-        this.trackingField = trackingField;
+        this.coralDetection = coralDetection;
     }
 
     public Command driftToCoral() {
         return driftToTarget(
             swerveDrive, swerveController,
             () -> {
-                Translation2d coralTranslation = trackingField.getMostLikelyCoral().getTranslation();
+                Translation2d coralTranslation = coralDetection.getCoralLocation();
 
                 return new Pose2d(coralTranslation, coralTranslation.minus(swerveDrive.getEstimatedPose().getTranslation()).getAngle());
             },

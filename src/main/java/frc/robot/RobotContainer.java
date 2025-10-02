@@ -3,6 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
@@ -14,6 +17,7 @@ import com.team6962.lib.swerve.module.SwerveModule;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.telemetry.StatusChecks;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -30,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.AutoChooser;
-import frc.robot.auto.AutoPickup;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.GroundAuto;
 import frc.robot.commands.PieceCombos;
@@ -46,7 +49,7 @@ import frc.robot.subsystems.manipulator.Manipulator;
 import frc.robot.util.CachedRobotState;
 import frc.robot.util.RobotEvent;
 import frc.robot.vision.Algae;
-import frc.robot.vision.field.TrackingField;
+import frc.robot.vision.CoralDetection;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -77,10 +80,9 @@ public class RobotContainer {
   public final PieceCombos pieceCombos;
   public final SafeSubsystems safeties;
   public final Intake intake;
-  public final TrackingField trackingField;
-  public final AutoPickup autoPickup;
   public final Controls controls;
   public final AutoChooser autoChooser;
+  public final CoralDetection coralDetection;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -128,14 +130,18 @@ public class RobotContainer {
     algaeDetector = new Algae();
     intake = new Intake(manipulator.grabber);
 
-    trackingField = TrackingField.createInstance();
-    trackingField.startLogging();
-    autoPickup = new AutoPickup(swerveDrive, controls.getSwerveController(), trackingField);
+    coralDetection = new CoralDetection(
+      "limelight-boral",
+      new Translation3d(Inches.of(-0.014924).in(Meters), Inches.of(0).in(Meters), Inches.of(36.139118).in(Meters)),
+      Degrees.of(-40),
+      swerveDrive
+    );
+
     groundAuto = new GroundAuto(this);
 
     // // Configure the trigger bindings
     controls.configureBindings(
-        swerveDrive, elevator, manipulator, autoAlign, autov3, safeties, pieceCombos, autoPickup, intake);
+        swerveDrive, elevator, manipulator, autoAlign, autov3, safeties, pieceCombos, intake);
 
     NetworkTableEntry refreshButtonEntry =
         NetworkTableInstance.getDefault().getTable("StatusChecks").getEntry("refreshButton");
@@ -144,8 +150,6 @@ public class RobotContainer {
 
     refreshButtonEntry.setBoolean(false);
 
-    Logger.start(Milliseconds.of(20));
-
     autoChooser = new AutoChooser(Map.of(
       "Nothing", () -> Commands.none(),
       "Right Side", () -> groundAuto.sideAutonomous(CoralStation.RIGHT),
@@ -153,6 +157,8 @@ public class RobotContainer {
       "Drive Forward", () -> swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0)),
       "Wheel Size Calibration", () -> swerveDrive.calibrateWheelSize()
     ), "Nothing");
+
+    Logger.start(Milliseconds.of(20));
   }
 
   public Command getAutonomousCommand() {

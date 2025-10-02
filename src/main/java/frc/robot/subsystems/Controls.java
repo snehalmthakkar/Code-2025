@@ -4,9 +4,13 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+
 import com.team6962.lib.swerve.SwerveDrive;
 import com.team6962.lib.telemetry.Logger;
 import com.team6962.lib.utils.MeasureMath;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -15,26 +19,21 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.Constants.DEVICES;
-import frc.robot.constants.Constants.ELEVATOR;
-import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
 import frc.robot.auto.AutoAlign;
-import frc.robot.auto.AutoPickup;
-import frc.robot.auto.Autonomous;
 import frc.robot.auto.AutoAlign.PolePattern;
+import frc.robot.auto.Autonomous;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PieceCombos;
 import frc.robot.commands.SafeSubsystems;
 import frc.robot.commands.XBoxSwerve;
+import frc.robot.constants.Constants.DEVICES;
+import frc.robot.constants.Constants.ELEVATOR;
+import frc.robot.constants.Constants.MANIPULATOR_PIVOT;
 import frc.robot.field.ReefPositioning;
-import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
+import frc.robot.subsystems.leds.LEDs;
 import frc.robot.subsystems.manipulator.Manipulator;
-
-import java.util.Set;
-import java.util.function.BooleanSupplier;
 
 public class Controls {
   public final CommandXboxController operator =
@@ -62,7 +61,6 @@ public class Controls {
       Autonomous autonomous,
       SafeSubsystems manipulatorSafeties,
       PieceCombos pieceCombos,
-      AutoPickup autoPickup,
       Intake intake) {
 
     // Driver

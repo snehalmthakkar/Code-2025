@@ -578,6 +578,12 @@ public class SwerveDrive extends SwerveCore {
     ) {
       this.targetState = targetState;
       this.controller = controller;
+
+      addRequirements(useMotion());
+    }
+
+    public void setTarget(HolonomicPositionController.State targetState) {
+      this.targetState = targetState;
     }
 
     @Override
@@ -633,6 +639,34 @@ public class SwerveDrive extends SwerveCore {
 
   public Command driveQuicklyTo(Pose2d targetPose) {
     return driveQuicklyTo(targetPose, new ChassisSpeeds());
+  }
+
+  public Command driveQuicklyToState(Supplier<HolonomicPositionController.State> targetState) {
+    ProfiledDriveCommand profiledDriveCommand = new ProfiledDriveCommand(targetState.get(), new HolonomicPositionController(
+      new TrapezoidProfile.Constraints(
+        getConstants().maxDriveSpeed().in(MetersPerSecond),
+        getConstants().maxLinearAcceleration().in(MetersPerSecondPerSecond)
+      ),
+      new PIDConstraints(1.0, 0.0, 0.2),
+      new TrapezoidProfile.Constraints(
+        getConstants().maxRotationSpeed().in(RadiansPerSecond),
+        getConstants().maxAngularAcceleration().in(RadiansPerSecondPerSecond)
+      ),
+      new PIDConstraints(1.0, 0.0, 0.2)
+    ));
+
+    return profiledDriveCommand.deadlineFor(Commands.run(() -> {
+      profiledDriveCommand.setTarget(targetState.get());
+      Logger.getField().getObject("Target Pose").setPose(targetState.get().position);
+    }));
+  }
+
+  public Command driveQuicklyTo(Supplier<Pose2d> targetPose, Supplier<ChassisSpeeds> targetSpeeds) {
+    return driveQuicklyToState(() -> new HolonomicPositionController.State(targetPose.get(), targetSpeeds.get()));
+  }
+
+  public Command driveQuicklyTo(Supplier<Pose2d> targetPose) {
+    return driveQuicklyToState(() -> new HolonomicPositionController.State(targetPose.get(), new ChassisSpeeds()));
   }
 
   public Command driveTo(Pose2d targetPose, ChassisSpeeds targetSpeeds) {

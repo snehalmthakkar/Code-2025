@@ -25,6 +25,7 @@ import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -218,6 +219,22 @@ public class Logger extends SubsystemBase {
         () -> {
           if (value == null) table.getEntry(key).setString("null");
           else table.getEntry(key).setDoubleArray(new double[] {value.getX(), value.getY()});
+        });
+  }
+
+  public static void logTranslation3d(String key, Supplier<Translation3d> supplier) {
+    addUpdate(key, () -> log(key, supplier.get()));
+  }
+
+  public static void log(String key, Translation3d value) {
+    addUpdate(
+        key,
+        () -> {
+          if (value == null) table.getEntry(key).setString("null");
+          else
+            table
+                .getEntry(key)
+                .setDoubleArray(new double[] {value.getX(), value.getY(), value.getZ()});
         });
   }
 

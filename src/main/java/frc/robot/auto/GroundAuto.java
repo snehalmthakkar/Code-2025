@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 
 import com.team6962.lib.utils.CommandUtils;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,6 +18,7 @@ import frc.robot.field.ReefPositioning.CoralPosition;
 import frc.robot.field.StationPositioning;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
+import frc.robot.vision.CoralDetection;
 
 public class GroundAuto {
     private RobotContainer robot;
@@ -97,7 +99,7 @@ public class GroundAuto {
                     Commands.waitUntil(() -> robot.swerveDrive.isWithinToleranceOf(StationPositioning.getGroundIntakePose(coralStation), Inches.of(6), Degrees.of(15)) &&
                         robot.elevator.isNear(Constants.ELEVATOR.CORAL.INTAKE_HEIGHT))
                 ))),
-                CommandUtils.annotate("Drive to intake from " + coralStation + " coral station", robot.swerveDrive.driveTo(StationPositioning.getGroundIntakePose(coralStation)))
+                CommandUtils.annotate("Drive to intake from " + coralStation + " coral station", autoPickupCoral(StationPositioning.getGroundIntakePose(coralStation)))
         ));
     }
 
@@ -114,5 +116,15 @@ public class GroundAuto {
             scoreCoral(new CoralPosition(9, 4).reflectedIf(reflect)),
             intakeCoral(coralStation)
         ));
+    }
+
+    public Command autoPickupCoral(Pose2d defaultPose) {
+        return robot.swerveDrive.driveQuicklyTo(() ->
+            robot.coralDetection.getCoralLocation() == null ? defaultPose :
+            new Pose2d(
+                robot.coralDetection.getCoralLocation(),
+                robot.coralDetection.getCoralLocation().minus(robot.swerveDrive.getEstimatedPose().getTranslation()).getAngle()
+            )
+        );
     }
 }
