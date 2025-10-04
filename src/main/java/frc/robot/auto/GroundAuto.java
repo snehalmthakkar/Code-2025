@@ -271,12 +271,9 @@ public class GroundAuto {
             Commands.parallel(
                 robot.swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
                 CommandUtils.selectByMode(
-                    Commands.sequence(
+                    Commands.parallel(
                         robot.pieceCombos.algae(level),
-                        Commands.parallel(
-                            robot.manipulator.grabber.intakeAlgae(),
-                            robot.manipulator.pivot.algaeReef()
-                        )
+                        robot.manipulator.grabber.intakeAlgae()
                     ),
                     Commands.waitSeconds(0.5)
                 )

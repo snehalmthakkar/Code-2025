@@ -168,7 +168,7 @@ public class AutoAlign {
         Set.of(swerveDrive.useMotion()));
   }
 
-  private static double BARGE_X = 7.408452033996582 - Units.inchesToMeters(18);
+  private static double BARGE_X = 7.408452033996582 - Units.inchesToMeters(12);
   private static double MIN_BARGE_Y = 4.6;
   private static double MAX_BARGE_Y = 7.5;
 
