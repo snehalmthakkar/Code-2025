@@ -107,7 +107,10 @@ public class PieceCombos {
   public Command algaeBargeShoot() {
     return Commands.sequence(
             manipulator.pivot.algaeBargeSetup(),
-            manipulator.pivot.algaeBargeShoot().deadlineFor(manipulator.grabber.dropAlgae()))
+            manipulator.pivot.algaeBargeShoot().deadlineFor(Commands.sequence(
+              Commands.waitSeconds(0.15),
+              manipulator.grabber.dropAlgae())
+            ))
         .onlyIf(() -> elevator.isNear(ELEVATOR.ALGAE.BARGE_HEIGHT));
   }
 

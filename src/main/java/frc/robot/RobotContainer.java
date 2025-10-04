@@ -9,7 +9,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 
 import com.team6962.lib.swerve.SwerveDrive;
@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.auto.AutoAlign;
 import frc.robot.auto.AutoChooser;
+import frc.robot.auto.AutoChooser.Auto;
 import frc.robot.auto.Autonomous;
 import frc.robot.auto.GroundAuto;
 import frc.robot.commands.PieceCombos;
@@ -82,7 +83,6 @@ public class RobotContainer {
   public final Intake intake;
   public final Controls controls;
   public final AutoChooser autoChooser;
-  public final CoralDetection coralDetection;
 
   private static PowerDistribution PDH = new PowerDistribution(CAN.PDH, ModuleType.kRev);
 
@@ -129,14 +129,6 @@ public class RobotContainer {
     autov3 = new Autonomous(swerveDrive, manipulator, elevator, pieceCombos);
     algaeDetector = new Algae();
     intake = new Intake(manipulator.grabber);
-
-    coralDetection = new CoralDetection(
-      "limelight-boral",
-      new Translation3d(Inches.of(-0.014924).in(Meters), Inches.of(0).in(Meters), Inches.of(36.139118 - 2).in(Meters)),
-      Degrees.of(-40),
-      swerveDrive
-    );
-
     groundAuto = new GroundAuto(this);
 
     // // Configure the trigger bindings
@@ -150,16 +142,19 @@ public class RobotContainer {
 
     refreshButtonEntry.setBoolean(false);
 
-    autoChooser = new AutoChooser(Map.of(
-      "Nothing", () -> Commands.none(),
-      "Right Side & Lollipop", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, true),
-      "Left Side & Lollipop", () -> groundAuto.lollipopAuto(CoralStation.LEFT, true),
-      "Right Station", () -> groundAuto.sideAutonomous(CoralStation.RIGHT),
-      "Left Station", () -> groundAuto.sideAutonomous(CoralStation.LEFT),
-      "Right Lollipop", () -> groundAuto.lollipopAuto(CoralStation.RIGHT, false),
-      "Left Lollipop", () -> groundAuto.lollipopAuto(CoralStation.LEFT, false),
-      "Drive Forward", () -> swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0)),
-      "Wheel Size Calibration", () -> swerveDrive.calibrateWheelSize()
+    autoChooser = new AutoChooser(List.of(
+      new Auto("Nothing", Commands.none()),
+      new Auto(groundAuto.lollipopAuto(CoralStation.RIGHT, true)),
+      new Auto(groundAuto.lollipopAuto(CoralStation.LEFT, true)),
+      new Auto(groundAuto.sideAutonomous(CoralStation.RIGHT)),
+      new Auto(groundAuto.sideAutonomous(CoralStation.LEFT)),
+      new Auto(groundAuto.lollipopAuto(CoralStation.RIGHT, false)),
+      new Auto(groundAuto.lollipopAuto(CoralStation.LEFT, false)),
+      new Auto(groundAuto.middleAuto(0)),
+      new Auto(groundAuto.middleAuto(1)),
+      new Auto(groundAuto.middleAuto(2)),
+      new Auto("Drive Forward", swerveDrive.drive(new ChassisSpeeds(0.5, 0, 0))),
+      new Auto("Wheel Size Calibration", swerveDrive.calibrateWheelSize())
     ), "Nothing");
 
     Logger.start(Milliseconds.of(20));

@@ -25,7 +25,7 @@ public final class CommandUtils {
     return command.deadlineFor(Commands.startEnd(
       () -> System.out.println("start: " + name),
       () -> System.out.println("end: " + name)
-    ));
+    )).withName(name);
   }
 
   public static Command selectByMode(Command realCommand, Command simCommand) {

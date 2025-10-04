@@ -323,7 +323,7 @@ public final class Constants {
       public static final Distance L2_HEIGHT = Inches.of(49.45);
       public static final Distance L3_HEIGHT = Inches.of(56.6);
       public static final Distance L4_HEIGHT = Inches.of(72);
-      public static final Distance INTAKE_HEIGHT = Inches.of(42.3);
+      public static final Distance INTAKE_HEIGHT = MIN_HEIGHT;
     }
 
     public static final class ALGAE {
@@ -331,7 +331,7 @@ public final class Constants {
       public static final Distance L3_HEIGHT = Inches.of(57.3);
       public static final Distance BARGE_HEIGHT = MAX_HEIGHT;
       public static final Distance GROUND_HEIGHT = MIN_HEIGHT;
-      public static final Distance PROCESSOR_HEIGHT = MIN_HEIGHT;
+      public static final Distance PROCESSOR_HEIGHT = Inches.of(41.5);
     }
 
     public static final class AUTO {
@@ -419,7 +419,7 @@ public final class Constants {
     public static final double ALGAE_HOLD_SPEED = 0.2;
 
     public static final double CORAL_OUT_SPEED = 0.7;
-    public static final double CORAL_IN_SPEED = 1;
+    public static final double CORAL_IN_SPEED = 0.5;
     public static final double CORAL_SLOW_IN_SPEED = 0.2;
     public static final double CORAL_ADJUST_SPEED = -0.1;
     public static final double CORAL_REPOSITION_SPEED = 0.05;

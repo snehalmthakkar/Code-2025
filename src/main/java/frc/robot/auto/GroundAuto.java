@@ -136,7 +136,7 @@ public class GroundAuto {
     public Command sideAutonomous(CoralStation coralStation) {
         boolean reflect = coralStation == CoralStation.LEFT;
 
-        return CommandUtils.annotate(coralStation + " Side Autonomous", Commands.sequence(
+        return CommandUtils.annotate(coralStation + " Side", Commands.sequence(
             scorePreloadCoral(new CoralPosition(10, 4).reflectedIf(reflect), false),
             robot.swerveDrive.driveQuicklyTo(
                 StationPositioning.reflectPose(new Pose2d(4.3, 2.42, Rotation2d.fromDegrees(120)), reflect),
@@ -151,16 +151,6 @@ public class GroundAuto {
             intakeCoralFromStation(coralStation, false),
             scoreCoral(new CoralPosition(7, 3).reflectedIf(reflect))
         ));
-    }
-
-    public Command autoPickupCoral(Pose2d defaultPose) {
-        return robot.swerveDrive.driveQuicklyTo(() ->
-            robot.coralDetection.getCoralLocation() == null ? defaultPose :
-            new Pose2d(
-                robot.coralDetection.getCoralLocation(),
-                robot.coralDetection.getCoralLocation().minus(robot.swerveDrive.getEstimatedPose().getTranslation()).getAngle()
-            )
-        );
     }
 
     public Command prepareLollipops(CoralStation coralStation, boolean scoreL4) {
@@ -245,7 +235,7 @@ public class GroundAuto {
         int lollipop2 = 1;
         int lollipop3 = coralStation == CoralStation.LEFT ? 0 : 2;
 
-        return CommandUtils.annotate(coralStation + " Side Lollipop", Commands.sequence(
+        return CommandUtils.annotate(coralStation + " " + (scoreL4 ? "Side & " : "") + "Lollipop", Commands.sequence(
             prepareLollipops(coralStation, scoreL4),
             scorePreloadCoral((scoreL4 ? new CoralPosition(7, 4) : new CoralPosition(6, 4)).reflectedIf(reflect), scoreL4),
             intakeLollipop(lollipop1, false),
@@ -276,16 +266,13 @@ public class GroundAuto {
                 ),
                 robot.swerveDrive
                     .driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face)),
-                robot.pieceCombos.algae(level)
+                robot.elevator.algae(level)
             ),
             Commands.parallel(
                 robot.swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),
                 CommandUtils.selectByMode(
                     Commands.sequence(
-                        Commands.deadline(
-                            robot.pieceCombos.algae(level),
-                            robot.manipulator.pivot.stow()
-                        ),
+                        robot.pieceCombos.algae(level),
                         Commands.parallel(
                             robot.manipulator.grabber.intakeAlgae(),
                             robot.manipulator.pivot.algaeReef()
@@ -295,30 +282,36 @@ public class GroundAuto {
                 )
             ).withDeadline(CommandUtils.selectByMode(
                 Commands.waitUntil(robot.manipulator.grabber::hasAlgae),
-                Commands.waitSeconds(2)
+                Commands.waitSeconds(0.5)
             )),
-            robot.swerveDrive.driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face))
+            robot.swerveDrive.driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face)).deadlineFor(robot.manipulator.pivot.stow())
         );
     }
 
     private Command scoreAlgae() {
         return Commands.sequence(
-            Commands.sequence(
-                robot.autoAlign.autoAlignSetupBarge(),
-                robot.autoAlign.autoAlignBargeFast()
-            ).alongWith(CommandUtils.selectByMode(
-                robot.pieceCombos.algaeBargeSetup(),
-                Commands.waitSeconds(1)
-            )),
+            robot.autoAlign.autoAlignSetupBarge().deadlineFor(robot.elevator.stow(), robot.manipulator.pivot.stow()),
             CommandUtils.selectByMode(
-                robot.pieceCombos.algaeBargeShoot(),
+                Commands.parallel(
+                    robot.elevator.stow(),
+                    robot.manipulator.pivot.safe()
+                ),
+                Commands.waitSeconds(0.1)
+            ),
+            CommandUtils.selectByMode(
+                robot.pieceCombos.stow()
+                    .andThen(robot.elevator.launchBarge())
+                    .withDeadline(Commands.sequence(
+                        Commands.waitUntil(() -> robot.elevator.getPosition().gt(Inches.of(52.5))),
+                        robot.manipulator.grabber.dropAlgae().withTimeout(0.5)
+                    )),
                 Commands.waitSeconds(1)
             )
         );
     }
 
-    public Command centerAuto(boolean algae) {
-        return CommandUtils.annotate("Center Auto", Commands.sequence(
+    public Command middleAuto(int algaeCount) {
+        return CommandUtils.annotate(algaeCount > 0 ? "Middle Coral & " + algaeCount + " Algae" : "Middle Coral", Commands.sequence(
             Commands.either(
                 scorePreloadCoral(new CoralPosition(0, 4), false),
                 scorePreloadCoral(new CoralPosition(11, 4), false),
@@ -326,12 +319,14 @@ public class GroundAuto {
             ),
             Commands.sequence(
                 pickupAlgae(0),
-                scoreAlgae(),
+                scoreAlgae()
+            ).onlyIf(() -> algaeCount >= 1),
+            Commands.sequence(
                 robot.swerveDrive.driveQuicklyTo(new Pose2d(6.3, 5.25, Rotation2d.fromDegrees(-40))).deadlineFor(robot.pieceCombos.algaeL3()),
                 robot.swerveDrive.driveQuicklyTo(new Pose2d(5.6, 5.5, Rotation2d.fromDegrees(-120))).deadlineFor(robot.pieceCombos.algaeL3()),
                 pickupAlgae(1),
                 scoreAlgae()
-            ).onlyIf(() -> algae)
+            ).onlyIf(() -> algaeCount >= 2)
         ));
     }
 }
