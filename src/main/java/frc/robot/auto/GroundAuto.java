@@ -246,7 +246,7 @@ public class GroundAuto {
             ),
             intakeLollipop(lollipop2, false),
             Commands.either(
-                scoreCoral(new CoralPosition(6, 2).reflectedIf(reflect)),
+                scoreCoral((scoreL4 ? new CoralPosition(5, 4) : new CoralPosition(6, 2)).reflectedIf(reflect)),
                 recoverFromLollipopFailure(lollipop2, lollipop3),
                 successfullyIntaked()
             ),
