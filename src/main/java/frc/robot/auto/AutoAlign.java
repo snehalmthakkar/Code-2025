@@ -14,6 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -167,7 +168,7 @@ public class AutoAlign {
         Set.of(swerveDrive.useMotion()));
   }
 
-  private static double BARGE_X = 7.408452033996582;
+  private static double BARGE_X = 7.408452033996582 - Units.inchesToMeters(18);
   private static double MIN_BARGE_Y = 4.6;
   private static double MAX_BARGE_Y = 7.5;
 
