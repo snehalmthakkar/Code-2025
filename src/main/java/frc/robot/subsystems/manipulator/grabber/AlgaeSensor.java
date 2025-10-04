@@ -60,7 +60,7 @@ public class AlgaeSensor extends SubsystemBase {
     @Override
     public void periodic() {
         distance = CTREUtils.unwrap(distanceSignal.refresh());
-        hasAlgae = debouncer.calculate(distance.lt(Inches.of(1.0)));
-        fullyIntaked = fullyIntakedDebouncer.calculate(distance.lt(Inches.of(0.25)));
+        hasAlgae = debouncer.calculate(distance.lt(Inches.of(3)));
+        fullyIntaked = fullyIntakedDebouncer.calculate(distance.lt(Inches.of(1)));
     }
 }

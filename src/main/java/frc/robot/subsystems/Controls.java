@@ -166,35 +166,29 @@ public class Controls {
     operator.povLeft().whileTrue(manipulator.pivot.down());
     operator.back().onTrue(pieceCombos.algaeL3());
     operator.start().onTrue(pieceCombos.algaeL2());
+
+    // Big Left Paddle - Barge
     operator
         .leftStick()
         .onTrue(
           pieceCombos.stow()
-            .andThen(elevator.launchBarge())
-            .withDeadline(Commands.sequence(
-              Commands.waitUntil(() -> elevator.getPosition().gt(Inches.of(52.5))),
-              manipulator.grabber.dropAlgae().withTimeout(0.5)
-            ))
+            .andThen(
+              elevator.launchBarge()
+                .withDeadline(Commands.sequence(
+                  Commands.waitUntil(() -> elevator.getPosition().gt(Inches.of(52.5))),
+                  manipulator.grabber.dropAlgae().withTimeout(0.5)
+                ))
+            )
         ); // barge combo
+    
+    // Big Right Paddle - Stow
     operator
         .rightStick()
         .whileTrue(pieceCombos.stow()); // big right paddle
     
     operator.rightBumper().onTrue(manipulator.grabber.repositionCoral());
 
-    // operator.rightBumper().whileTrue(
-    //   Commands.either(
-    //     IntakeCommands.intakeTransfer(intake, elevator, manipulator, manipulatorSafeties, pieceCombos)
-    //       .andThen(
-    //         Commands.parallel(
-    //             rumbleBoth(),
-    //             LEDs.setStateCommand(LEDs.State.GOOD),
-    //             pieceCombos.readyL2(),
-    //             manipulator.grabber.repositionCoral()
-    //         )),
-    //     manipulator.grabber.repositionCoral(),
-    //     () -> !manipulator.grabber.hasCoral() && manipulator.grabber.isCoralClear()
-    //   )); // transfer coral
+    // Right Trigger - Intake algae / Shoot coral
     operator
         .rightTrigger()
         .whileTrue(
@@ -204,6 +198,8 @@ public class Controls {
                     rumbleBoth()
                         .alongWith(
                             LEDs.setStateCommand(LEDs.State.GOOD)))); // drop coral/intake algae
+    
+    // Left Bumper - Backup barge
     operator.leftBumper().onTrue(
       Commands.either(
         manipulator.stow().andThen(elevator.algaeBarge()).andThen(manipulator.grabber.dropAlgae()),
@@ -212,6 +208,8 @@ public class Controls {
         () -> elevator.getPosition().gt(ELEVATOR.ALGAE.BARGE_HEIGHT.minus(Inches.of(2)))
       )
     ); // shoot barge
+
+    // Right Trigger - Drop algae
     operator
         .leftTrigger()
         .whileTrue(

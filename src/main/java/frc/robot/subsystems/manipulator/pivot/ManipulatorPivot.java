@@ -4,6 +4,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.Constants.ENABLED_SYSTEMS;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public interface ManipulatorPivot extends Subsystem {
@@ -45,8 +47,8 @@ public interface ManipulatorPivot extends Subsystem {
 
   public void setMinMaxAngle(Angle min, Angle max);
 
-  public static ManipulatorPivot create() {
-    if (ENABLED_SYSTEMS.isManipulatorEnabled()) return new RealManipulatorPivot();
+  public static ManipulatorPivot create(BooleanSupplier hasAlgae) {
+    if (ENABLED_SYSTEMS.isManipulatorEnabled()) return new RealManipulatorPivot(hasAlgae);
     else return new DisabledManipulatorPivot();
   }
 }

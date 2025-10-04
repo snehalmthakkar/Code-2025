@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,7 +20,9 @@ import frc.robot.util.hardware.motion.PivotController;
 
 @SuppressWarnings("deprecation")
 public class RealManipulatorPivot extends PivotController implements ManipulatorPivot {
-  public RealManipulatorPivot() {
+  private BooleanSupplier hasAlgae;
+
+  public RealManipulatorPivot(BooleanSupplier hasAlgae) {
     super(
         "Manipulator Pivot", 
         CAN.MANIPULATOR_PIVOT,
@@ -32,6 +36,8 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
         MANIPULATOR_PIVOT.MAX_ANGLE,
         MANIPULATOR_PIVOT.TOLERANCE,
         MANIPULATOR_PIVOT.INVERTED);
+    
+    this.hasAlgae = hasAlgae;
   }
 
   @Override
@@ -82,7 +88,7 @@ public class RealManipulatorPivot extends PivotController implements Manipulator
 
   @Override
   public Command stow() {
-    return pivotTo(() -> MANIPULATOR_PIVOT.STOW_ANGLE);
+    return pivotTo(() -> hasAlgae.getAsBoolean() ? MANIPULATOR_PIVOT.ALGAE.HOLD_ANGLE : MANIPULATOR_PIVOT.STOW_ANGLE);
   }
 
   @Override

@@ -11,8 +11,8 @@ public class Manipulator extends SubsystemBase {
   public final Grabber grabber;
 
   public Manipulator() {
-    pivot = ManipulatorPivot.create();
     grabber = Grabber.create();
+    pivot = ManipulatorPivot.create(grabber::hasAlgae);
   }
 
   public Command placeCoralL1() {

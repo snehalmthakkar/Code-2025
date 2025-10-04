@@ -357,8 +357,8 @@ public final class Constants {
     public static final Angle MAX_ANGLE = Degrees.of(40.0); // RESET TO 40.0
     public static final Angle MIN_ANGLE = Degrees.of(-90.0);
 
-    public static final Angle STOW_ANGLE = Degrees.of(-5.0);
-    public static final Angle SAFE_ANGLE = Degrees.of(-5.0);
+    public static final Angle STOW_ANGLE = Degrees.of(-1.5);
+    public static final Angle SAFE_ANGLE = Degrees.of(-1.5);
 
     public static final Angle SAFE_MIN_ANGLE = Degrees.of(-10.0);
     public static final Angle SAFE_MAX_ANGLE = Degrees.of(0.0);
@@ -387,7 +387,7 @@ public final class Constants {
       public static final Angle REEF_ANGLE = Degrees.of(-51.2);
       public static final Angle GROUND_ANGLE = Degrees.of(-75.0);
       public static final Angle PROCESSOR_ANGLE = Degrees.of(-10.0);
-      public static final Angle HOLD_ANGLE = Degrees.of(-11.5);
+      public static final Angle HOLD_ANGLE = Degrees.of(-12);
     }
 
     public static final NavigableMap<Distance, Angle> MIN_ANGLES;
