@@ -358,7 +358,7 @@ public final class Constants {
     public static final Angle MIN_ANGLE = Degrees.of(-90.0);
 
     public static final Angle STOW_ANGLE = Degrees.of(-1.5);
-    public static final Angle SAFE_ANGLE = Degrees.of(-1.5);
+    public static final Angle SAFE_ANGLE = Degrees.of(6);
 
     public static final Angle SAFE_MIN_ANGLE = Degrees.of(-10.0);
     public static final Angle SAFE_MAX_ANGLE = Degrees.of(0.0);
@@ -367,7 +367,7 @@ public final class Constants {
     public static final Angle PID_MID_ANGLE = Degrees.of(-45.0);
     public static final Angle PID_MAX_ANGLE = Degrees.of(0.0);
     public static final Angle TOLERANCE = Degrees.of(2.0);
-    public static final Angle SAFE_TOLERANCE = Degrees.of(4.0);
+    public static final Angle SAFE_TOLERANCE = Degrees.of(2.0);
     public static final boolean INVERTED = true;
 
     public static final class CORAL {

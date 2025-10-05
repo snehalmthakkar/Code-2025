@@ -331,10 +331,10 @@ public class Controls {
       int level = ReefPositioning.getAlgaeHeight(face);
 
       return Commands.sequence(
-        Commands.deadline(
+        Commands.parallel(
           manipulator.pivot.stow().until(() -> manipulator.pivot.getPosition().gt(Degrees.of(-10))),
           swerveDrive
-            .driveTo(ReefPositioning.getAlgaeAlignPose(face))
+            .driveQuicklyTo(ReefPositioning.getAlgaeAlignPose(face))
         ),
         Commands.parallel(
           swerveDrive.driveTo(ReefPositioning.getAlgaePickupPose(face)),

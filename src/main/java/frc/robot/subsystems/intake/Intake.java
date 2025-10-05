@@ -117,11 +117,10 @@ public class Intake extends SubsystemBase {
             Commands.parallel(
                 pivot.deploy(),
                 indexer.drop(),
-                rollers.drop(),
-                Commands.runOnce(() -> sensors.setCoralDropped())
+                rollers.drop()
             ),
             () -> sensors.getCoralLocation() == CoralLocation.INDEXER || sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR
-        );
+        ).finallyDo(() -> sensors.setCoralDropped());
 
         if (RobotBase.isSimulation()) {
             command = command.deadlineFor(Commands.sequence(

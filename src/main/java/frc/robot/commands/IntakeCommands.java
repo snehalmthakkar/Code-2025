@@ -35,7 +35,7 @@ public final class IntakeCommands {
                 intake.transfer(),
                 pieceCombos.intakeCoral(),
                 intake.pivot.stow()
-            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR)
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR || !manipulator.grabber.isCoralClear())
         );
     }
 
@@ -62,7 +62,7 @@ public final class IntakeCommands {
             Commands.deadline(
                 intake.transfer(),
                 pieceCombos.intakeCoral()
-            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR)
+            ).onlyIf(() -> intake.sensors.getCoralLocation() == CoralLocation.INDEXER || intake.sensors.getCoralLocation() == CoralLocation.TRANSFER_TO_MANIPULATOR || !manipulator.grabber.isCoralClear())
         );
     }
 
