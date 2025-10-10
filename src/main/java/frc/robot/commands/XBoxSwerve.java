@@ -2,6 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+/**
+ * XBoxSwerve is a command that handles teleoperated control of a swerve drive system using an Xbox controller.
+ * <p>
+ * This command reads controller inputs for translation and rotation, applies deadbands and scaling for fine control, 
+ * and commands a SwerveDrive subsystem accordingly. It supports simulation and alliance color inversion, 
+ * and allows for runtime modification of drive speeds via modifier functions.
+ * <p>
+ * The command is continuously scheduled during teleop, and safely cancels drive commands if the controller disconnects or the command ends.
+ */
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -50,6 +59,13 @@ public class XBoxSwerve extends Command {
 
   private List<Function<ChassisSpeeds, ChassisSpeeds>> speedsModifiers = new LinkedList<>();
 
+  /**
+   * Constructs a new XBoxSwerve command to control a SwerveDrive with an XboxController.
+   * Initializes velocity constants and sets up telemetry logging.
+   * 
+   * @param swerveDrive the SwerveDrive subsystem to command
+   * @param xboxController the Xbox controller providing user input
+   */
   public XBoxSwerve(SwerveDrive swerveDrive, XboxController xboxController) {
     this.swerveDrive = swerveDrive;
     this.controller = xboxController;
@@ -88,11 +104,23 @@ public class XBoxSwerve extends Command {
     Logger.logNumber("XBoxSwerve/maxVel", () -> MAX_DRIVE_VELOCITY);
   }
 
-  // Called when the command is initially scheduled.
+  /**
+   * Called when the command is initially scheduled.
+   * No initialization is needed for this command.
+   */
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
+  /**
+   * Called every time the scheduler runs while the command is scheduled.
+   * <p>
+   * - Reads controller input and computes desired translation and rotation velocities.
+   * - Applies deadbands, scaling, and simulation/alliance-specific adjustments.
+   * - Handles controller disconnects by cancelling drive commands.
+   * - Schedules translation and rotation commands as needed.
+   * - Resets heading if the right bumper is pressed.
+   * - Logs driven speeds and resets velocities after each cycle.
+   */
   @Override
   public void execute() {
     if (!CachedRobotState.isTeleop()) return;
@@ -214,19 +242,37 @@ public class XBoxSwerve extends Command {
     velocity = new Translation2d();
   }
 
-  // Called once the command ends or is interrupted.
+  /**
+   * Called once the command ends or is interrupted.
+   * Safely cancels any active rotation or translation commands.
+   *
+   * @param interrupted true if the command was interrupted/cancelled
+   */
   @Override
   public void end(boolean interrupted) {
     if (rotateCommand != null) rotateCommand.cancel();
     if (translateCommand != null) translateCommand.cancel();
   }
 
-  // Returns true when the command should end.
+  /**
+   * Returns true when the command should end.
+   * This command is intended to run continuously during teleop, so always returns false.
+   *
+   * @return false
+   */
   @Override
   public boolean isFinished() {
     return false;
   }
 
+  /**
+   * Allows dynamic modification of the chassis speeds using a provided function.
+   * The modifier is added at the start of the returned command and removed at the end.
+   * This is useful for temporarily adjusting drive characteristics (e.g., for vision alignment).
+   *
+   * @param modifier a function to modify ChassisSpeeds
+   * @return a command that manages the lifecycle of the modifier
+   */
   public Command modifySpeeds(Function<ChassisSpeeds, ChassisSpeeds> modifier) {
     return Commands.startEnd(
       () -> speedsModifiers.add(modifier),
