@@ -1,3 +1,12 @@
+/**
+ * GroundAuto.java
+ *
+ * Contains a suite of autonomous routines and helper methods for interacting with ground-level
+ * "coral" and "lollipop" game pieces, scoring on multiple levels, and handling station intake and recovery.
+ * Implements both side and middle autos, including logic for lollipop collection, algae handling, and scoring sequences.
+ * Uses the RobotContainer for subsystem access and integrates with field and position utilities.
+ */
+
 package frc.robot.auto;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -27,13 +36,29 @@ import frc.robot.field.StationPositioning;
 import frc.robot.field.StationPositioning.CoralStation;
 import frc.robot.subsystems.intake.IntakeSensors.CoralLocation;
 
+/**
+ * Provides autonomous routines and helper methods for picking up, scoring, and manipulating
+ * ground-level coral and lollipop game pieces, as well as handling algae and recovery sequences.
+ */
 public class GroundAuto {
     private RobotContainer robot;
 
+    /**
+     * Constructs a GroundAuto instance with access to the robot container.
+     *
+     * @param robot The main RobotContainer with all subsystems and utilities
+     */
     public GroundAuto(RobotContainer robot) {
         this.robot = robot;
     }
 
+    /**
+     * Returns a Command to ready mechanisms for scoring coral at a specified level.
+     *
+     * @param level The level to score (2-4)
+     * @param fast  Whether to use the "fast" elevator preset
+     * @return Command to prepare mechanisms
+     */
     public Command readyMechanismsForScoreCoral(int level, boolean fast) {
         if (level <= 1 || level > 4) {
             throw new IllegalArgumentException("Level must be between 2 and 4");
@@ -49,6 +74,12 @@ public class GroundAuto {
         return CommandUtils.annotate("Ready coral for L" + level, Commands.parallel(elevatorCommand, pivotCommand));
     }
 
+    /**
+     * Returns a command to score coral with mechanisms for a given level.
+     *
+     * @param level The level to score (2-4)
+     * @return Command sequence for scoring coral
+     */
     public Command scoreCoralWithMechanisms(int level) {
         if (level <= 1 || level > 4) {
             throw new IllegalArgumentException("Level must be between 2 and 4");
@@ -75,6 +106,13 @@ public class GroundAuto {
         }
     }
 
+    /**
+     * Scores a preloaded coral on a specified pole and level.
+     *
+     * @param position The target pole and level for scoring
+     * @param scoreL4  Whether to treat as L4 (special logic)
+     * @return Command for scoring preloaded coral
+     */
     public Command scorePreloadCoral(CoralPosition position, boolean scoreL4) {
         return CommandUtils.annotate("Score coral on " + position, Commands.deadline(
             Commands.sequence(
@@ -90,6 +128,12 @@ public class GroundAuto {
         ).deadlineFor(robot.intake.pivot.deploy()));
     }
 
+    /**
+     * Scores a coral picked up from the field on a specified pole and level.
+     *
+     * @param position The target CoralPosition (pole and level)
+     * @return Command for scoring coral
+     */
     public Command scoreCoral(CoralPosition position) {
         return CommandUtils.annotate("Score coral on " + position, Commands.deadline(
             Commands.sequence(
@@ -108,6 +152,13 @@ public class GroundAuto {
         ));
     }
 
+    /**
+     * Intakes coral from a specified station location using repeated drive and intake sequences.
+     *
+     * @param coralStation The coral station to intake from (LEFT/RIGHT)
+     * @param approachSlow Whether to approach slowly initially
+     * @return Command for intaking coral from the station
+     */
     public Command intakeCoralFromStation(CoralStation coralStation, boolean approachSlow) {
         return CommandUtils.annotate("Intake coral from " + coralStation + " coral station", Commands.deadline(
             CommandUtils.selectByMode(
@@ -133,6 +184,12 @@ public class GroundAuto {
         ));
     }
 
+    /**
+     * Runs the side autonomous routine, scoring and intaking multiple corals.
+     *
+     * @param coralStation The starting station (LEFT/RIGHT)
+     * @return Command for the full side autonomous routine
+     */
     public Command sideAutonomous(CoralStation coralStation) {
         boolean reflect = coralStation == CoralStation.LEFT;
 
@@ -153,6 +210,13 @@ public class GroundAuto {
         ));
     }
 
+    /**
+     * Prepares the lollipop pickup sequence, adjusting pose and speeds for the station and scoring level.
+     *
+     * @param coralStation The coral station (LEFT/RIGHT)
+     * @param scoreL4      Whether to use the L4 pose/speeds
+     * @return Command for preparing to pick up lollipops
+     */
     public Command prepareLollipops(CoralStation coralStation, boolean scoreL4) {
         Pose2d pose = scoreL4 ? new Pose2d(4.36, 2.02, Rotation2d.fromDegrees(60)) : new Pose2d(2.96, 1.36, Rotation2d.fromDegrees(0));
         ChassisSpeeds speeds = scoreL4 ? new ChassisSpeeds(-1, 0.5, 0) : new ChassisSpeeds(-1.5, 0.75, 0);
@@ -165,10 +229,18 @@ public class GroundAuto {
         return robot.swerveDrive.driveQuicklyTo(pose, speeds);
     }
 
+    /** The field positions for each lollipop. */
     public static Translation2d LOLLIPOP_1 = new Translation2d(1.27, 2.2);
     public static Translation2d LOLLIPOP_2 = new Translation2d(1.27, 4.025);
     public static Translation2d LOLLIPOP_3 = new Translation2d(1.27, 5.85);
 
+    /**
+     * Intakes a lollipop game piece by index, with an option for special behavior for the final lollipop.
+     *
+     * @param id           Lollipop ID (0,1,2)
+     * @param finalLollipop True if this is the last lollipop in the sequence
+     * @return Command for picking up the lollipop
+     */
     public Command intakeLollipop(int id, boolean finalLollipop) {
         return Commands.defer(() -> {
             Translation2d currentPosition = robot.swerveDrive.getEstimatedPose().getTranslation();
@@ -193,11 +265,15 @@ public class GroundAuto {
         }, Set.of(robot.intake.indexer, robot.intake.pivot, robot.intake.rollers, robot.elevator, robot.manipulator.grabber, robot.manipulator.pivot, robot.swerveDrive));
     }
 
+    /**
+     * Recovers from a failed lollipop intake by repositioning for the next attempt.
+     *
+     * @param failedId ID of the failed lollipop
+     * @param nextId   ID of the next lollipop to attempt
+     * @return Command to recover and reposition for the next lollipop
+     */
     public Command recoverFromLollipopFailure(int failedId, int nextId) {
         return Commands.defer(() -> {
-            // Translation2d failedLollipop = failedId == 0 ? LOLLIPOP_1 : failedId == 1 ?
-            // LOLLIPOP_2 : LOLLIPOP_3;
-
             Translation2d nextLollipop = nextId == 0 ? LOLLIPOP_1 : nextId == 1 ?
             LOLLIPOP_2 : LOLLIPOP_3;
 
@@ -208,7 +284,6 @@ public class GroundAuto {
             Pose2d setupPose = new Pose2d(setupTranslation, angleToNextLollipop);
 
             ChassisSpeeds setupSpeeds = new ChassisSpeeds(0.5 * angleToNextLollipop.getCos(), 0.5 * angleToNextLollipop.getSin(), 0);
-            // ChassisSpeeds recoverSpeeds = new ChassisSpeeds(1.5, 2 * Math.signum(nextId - failedId), 0);
 
             return Commands.parallel(
                 robot.swerveDrive.driveQuicklyTo(setupPose, setupSpeeds),
@@ -220,14 +295,27 @@ public class GroundAuto {
         }, Set.of(robot.intake.indexer, robot.intake.pivot, robot.intake.rollers, robot.elevator, robot.manipulator.grabber, robot.manipulator.pivot, robot.swerveDrive));
     }
 
+    /**
+     * Returns a BooleanSupplier that is true if a coral was successfully intaked.
+     */
     public BooleanSupplier successfullyIntaked() {
         return () -> robot.intake.sensors.getCoralLocation() != CoralLocation.OUTSIDE;
     }
 
+    /**
+     * Returns a BooleanSupplier that is true if a coral intake failed.
+     */
     public BooleanSupplier failedToIntake() {
         return () -> robot.intake.sensors.getCoralLocation() == CoralLocation.OUTSIDE;
     }
 
+    /**
+     * Runs the lollipop autonomous routine, scoring and intaking multiple lollipops.
+     *
+     * @param coralStation The starting station (LEFT/RIGHT)
+     * @param scoreL4      Whether to use L4 logic for scoring
+     * @return Command for the full lollipop autonomous routine
+     */
     public Command lollipopAuto(CoralStation coralStation, boolean scoreL4) {
         boolean reflect = coralStation == CoralStation.LEFT;
 
@@ -255,6 +343,12 @@ public class GroundAuto {
         ));
     }
 
+    /**
+     * Handles picking up an algae game piece from a specific field face.
+     *
+     * @param face The field face index for algae pickup
+     * @return Command for picking up algae
+     */
     private Command pickupAlgae(int face) {
         int level = ReefPositioning.getAlgaeHeight(face);
 
@@ -285,6 +379,11 @@ public class GroundAuto {
         );
     }
 
+    /**
+     * Handles scoring an algae game piece by aligning and launching to a barge.
+     *
+     * @return Command for scoring algae
+     */
     private Command scoreAlgae() {
         return Commands.sequence(
             robot.autoAlign.autoAlignSetupBarge().deadlineFor(robot.elevator.stow(), robot.manipulator.pivot.stow()),
@@ -307,6 +406,12 @@ public class GroundAuto {
         );
     }
 
+    /**
+     * Runs the middle autonomous routine, scoring coral and picking up/scoring algae as specified.
+     *
+     * @param algaeCount The number of algae to pick up and score
+     * @return Command for the full middle autonomous routine
+     */
     public Command middleAuto(int algaeCount) {
         return CommandUtils.annotate(algaeCount > 0 ? "Middle Coral & " + algaeCount + " Algae" : "Middle Coral", Commands.sequence(
             Commands.either(
