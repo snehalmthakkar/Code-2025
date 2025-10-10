@@ -1,0 +1,132 @@
+flowchart TD
+    %% Build & CI
+    subgraph "Build & CI"
+        direction TB
+        CI["GitHub Actions CI"]:::build
+        Gradle["Gradle Build"]:::build
+        Vendordeps["Vendor Deps (vendordeps/*.json)"]:::build
+        Package["Package Deploy Assets"]:::build
+        CI -->|"triggers"| Gradle
+        Gradle -->|"fetch deps"| Vendordeps
+        Vendordeps -->|"vendor deps"| Gradle
+        Gradle -->|"compile & test"| Package
+    end
+
+    %% Deployment
+    Deploy["Deploy to RoboRIO"]:::build
+    Package -->|"includes src/main/deploy"| Deploy
+    Deploy -->|"runs on"| OnBoardRuntimeEntry
+
+    %% On-Board Runtime
+    subgraph "On-Board Runtime" 
+        direction TB
+        WPILib["WPILib<br/>(TimedRobot/Scheduler)"]:::runtime
+        Main["Main.java"]:::runtime
+        Robot["Robot.java"]:::runtime
+        RobotContainer["RobotContainer.java"]:::runtime
+
+        subgraph "Subsystems"
+            direction TB
+            Elevator["Elevator.java"]:::runtime
+            Intake["Intake.java"]:::runtime
+            Manipulator["Manipulator.java"]:::runtime
+            LEDs["LEDs.java"]:::runtime
+        end
+
+        subgraph "Commands & Autonomous"
+            direction TB
+            AutoChooser["AutoChooser.java"]:::runtime
+            AutoAlign["AutoAlign.java"]:::runtime
+            AutoPickup["AutoPickup.java"]:::runtime
+            OtherCommands["OtherCommands.java<br/>(XBoxSwerve, IntakeCommands, PieceCombos, SafeSubsystems)"]:::runtime
+        end
+
+        subgraph "Vision Modules"
+            direction TB
+            AprilTags["AprilTags.java"]:::runtime
+            CoralDetection["CoralDetection.java"]:::runtime
+            Algae["Algae.java"]:::runtime
+            LimelightHelpers["LimelightHelpers.java"]:::runtime
+        end
+
+        WPILib --> Main
+        Main --> Robot
+        Robot --> RobotContainer
+        RobotContainer --> Subsystems
+        RobotContainer --> Commands & Autonomous
+        RobotContainer --> "Vision Modules"
+        Robot --> Hardware
+        Robot --> Logs
+    end
+
+    %% Library Modules
+    subgraph "Library Modules (com.team6962.lib)"
+        direction TB
+        SwerveCore["Swerve Core & Config"]:::lib
+        SwerveControllers["Swerve Controllers & Pre-path"]:::lib
+        DigitalSensor["DigitalSensor & BeamBreak"]:::lib
+        TelemetryUtils["Telemetry Utilities"]:::lib
+        Utils["Utility Math"]:::lib
+    end
+
+    Main --> SwerveCore
+    Main --> DigitalSensor
+    Main --> TelemetryUtils
+    SwerveCore --> SwerveControllers
+    DigitalSensor --> Utils
+
+    %% Off-Board Tools & Assets
+    subgraph "Off-Board Tools & Assets"
+        direction TB
+        DataLogTool["DataLogTool"]:::tools
+        SysID["SysID Tool"]:::tools
+        ElevatorSim["ElevatorSim (elevatorsim.py)"]:::tools
+        ChoreoAssets["Choreography Trajectories"]:::tools
+        MusicCharts["Music Charts"]:::tools
+        PathplannerArtifacts["Pathplanner Artifacts"]:::tools
+    end
+
+    Logs --> DataLogTool
+    Logs --> SysID
+    SwerveControllers --> ElevatorSim
+    PathplannerArtifacts --> Package
+    ChoreoAssets --> Package
+    MusicCharts --> Package
+
+    %% Hardware and Logs
+    Hardware["Hardware<br/>(motors, sensors, gyro)"]:::runtime
+    Logs["Telemetry Logs"]:::tools
+
+    %% Click Events
+    click Main "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/Main.java"
+    click Robot "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/Robot.java"
+    click RobotContainer "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/RobotContainer.java"
+    click Elevator "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/subsystems/elevator/Elevator.java"
+    click Intake "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/subsystems/intake/Intake.java"
+    click Manipulator "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/subsystems/manipulator/Manipulator.java"
+    click LEDs "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/subsystems/leds/LEDs.java"
+    click AutoChooser "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/auto/AutoChooser.java"
+    click AutoAlign "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/auto/AutoAlign.java"
+    click AutoPickup "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/auto/AutoPickup.java"
+    click OtherCommands "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/commands/XBoxSwerve.java"
+    click AprilTags "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/vision/AprilTags.java"
+    click CoralDetection "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/vision/CoralDetection.java"
+    click Algae "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/frc/robot/vision/Algae.java"
+    click LimelightHelpers "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/io/limelightvision/LimelightHelpers.java"
+    click SwerveCore "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/com/team6962/lib/swerve/SwerveCore.java"
+    click SwerveControllers "https://github.com/snehalmthakkar/code-2025/tree/main/src/main/java/com/team6962/lib/swerve/auto"
+    click DigitalSensor "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/com/team6962/lib/digitalsensor/DigitalSensor.java"
+    click TelemetryUtils "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/com/team6962/lib/telemetry/Logger.java"
+    click Utils "https://github.com/snehalmthakkar/code-2025/blob/main/src/main/java/com/team6962/lib/utils/KinematicsUtils.java"
+    click DataLogTool "https://github.com/snehalmthakkar/code-2025/blob/main/.DataLogTool"
+    click SysID "https://github.com/snehalmthakkar/code-2025/blob/main/.SysId"
+    click ElevatorSim "https://github.com/snehalmthakkar/code-2025/blob/main/elevatorsim.py"
+    click ChoreoAssets "https://github.com/snehalmthakkar/code-2025/tree/main/src/main/deploy/choreo"
+    click MusicCharts "https://github.com/snehalmthakkar/code-2025/tree/main/src/main/deploy/music"
+    click PathplannerArtifacts "https://github.com/snehalmthakkar/code-2025/tree/main/src/main/deploy/pathplanner"
+
+    %% Styles
+    classDef build fill:#f9f,stroke:#333,stroke-width:1px
+    classDef runtime fill:#9f9,stroke:#333,stroke-width:1px
+    classDef lib fill:#99f,stroke:#333,stroke-width:1px
+    classDef tools fill:#f99,stroke:#333,stroke-width:1px
