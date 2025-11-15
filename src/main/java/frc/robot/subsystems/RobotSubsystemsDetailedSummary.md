@@ -8,7 +8,6 @@
 | **Elevator**    | Elevate coral to scoring heights; ensure closed-loop position; limit switches for safety | `leftMotor`, `rightMotor`, `bottomLimitSwitch`, `topLimitSwitch`, `targetPosition` | `coralL1()`, `coralL2()`, `coralL3()`, `coralL4()`, `algaeIntake()`, `stow()`, etc. |
 | **Manipulator** | Secure and place coral; manipulates coral/algae via grabber and pivot | `pivot`, `grabber` | `placeCoralL1()`, `placeCoralL23()`, `placeCoralL4()`, `intakeCoral()`, `pickupGroundAlgae()`, `pickupReefAlgae()`, `dropReefAlgae()`, `stow()` |
 | **LEDs**        | Show robot state, feedback, and visuals for drivers | `strip`, `buffer`, `state`, color/pattern constants | `setStateCommand(state)`, `setState(state)`, custom pattern/gradient creation         |
-| **Controls**    | Handle driver/operator input, map buttons, setup command bindings | `operator`, `driver`, `xBoxSwerve` | `configureBindings(...)`, `getSwerveController()`                                     |
 
 ---
 
@@ -108,18 +107,6 @@ classDiagram
     }
 ```
 
-### Controls Subsystem (src/main/java/frc/robot/subsystems/Controls.java)
-```mermaid
-classDiagram
-    class Controls {
-      +CommandXboxController operator
-      +CommandXboxController driver
-      -XBoxSwerve xBoxSwerve
-      +XBoxSwerve getSwerveController()
-      +void configureBindings(...)
-    }
-```
-
 ---
 
 ## Notes
@@ -127,6 +114,6 @@ classDiagram
 - The class diagrams above show relationships and key commands/properties; see the [full source files](https://github.com/snehalmthakkar/Code-2025/tree/main/src/main/java/frc/robot/subsystems) for all details.
 - *Intake*, *Elevator*, and *Manipulator* subsystems use command-based architecture (WPILib) for sophisticated sequencing and safety.
 - *LEDs* subsystem provides feedback synchronized with robot state (such as aligning, scoring, or error states).
-- *Controls* subsystem is the gateway for all manual and autonomous control logic, safely invoking commands across all mechanical subsystems.
+- *Controls* is the gateway for all manual and autonomous control logic, safely invoking commands across all mechanical subsystems.
 
 _These details are based on code search results. For full member and method listings, see individual Java files in your [subsystems directory](https://github.com/snehalmthakkar/Code-2025/tree/main/src/main/java/frc/robot/subsystems)._
